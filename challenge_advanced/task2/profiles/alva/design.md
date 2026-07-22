@@ -1,7 +1,7 @@
 # Профиль: Design — alva (KMM+CMP baby-care)
 
 > Контекст **alva** (Kotlin Multiplatform + Compose Multiplatform, baby-care). Роли → сабагенты из `alva/roster.md`;
-> общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > Стек: KMP · CMP (shared UI обе платформы) · Koin · Compose Navigation 3 · UDF со **Event** · **`Alva`-префикс DS** ·
 > `composeResources/` · доки — **DeepWiki**. Build: `./gradlew :androidApp:assembleDebug` (+ Xcode iOS).
 > **Апстрим-профиль:** производит design-spec (Figma/Pencil → спека) → чейнит в `feature`. **Не имплементация кода.**

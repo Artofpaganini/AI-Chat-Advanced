@@ -1,7 +1,7 @@
 # Профиль: performance — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
 
 ## Назначение / когда активен
@@ -39,7 +39,7 @@
 
 ## MCP / Skills (обязательные)
 `jetpack-compose-audit` (recomposition/state/side-effects) · `r8-analyzer` (keep-rules/размер) · `ast-index`
-· `Context7`/DeepWiki · claude-in-mobile (jank/старт вживую) · caveman. Skills: `_shared/conventions.md` (base без project-context-скилла) ·
+· `Context7`/DeepWiki · claude-in-mobile (jank/старт вживую) · caveman. Skills: `./conventions.md` (base без project-context-скилла) ·
 `compose-principles` (UI-направление).
 
 ## MUST (обязан)

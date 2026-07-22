@@ -1,7 +1,7 @@
 # Профиль: Review — alva (KMM+CMP baby-care)
 
 > Контекст **alva** (Kotlin Multiplatform + Compose Multiplatform, baby-care). Роли → сабагенты из `alva/roster.md`;
-> общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > Стек: KMP · CMP (shared обе платформы) · Koin · Compose Navigation 3 · UDF со **Event** · `Alva`-префикс DS ·
 > доки — **DeepWiki**. Build: `./gradlew :androidApp:assembleDebug` (+ Xcode iOS). Тесты — **opt-in**.
 
@@ -34,12 +34,12 @@ Persistent: `./swarm-report/<slug>-review.md` (каждый finding: гипот�
 - **correctness** — логика, edge-cases, null/ошибки, конкурентность, атомарность стейта (`updateState`/`_state.update`), Event-обработка.
 - **security** — секреты в коде, авторизация, небезопасные дефолты (пересекается с security-audit, здесь — по diff).
 - **perf** — лишние аллокации/рекомпозиции (CMP), N+1, блокирующие вызовы, ненужная работа на hot-path.
-- **conventions** — конвенции проекта (`_shared/conventions.md` + `alva-project-context`): **visibility = Critical**, нейминг моделей по слою, `_state.update`, запрет `!!`/`Any`/«DTO», UDF-Event, `Alva`-префикс, **платформенный код только в `expect/actual`** (не в commonMain), platform parity.
+- **conventions** — конвенции проекта (`./conventions.md` + `alva-project-context`): **visibility = Critical**, нейминг моделей по слою, `_state.update`, запрет `!!`/`Any`/«DTO», UDF-Event, `Alva`-префикс, **платформенный код только в `expect/actual`** (не в commonMain), platform parity.
 
 **Adversarial-verify:** каждый finding проходит ≥2 независимые линзы (перечитать код вокруг, проверить контекст вызова, найти опровержение). По умолчанию **refuted при сомнении** — лучше пропустить спорное, чем зашуметь ложным.
 
 ## MCP / Skills (обязательные)
-`ast-index` (читать контекст findings — callers/иерархия/expect-actual) · `superpowers:requesting-code-review` (чек-лист) · `alva-project-context` + `_shared/conventions.md` · `alva-udf-architecture`/`compose-principles` · Sentry — если diff трогает known-crash зону · **DeepWiki** — при сомнении в API библиотеки.
+`ast-index` (читать контекст findings — callers/иерархия/expect-actual) · `superpowers:requesting-code-review` (чек-лист) · `alva-project-context` + `./conventions.md` · `alva-udf-architecture`/`compose-principles` · Sentry — если diff трогает known-crash зону · **DeepWiki** — при сомнении в API библиотеки.
 
 ## MUST (обязан)
 - Структурировать вывод строго: **Critical / Warning / Suggestion**.

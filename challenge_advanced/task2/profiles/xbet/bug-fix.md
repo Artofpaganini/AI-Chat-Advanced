@@ -3,7 +3,7 @@
 > Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
 > Android-only · Kotlin · Compose · **Dagger 2** (+Koin-track) · **Cicerone `XPlatformRouter`** (не менять) ·
 > UDF со **SideEffect** (+Delegates) · Build `./gradlew assembleBetaDebug` · `strings.xml`.
-> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` и `../_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` и `./conventions.md` (не дублировать).
 
 ## Назначение / когда активен
 Починка дефекта/краша с обязательным воспроизведением. Точка приземления chaining'а от `incident`.

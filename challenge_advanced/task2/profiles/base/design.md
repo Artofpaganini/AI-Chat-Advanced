@@ -1,7 +1,7 @@
 # Профиль: Design (UX/UI дизайн) — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP) выбирается на создании задачи** (backend — обычно вне этого профиля).
 > **Апстрим-профиль:** производит design-spec (Figma/Pencil → спека) → чейнит в `feature`. **Не имплементация кода.**
 
@@ -39,7 +39,7 @@
 ## MCP / Skills (обязательные)
 **Figma MCP** (`mcp__claude_ai_Figma__*`) / **Pencil MCP** (`mcp__pencil__*`) — читать/создавать макеты (не из головы) ·
 `material-3` · `compose-principles` (какие паттерны реализуемы) · `ux-writer-core` (копирайт) ·
-`_shared/conventions.md` (DS-префикс проекта — по направлению; base без project-context-скилла, префикс/токены берутся из проекта).
+`./conventions.md` (DS-префикс проекта — по направлению; base без project-context-скилла, префикс/токены берутся из проекта).
 
 ## MUST (обязан)
 - **Правило всех состояний:** для КАЖДОГО экрана — loading / empty / error / success (не только happy-path).

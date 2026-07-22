@@ -1,7 +1,7 @@
 # Профиль: Review — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (влияет на conventions-линзу: DI, ресурсы, тест-инфра).
 
 ## Назначение / когда активен
@@ -35,12 +35,12 @@ Persistent: `./swarm-report/<slug>-review.md` (каждый finding: гипот�
 - **correctness** — логика, edge-cases, null/ошибки, конкурентность, атомарность стейта.
 - **security** — секреты в коде, инъекции, авторизация, небезопасные дефолты (пересекается с security-audit, здесь — по diff).
 - **perf** — лишние аллокации/рекомпозиции, N+1, блокирующие вызовы, ненужная работа на hot-path.
-- **conventions** — конвенции проекта (см. `_shared/conventions.md`): **visibility = Critical**, нейминг моделей по слою, `_state.update`, запрет `!!`/`Any`/«DTO».
+- **conventions** — конвенции проекта (см. `./conventions.md`): **visibility = Critical**, нейминг моделей по слою, `_state.update`, запрет `!!`/`Any`/«DTO».
 
 **Adversarial-verify:** каждый finding проходит ≥2 независимые линзы (перечитать код вокруг, проверить контекст вызова, найти опровержение). По умолчанию **refuted при сомнении** — лучше пропустить спорное, чем зашуметь ложным.
 
 ## MCP / Skills (обязательные)
-`ast-index` (читать контекст findings — callers/иерархия) · `superpowers:requesting-code-review` (чек-лист) · `_shared/conventions.md` (base без project-context-скилла) · Sentry — если diff трогает known-crash зону · Context7/DeepWiki — при сомнении в API библиотеки.
+`ast-index` (читать контекст findings — callers/иерархия) · `superpowers:requesting-code-review` (чек-лист) · `./conventions.md` (base без project-context-скилла) · Sentry — если diff трогает known-crash зону · Context7/DeepWiki — при сомнении в API библиотеки.
 
 ## MUST (обязан)
 - Структурировать вывод строго: **Critical / Warning / Suggestion**.

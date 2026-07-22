@@ -1,7 +1,7 @@
 # Профиль: Research — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
 
 ## Назначение / когда активен
@@ -38,7 +38,7 @@ Persistent: `./swarm-report/<slug>-research.md` (гипотезы, найден�
 - **by-callers** — потоки вызовов: callers/callees, DI-граф, кто дергает кого (ast-index usages).
 
 ## MCP / Skills (обязательные)
-`ast-index` (by default — класс/символ/usages/callers/module-deps/структура; `update` НЕ звать) · Grep — только free-text · `Context7`/DeepWiki — при вопросах про библиотечное поведение · `_shared/conventions.md` (base без project-context-скилла) · Sentry — если вопрос про рантайм-ошибки/краши.
+`ast-index` (by default — класс/символ/usages/callers/module-deps/структура; `update` НЕ звать) · Grep — только free-text · `Context7`/DeepWiki — при вопросах про библиотечное поведение · `./conventions.md` (base без project-context-скилла) · Sentry — если вопрос про рантайм-ошибки/краши.
 
 ## MUST (обязан)
 - **Read-only.** ast-index — первый инструмент поиска, Grep — фолбэк на free-text.

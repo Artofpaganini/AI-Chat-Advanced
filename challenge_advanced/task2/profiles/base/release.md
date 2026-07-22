@@ -1,7 +1,7 @@
 # Профиль: Release — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (варианты сборки — по направлению: APK/AAB, iOS archive, Docker image).
 
 ## Назначение / когда активен
@@ -37,7 +37,7 @@
 **Base-агенты:** @DevOps→Bash в сессии · @Reviewer→`general-purpose` (+skill `superpowers:requesting-code-review`) · @TextWriter→`general-purpose`. Роль+стек+I/O-контракт — в промпте агента.
 
 ## MCP / Skills (обязательные)
-`ast-index` (что вошло в релиз) · `_shared/conventions.md` (base без project-context-скилла) · `superpowers:verification-before-completion` (evidence before assertions) · `superpowers:finishing-a-development-branch` · по надобности `r8-analyzer` / `agp-9-upgrade` / `play-billing-library-version-upgrade`.
+`ast-index` (что вошло в релиз) · `./conventions.md` (base без project-context-скилла) · `superpowers:verification-before-completion` (evidence before assertions) · `superpowers:finishing-a-development-branch` · по надобности `r8-analyzer` / `agp-9-upgrade` / `play-billing-library-version-upgrade`.
 
 ## MUST (обязан)
 - **Все гейты зелёные ДО релиза:** build + lint + тесты пройдены (реальный прогон, не на слово).

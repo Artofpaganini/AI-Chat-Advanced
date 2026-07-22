@@ -1,6 +1,6 @@
 # Профиль: PR-Check — alva (KMM+CMP baby-care) (L1 код-тесты + L2 smoke → единый отчёт)
 
-> Контекст **alva** (KMP + CMP, baby-care). Роли → сабагенты из `alva/roster.md`. Общее — `_shared/orchestration.md` + `_shared/conventions.md`.
+> Контекст **alva** (KMP + CMP, baby-care). Роли → сабагенты из `alva/roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md`.
 > Стек: KMP · CMP (shared обе платформы) · Koin · Compose Navigation 3 · UDF со **Event** · `Alva`-префикс DS · доки — **DeepWiki**.
 > Build: `./gradlew :androidApp:assembleDebug` (+ Xcode iOS). Тесты — **opt-in** (kotlin.test/Turbine).
 

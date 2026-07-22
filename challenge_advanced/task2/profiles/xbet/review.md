@@ -2,7 +2,7 @@
 
 > Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
 > Android-only · **Dagger 2** · **Cicerone `XPlatformRouter`** · UDF со **SideEffect** · MCP-доки **Context7**.
-> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` и `../_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` и `./conventions.md` (не дублировать).
 
 ## Назначение / когда активен
 **Ревью готовых изменений** — diff / PR / ветка — против корректности, безопасности, перформанса и конвенций.
@@ -33,12 +33,12 @@ Persistent: `./swarm-report/<slug>-review.md` (каждый finding: гипот�
 - **correctness** — логика, edge-cases, null/ошибки, конкурентность, атомарность стейта (`_state.update`).
 - **security** — секреты в коде, инъекции, авторизация, небезопасные дефолты (пересекается с security-audit, здесь — по diff).
 - **perf** — лишние аллокации/рекомпозиции, N+1, блокирующие вызовы, ненужная работа на hot-path.
-- **conventions** — конвенции проекта (`../_shared/conventions.md` + `xbet-project-context`): **visibility = Critical**, нейминг моделей по слою, `_state.update`, SideEffect-паттерн, запрет `!!`/`Any`/«DTO», Cicerone-классы не тронуты.
+- **conventions** — конвенции проекта (`./conventions.md` + `xbet-project-context`): **visibility = Critical**, нейминг моделей по слою, `_state.update`, SideEffect-паттерн, запрет `!!`/`Any`/«DTO», Cicerone-классы не тронуты.
 
 **Adversarial-verify:** каждый finding проходит ≥2 независимые линзы (перечитать код вокруг, проверить контекст вызова, найти опровержение). По умолчанию **refuted при сомнении** — лучше пропустить спорное, чем зашуметь ложным.
 
 ## MCP / Skills (обязательные)
-`ast-index` (читать контекст findings — callers/иерархия) · `superpowers:requesting-code-review` (чек-лист) · `xbet-project-context` + `../_shared/conventions.md` · `xbet-udf-architecture` · `xbet-navigation` · Sentry — если diff трогает known-crash зону · **Context7** — при сомнении в API библиотеки.
+`ast-index` (читать контекст findings — callers/иерархия) · `superpowers:requesting-code-review` (чек-лист) · `xbet-project-context` + `./conventions.md` · `xbet-udf-architecture` · `xbet-navigation` · Sentry — если diff трогает known-crash зону · **Context7** — при сомнении в API библиотеки.
 
 ## MUST (обязан)
 - Структурировать вывод строго: **Critical / Warning / Suggestion**.

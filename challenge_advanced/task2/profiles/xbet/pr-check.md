@@ -2,7 +2,7 @@
 
 > Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
 > Android-only · Build `./gradlew assembleBetaDebug` · тесты **opt-in** (JUnit5+MockK+FlowTestResultHandler+verifyRouter) · smoke через claude-in-mobile/adb.
-> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` + `../_shared/conventions.md`.
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md`.
 
 ## Назначение / когда активен
 После PR / перед merge / после деплоя фичи — прогнать оба уровня тестов и собрать единый отчёт.

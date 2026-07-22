@@ -1,7 +1,7 @@
 # Профиль: migration — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
 
 ## Назначение / когда активен
@@ -40,7 +40,7 @@
 `koin-migration:di-migration` (DI-миграции — рецепты, compile-safety) · `agp-9-upgrade` (AGP) ·
 `migrate-xml-views-to-jetpack-compose` (XML→Compose) · `play-billing-library-version-upgrade` — **резолвится
 по типу задачи**. `ast-index` (площадь/usages) · `Context7`/DeepWiki (целевой API/версия) · caveman.
-Skills: `_shared/conventions.md` (base без project-context-скилла) · `team-lead-orchestration`.
+Skills: `./conventions.md` (base без project-context-скилла) · `team-lead-orchestration`.
 
 ## MUST (обязан)
 - Гейт (build + verify) **после КАЖДОГО батча**; красный гейт → стоп, фикс в батче, только потом дальше (билд направления, тесты opt-in).

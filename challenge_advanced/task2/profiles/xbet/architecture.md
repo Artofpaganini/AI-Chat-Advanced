@@ -3,7 +3,7 @@
 > Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
 > Android-only · Kotlin/Compose · **Dagger 2** (+Koin-track) · **Cicerone `XPlatformRouter`** (не менять) ·
 > UDF со **SideEffect** (+Delegates) · Groovy Gradle · Build `./gradlew assembleBetaDebug` · MCP-доки **Context7**.
-> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` и `../_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` и `./conventions.md` (не дублировать).
 > **Апстрим-профиль:** производит план (10 секций) → чейнит в исполнительный. **Не имплементация.**
 
 ## Назначение / когда активен
@@ -50,7 +50,7 @@
 - **Обосновывать каждое решение** (ADR: почему это, а не альтернатива — минимум 2-3 варианта).
 - **Флагать циклические зависимости** явно (не прятать).
 - Помечать допущения `[ASSUMPTION:]`; оценки задач по шкале **S/M/L/XL**.
-- Модели/слои/visibility — по `../_shared/conventions.md` (naming, `internal`-по-умолчанию); навигация — поверх Cicerone, классы не менять.
+- Модели/слои/visibility — по `./conventions.md` (naming, `internal`-по-умолчанию); навигация — поверх Cicerone, классы не менять.
 
 ## MUST NOT (нельзя)
 - Писать имплементацию (только контракты / сигнатуры / скелеты).

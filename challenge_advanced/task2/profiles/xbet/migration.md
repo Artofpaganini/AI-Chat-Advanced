@@ -3,7 +3,7 @@
 > Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
 > Android-only · Build `./gradlew assembleBetaDebug` · **Cicerone `XPlatformRouter`** (не менять) · Groovy Gradle.
 > **Типовая xbet-миграция: Dagger 2 → Koin** (skill `koin-migration:di-migration`).
-> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` и `../_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` и `./conventions.md` (не дублировать).
 
 ## Назначение / когда активен
 Перевод кодовой базы на другой фреймворк / версию / паттерн **батчами**. Конкретный тип резолвится на

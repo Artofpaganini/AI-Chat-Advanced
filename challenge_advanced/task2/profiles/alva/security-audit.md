@@ -1,7 +1,7 @@
 # Профиль: Security-Audit — alva (KMM+CMP baby-care)
 
 > Контекст **alva** (Kotlin Multiplatform + Compose Multiplatform, baby-care). Роли → сабагенты из `alva/roster.md`;
-> общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > Стек: KMP · CMP (shared обе платформы) · Koin · Ktor · доки — **DeepWiki**. Build: `./gradlew :androidApp:assembleDebug` (+ Xcode iOS).
 
 ## Назначение / когда активен

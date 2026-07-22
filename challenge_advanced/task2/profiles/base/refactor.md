@@ -1,7 +1,7 @@
 # Профиль: refactor — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
 
 ## Назначение / когда активен
@@ -37,7 +37,7 @@
 
 ## MCP / Skills (обязательные)
 `ast-index` (usages/callers перед extract/rename — обязательно) · `simplify` (reuse/эффективность/altitude)
-· `Context7`/DeepWiki · caveman. Skills: `_shared/conventions.md` (модели/слои/UDF/StateFlow — single source) ·
+· `Context7`/DeepWiki · caveman. Skills: `./conventions.md` (модели/слои/UDF/StateFlow — single source) ·
 `compose-principles` (UI-направление). Тесты — **существующие** (новые — opt-in).
 
 ## MUST (обязан)

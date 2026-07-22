@@ -1,7 +1,7 @@
 # Профиль: Test — alva (KMM+CMP baby-care)
 
 > Контекст **alva** (Kotlin Multiplatform + Compose Multiplatform, baby-care). Роли → сабагенты из `alva/roster.md`;
-> общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > Стек: KMP · CMP (shared обе платформы) · Koin · UDF со **Event** · доки — **DeepWiki**. Build: `./gradlew :androidApp:assembleDebug` (+ Xcode iOS).
 > Тест-стек: **kotlin.test + Turbine** (Compose Multiplatform testing по надобности).
 

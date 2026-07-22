@@ -2,7 +2,7 @@
 
 > Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
 > Android-only · Build `./gradlew assembleBetaDebug` (+release-варианты) · R8 · signing/secrets из `local.properties`/`BuildConfig`/env.
-> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` и `../_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` и `./conventions.md` (не дублировать).
 
 ## Назначение / когда активен
 Подготовить и выпустить релиз/деплой: зелёные гейты → сборка вариантов → публикация → smoke.

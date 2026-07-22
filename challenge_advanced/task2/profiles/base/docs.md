@@ -1,7 +1,7 @@
 # Профиль: Docs — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
 
 ## Назначение / когда активен
@@ -35,7 +35,7 @@
 **Base-агенты:** @TextWriter→`general-purpose` (+skill `ux-writer-core`) · @Researcher→`Explore` · @Reviewer→`general-purpose` (+skill `superpowers:requesting-code-review`). Роль+стек+I/O-контракт — в промпте агента.
 
 ## MCP / Skills (обязательные)
-`ux-writer-core` (**обязателен** для @TextWriter) · `ast-index` (читать реальный код) · `Context7`/DeepWiki (внешние API/версии — не по памяти) · `_shared/conventions.md` (base без project-context-скилла).
+`ux-writer-core` (**обязателен** для @TextWriter) · `ast-index` (читать реальный код) · `Context7`/DeepWiki (внешние API/версии — не по памяти) · `./conventions.md` (base без project-context-скилла).
 
 ## MUST (обязан)
 - **Точность:** читать реальный код, брать фактические сигнатуры/имена/пути; не выдумывать.

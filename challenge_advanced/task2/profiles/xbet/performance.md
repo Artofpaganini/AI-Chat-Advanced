@@ -2,7 +2,7 @@
 
 > Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
 > Android-only · Compose/Material3 · **Dagger 2** · UDF со **SideEffect** · Build `./gradlew assembleBetaDebug` · R8.
-> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` и `../_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` и `./conventions.md` (не дублировать).
 
 ## Назначение / когда активен
 Оптимизация метрик с доказательством **числами**: recomposition, холодный старт, build-time, R8/размер APK,

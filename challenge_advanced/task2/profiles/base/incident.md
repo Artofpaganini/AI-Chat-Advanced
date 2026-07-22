@@ -1,7 +1,7 @@
 # Профиль: Incident — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
 
 ## Назначение / когда активен
@@ -37,7 +37,7 @@
 **Base-агенты:** @Researcher→`Explore` · @Dev/@QA/@Reviewer→`general-purpose` · @Reviewer +skill `superpowers:requesting-code-review` · @DevOps→Bash в сессии. Роль+стек+I/O-контракт — в промпте агента.
 
 ## MCP / Skills (обязательные)
-`Sentry` (краши/события — **первым делом**) · `ast-index` (локализация по стеку) · `superpowers:systematic-debugging` · `_shared/conventions.md` (base без project-context-скилла) · `superpowers:verification-before-completion`.
+`Sentry` (краши/события — **первым делом**) · `ast-index` (локализация по стеку) · `superpowers:systematic-debugging` · `./conventions.md` (base без project-context-скилла) · `superpowers:verification-before-completion`.
 
 ## MUST (обязан)
 - **Sentry-события — первым делом:** severity, частота, стек, затронутый релиз/аудитория.

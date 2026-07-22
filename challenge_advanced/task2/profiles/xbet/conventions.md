@@ -1,7 +1,7 @@
 # Примеры кода — xbet (Mobile_Android_OnexBet + twin xbet1)
 
 Стек: Android · Dagger 2 · Cicerone (`XPlatformRouter`, классы не менять) · UDF со **SideEffect** · `Ds`-префикс ·
-Groovy Gradle · `strings.xml`. Общие правила — `../_shared/conventions.md`. Детали — skill `xbet-project-context`/`xbet-udf-architecture`/`xbet-viewmodel`/`xbet-navigation`/`xbet-testing`.
+Groovy Gradle · `strings.xml`. Общие правила — глобальный `~/.claude/CLAUDE.md`. Детали — skill `xbet-project-context`/`xbet-udf-architecture`/`xbet-viewmodel`/`xbet-navigation`/`xbet-testing`.
 
 ## КАК НАДО (хорошо)
 ```kotlin

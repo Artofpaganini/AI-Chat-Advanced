@@ -1,7 +1,7 @@
 # Профиль: Architecture — alva (KMM+CMP baby-care)
 
 > Контекст **alva** (Kotlin Multiplatform + Compose Multiplatform, baby-care). Роли → сабагенты из `alva/roster.md`;
-> общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать, конвенции не дампить).
+> общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать, конвенции не дампить).
 > Стек: KMP · CMP (shared UI служит Android И iOS) · Koin · Compose Navigation 3 · UDF со **Event** · `Alva`-префикс DS ·
 > Kotlin DSL + convention-plugins + version catalog · `composeResources/` · доки — **DeepWiki**. Build: `./gradlew :androidApp:assembleDebug` (+ Xcode iOS).
 > **Апстрим-профиль:** производит план (10 секций) → чейнит в исполнительный. **Не имплементация.**
@@ -53,7 +53,7 @@
 - **Обосновывать каждое решение** (ADR: почему это, а не альтернатива — минимум 2-3 варианта).
 - **Флагать циклические зависимости** явно (не прятать).
 - Помечать допущения `[ASSUMPTION:]`; оценки задач по шкале **S/M/L/XL**.
-- Модели/слои/visibility — по `_shared/conventions.md` (naming, `internal`-по-умолчанию); Koin/Nav3/UDF-Event — по скиллам.
+- Модели/слои/visibility — по `./conventions.md` (naming, `internal`-по-умолчанию); Koin/Nav3/UDF-Event — по скиллам.
 
 ## MUST NOT (нельзя)
 - Писать имплементацию (только контракты / сигнатуры / скелеты).

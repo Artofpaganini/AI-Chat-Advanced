@@ -1,7 +1,7 @@
 # Профиль: feature — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
 
 ## Назначение / когда активен
@@ -36,18 +36,18 @@ XS сворачивает research+plan в один проход. Persistent: `.
 | report | оркестратор | — | сводка: что / где интегрировано / чем проверено |
 
 **Base-агенты:** @Architect→`Plan`/`general-purpose` · @Dev/@UIDev/@BackendDev/@QA→`general-purpose` · @Reviewer→`general-purpose` (+skill `superpowers:requesting-code-review`) · @Researcher→`Explore` · @DevOps→Bash в сессии. Роль+стек+I/O-контракт — в промпте агента.
-Консилиум на research — один заход, разные домены (диверсити важнее избыточности); см. `_shared/orchestration.md`.
+Консилиум на research — один заход, разные домены (диверсити важнее избыточности); см. секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md`.
 Шаг «identify platforms» — по направлению: KMM → Android+iOS parity-проверка; Android-only / Backend — пропустить.
 
 ## MCP / Skills (обязательные)
 `ast-index` (поиск, без `update`) · `Context7`/DeepWiki (доки/версии, не по памяти) · claude-in-mobile
 (прокликать UI) · Sentry (не ломаем ли известные краши) · caveman (компактность).
-Skills: `_shared/conventions.md` (модели/слои/UDF/StateFlow/visibility — single source) · `compose-principles` (Compose-направление) ·
+Skills: `./conventions.md` (модели/слои/UDF/StateFlow/visibility — single source) · `compose-principles` (Compose-направление) ·
 `team-lead-orchestration` · `ux-writer-core` (копирайт/ресурсы) · релевантные по направлению (`navigation-3`/`material-3`/`edge-to-edge`/`koin-migration:di-migration`).
 Creative-развилки на XS/S — `superpowers:brainstorming` до кода.
 
 ## MUST (обязан)
-- Следовать `_shared/conventions.md` (visibility, модели по слою, UDF, StateFlow-атомарность, нейминг).
+- Следовать `./conventions.md` (visibility, модели по слою, UDF, StateFlow-атомарность, нейминг).
 - Сборка зелёная перед `done` (билд направления, напр. `./gradlew :androidApp:assembleDevDebug` для KMM); evidence-before-assertions — не заявлять «работает» без прогона.
 - UI-фичу прокликать через claude-in-mobile (реальный экран, не только компиляция).
 - Context-passing: каждому сабагенту — исходный запрос + саммари предыдущей стадии + I/O-контракт.

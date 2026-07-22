@@ -1,7 +1,7 @@
 # Профиль: Requirements (требования / BA) — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (влияет на декомпозицию vertical-slice).
 > **Апстрим-профиль:** производит спеку требований → чейнит в исполнительный.
 
@@ -38,7 +38,7 @@
 **Base-агенты:** @BusinessAnalyst/@ProjectManager→`general-purpose` (роль+стек в промпте) · @Researcher→`Explore`. Роль+стек+I/O-контракт — в промпте агента.
 
 ## MCP / Skills (обязательные)
-`spec` (Spec Interview) · `_shared/conventions.md` (домен/сущности — base без project-context-скилла) · `ux-writer-core` (формулировки stories/AC) ·
+`spec` (Spec Interview) · `./conventions.md` (домен/сущности — base без project-context-скилла) · `ux-writer-core` (формулировки stories/AC) ·
 `ast-index` (свериться с существующими фичами — не дублировать) · WebSearch/Context7 (domain/competitor при L/XL).
 
 ## MUST (обязан)

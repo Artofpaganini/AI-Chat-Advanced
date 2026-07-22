@@ -1,7 +1,7 @@
 # Профиль: Test — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (тест-инфра — по направлению).
 
 ## Назначение / когда активен
@@ -33,7 +33,7 @@ Persistent: `./swarm-report/<slug>-test.md` (матрица «класс × по
 Параллелят на L/XL: @QA на disjoint слоях (presentation / domain / data), сборку и прогон — один раз, сведение мейном.
 
 ## MCP / Skills (обязательные)
-`ast-index` (сигнатуры/зависимости тестируемого) · `superpowers:test-driven-development` (при новом коде) · Context7/DeepWiki — API тест-либы · `_shared/conventions.md` (base без project-context-скилла) · `compose-principles` (UI-тесты).
+`ast-index` (сигнатуры/зависимости тестируемого) · `superpowers:test-driven-development` (при новом коде) · Context7/DeepWiki — API тест-либы · `./conventions.md` (base без project-context-скилла) · `compose-principles` (UI-тесты).
 **Тест-конвенции по направлению (base):** Android — JUnit5/JUnit4 + MockK + Turbine + Compose UI test; KMM+CMP — kotlin.test + MockK/Turbine (commonTest); Backend — JUnit5 + Kotest/MockK + **Testcontainers** (интеграция с PostgreSQL). Flow — через Turbine, не `first()`/`toList()`.
 
 ## MUST (обязан)

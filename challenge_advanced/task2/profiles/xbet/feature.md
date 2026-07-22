@@ -3,7 +3,7 @@
 > Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
 > Android-only · Kotlin · Compose/Material3 · **Dagger 2** (+Koin-track) · Coroutines/Flow ·
 > **Cicerone `XPlatformRouter`** (не менять) · UDF со **SideEffect** (+Delegates) · `Ds`-префикс · Groovy Gradle · `strings.xml`.
-> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` и `../_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` и `./conventions.md` (не дублировать).
 
 ## Назначение / когда активен
 Строим новую функциональность (экран, фича, use-case, интеграция). Главная точка приземления chaining'а.
@@ -36,7 +36,7 @@ XS сворачивает research+plan в один проход. Persistent: `.
 | validation | `xbet-review-expert` + Bash (@DevOps) | Opus/Sonnet | ревью против conventions + `./gradlew assembleBetaDebug` + UI-check через claude-in-mobile |
 | report | оркестратор | — | сводка: что / где интегрировано / чем проверено |
 
-Консилиум на research — один заход, разные домены (диверсити важнее избыточности); см. `../_shared/orchestration.md`.
+Консилиум на research — один заход, разные домены (диверсити важнее избыточности); см. секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md`.
 Android-only — шаг «identify platforms» **пропустить**.
 
 ## MCP / Skills (обязательные)
@@ -48,7 +48,7 @@ Skills: `xbet-project-context` · `xbet-udf-architecture` (SideEffect+Delegates)
 Creative-развилки на XS/S — `superpowers:brainstorming` до кода.
 
 ## MUST (обязан)
-- Следовать `../_shared/conventions.md` + `xbet-project-context` (visibility, модели по слою, UDF/SideEffect, StateFlow-атомарность, нейминг).
+- Следовать `./conventions.md` + `xbet-project-context` (visibility, модели по слою, UDF/SideEffect, StateFlow-атомарность, нейминг).
 - `./gradlew assembleBetaDebug` зелёный перед `done`; evidence-before-assertions — не заявлять «работает» без прогона.
 - UI-фичу прокликать через claude-in-mobile (реальный экран, не только компиляция).
 - Context-passing: каждому сабагенту — исходный запрос + саммари предыдущей стадии + I/O-контракт.

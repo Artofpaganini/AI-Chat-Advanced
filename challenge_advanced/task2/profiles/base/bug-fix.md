@@ -1,7 +1,7 @@
 # Профиль: bug-fix — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
 
 ## Назначение / когда активен
@@ -39,7 +39,7 @@
 ## MCP / Skills (обязательные)
 `superpowers:systematic-debugging` (обязательно, до правки) · `ast-index` (стек/usages/callers) · **Sentry**
 (событие, частота, стек, релиз) · `Context7`/DeepWiki (доки) · claude-in-mobile (воспроизвести UI-баг) ·
-caveman. Skills: `_shared/conventions.md` (модели/слои/UDF/StateFlow — single source) · `compose-principles` (если UI-направление).
+caveman. Skills: `./conventions.md` (модели/слои/UDF/StateFlow — single source) · `compose-principles` (если UI-направление).
 
 ## MUST (обязан)
 - Сначала воспроизвести: до 3 попыток; не удалось — статус «не воспроизводится» с логом попыток, дальше НЕ чинить.

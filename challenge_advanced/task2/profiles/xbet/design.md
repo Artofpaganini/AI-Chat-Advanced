@@ -2,7 +2,7 @@
 
 > Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
 > Android-only · Material3 · DS-префикс **`Ds`** · Compose (реализуемость паттернов).
-> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` и `../_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` и `./conventions.md` (не дублировать).
 > **Апстрим-профиль:** производит design-spec (Figma/Pencil → спека) → чейнит в `feature`. **Не имплементация кода.**
 
 ## Назначение / когда активен

@@ -1,7 +1,7 @@
 # Профиль: Architecture (проектирование эпика/крупной задачи) — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md` (не дублировать).
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
 > **Апстрим-профиль:** производит план (10 секций) → чейнит в исполнительный. **Не имплементация.**
 
@@ -40,7 +40,7 @@
 
 ## MCP / Skills (обязательные)
 `ast-index` (граф модулей / зависимости / callers / структура — не `update`) · `Context7`/DeepWiki (паттерны/доки, не по памяти) ·
-`_shared/conventions.md` (модели/слои/visibility/UDF — single source; base без project-context-скилла) · `compose-principles` (если UI-направление) · `team-lead-orchestration` · `koin-migration:di-migration` (если DI-миграция).
+`./conventions.md` (модели/слои/visibility/UDF — single source; base без project-context-скилла) · `compose-principles` (если UI-направление) · `team-lead-orchestration` · `koin-migration:di-migration` (если DI-миграция).
 
 ## Output — 10 секций (обязательная структура плана)
 `Overview` · `Module Structure` (**ASCII-граф зависимостей**) · `API & Models` · `DI` · `Navigation` ·
@@ -51,7 +51,7 @@
 - **Обосновывать каждое решение** (ADR: почему это, а не альтернатива — минимум 2-3 варианта).
 - **Флагать циклические зависимости** явно (не прятать).
 - Помечать допущения `[ASSUMPTION:]`; оценки задач по шкале **S/M/L/XL**.
-- Модели/слои/visibility — по `_shared/conventions.md` (naming, `internal`-по-умолчанию).
+- Модели/слои/visibility — по `./conventions.md` (naming, `internal`-по-умолчанию).
 
 ## MUST NOT (нельзя)
 - Писать имплементацию (только контракты / сигнатуры / скелеты).

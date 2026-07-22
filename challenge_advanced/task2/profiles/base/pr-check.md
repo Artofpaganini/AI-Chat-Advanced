@@ -1,7 +1,7 @@
 # Профиль: PR-Check (L1 код-тесты + L2 smoke → единый отчёт) — base
 
 > Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
-> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md`.
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md`.
 > **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (L2-smoke: мобилка — claude-in-mobile/adb; backend — HTTP-прогон эндпоинтов).
 
 ## Назначение / когда активен

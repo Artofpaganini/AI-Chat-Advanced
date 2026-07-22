@@ -1,7 +1,7 @@
 # Примеры кода — alva (KMM + Compose Multiplatform)
 
 Стек: KMP · Koin · Compose Navigation 3 · UDF со **Event** · `Alva`-префикс · Kotlin DSL + convention-plugins ·
-`composeResources/` · один shared Compose = Android+iOS. Общие правила — `../_shared/conventions.md`.
+`composeResources/` · один shared Compose = Android+iOS. Общие правила — глобальный `~/.claude/CLAUDE.md`.
 Детали — skill `alva-project-context`/`alva-udf-architecture`/`alva-viewmodel`/`navigation-3`/`compose-principles`.
 
 ## КАК НАДО (хорошо)
