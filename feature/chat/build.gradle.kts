@@ -7,6 +7,7 @@ plugins {
 kotlin {
     android {
         namespace = "com.jarvis.chat.feature.chat"
+        withHostTest {}
     }
 
     sourceSets {
@@ -23,6 +24,12 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.text.to.speech)
             implementation(libs.text.to.speech.compose)
+        }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.turbine)
         }
     }
 }

@@ -6,6 +6,7 @@ plugins {
 kotlin {
     android {
         namespace = "com.jarvis.chat.feature.ai"
+        withHostTest {}
     }
 
     sourceSets {
@@ -24,6 +25,11 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+        }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
