@@ -1,0 +1,57 @@
+# Профиль: incident — xbet
+
+> Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
+> Android-only · **Sentry** первым делом · Build `./gradlew assembleBetaDebug` · rollback-план.
+> Стек/сабагенты — `roster.md`. Общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` и `./conventions.md` (не дублировать).
+
+## Назначение / когда активен
+Разобрать прод-инцидент/краш и выпустить МИНИМАЛЬНЫЙ хотфикс. Скорость + узкий scope важнее элегантности.
+Триггеры: «прод упал», «краш в проде», «инцидент», «хотфикс», «Sentry алерт», «пользователи жалуются», «отвал N%».
+Примеры: «краш на онбординге в проде», «Sentry: рост NPE после релиза», «оплата не проходит у части юзеров».
+
+## Размер (XS→XL) → масштаб команды
+| Размер | Пример этого профиля | Команда |
+|---|---|---|
+| XS | известная одна строка/null — минимальный патч | session-only: `Explore` + `xbet-kotlin-expert` |
+| S/M | триаж по Sentry → воспроизведение → хотфикс + валидация | консилиум-диагност → `xbet-kotlin-expert` → `xbet-review-expert` → Bash (@DevOps) |
+| L/XL | широкий инцидент (несколько экранов), war-room | full team + SubLead, параллельный консилиум диагностов |
+
+## Стадии (DAG)
+`triage → reproduce → hotfix → validation → postmortem`. Persistent-файл `./swarm-report/<slug>-incident.md` (severity, стек, репро-шаги, root-cause).
+- **triage:** Sentry первым делом — severity (частота × охват × деньги/безопасность), стек-трейс, первое затронутое событие/релиз, регресс vs старый баг.
+- **reproduce:** быстрое воспроизведение по Sentry-контексту (шаги/устройство/данные); зафиксировать минимальный репро.
+- **hotfix → validation:** делегируются в **bug-fix (urgent-вариант)** — минимальный патч + доказательство зелёности. См. Chaining.
+- **postmortem:** root-cause, почему проскочило, preventive action (тест/гейт/алерт), запись в persistent-файл.
+
+**Переходы:** triage→reproduce→hotfix→validation→postmortem линейно. Не воспроизвелось → назад в triage (уточнить Sentry/данные). Валидация красная → назад в hotfix. Root-cause оказался проектным → эскалация (не расширять хотфикс).
+
+## Сабагенты по стадиям
+| Стадия | Роль (subagent) | Модель | Цель |
+|---|---|---|---|
+| triage | `Explore` + консилиум-диагносты (параллельно) | по roster | Sentry-разбор, severity, локализация по стеку |
+| reproduce | `xbet-kotlin-expert` | по roster | воспроизвести по Sentry-контексту, зафиксировать репро |
+| hotfix | `xbet-kotlin-expert` | по roster | минимальный патч (делегируется через bug-fix) |
+| validation | `xbet-review-expert` / `xbet-tester-expert` | по roster | доказательство фикса, отсутствие регресса |
+| deploy | Bash (@DevOps) | — | выкат хотфикса (подтверждение, план rollback) |
+
+## MCP / Skills (обязательные)
+`Sentry` (краши/события — **первым делом**) · `ast-index` (локализация по стеку) · `superpowers:systematic-debugging` · `xbet-project-context` · `superpowers:verification-before-completion`.
+
+## MUST (обязан)
+- **Sentry-события — первым делом:** severity, частота, стек, затронутый релиз/аудитория.
+- Оценить severity ДО действий; воспроизвести быстро и зафиксировать репро.
+- Хотфикс **МИНИМАЛЬНЫЙ** — только то, что гасит инцидент.
+- Postmortem обязателен: root-cause + preventive action (тест/алерт/гейт).
+- Необратимый выкат хотфикса — подтверждать, держать план rollback.
+
+## MUST NOT (нельзя)
+- Широкий рефактор / cleanup во время хотфикса.
+- Чинить без триажа (не пропускать Sentry/severity/репро).
+- Деплой хотфикса без подтверждённого root-cause и воспроизведения.
+- Расширять scope за пределы инцидента.
+
+## Формат ответа
+Severity + Sentry-сводка (частота/охват/релиз), стек-локализация, репро-шаги, суть минимального хотфикса, доказательство валидации, postmortem (root-cause + preventive action).
+
+## Chaining (если апстрим)
+Апстрим. После `triage`+`reproduce` → `Chaining: incident → bug-fix` (**urgent-вариант**). Передать в bug-fix: Sentry-событие + стек, severity, минимальный репро, затронутый релиз, требование минимального патча. Возврат в incident на `postmortem`.
