@@ -22,3 +22,4 @@ Coroutines/Flow · **Cicerone** (не менять) · UDF со **SideEffect**).
 XS session-only: `Explore` · `xbet-planner-expert` · `xbet-compose-expert` · `xbet-kotlin-expert` · `xbet-review-expert`.
 Skills: `xbet-udf-architecture` (SideEffect+Delegates) · `xbet-viewmodel` · `xbet-navigation` · `xbet-testing` · `xbet-reference-modules` · `compose-principles`.
 Частая задача: **migration** (Dagger→Koin) — skill `koin-migration:di-migration`.
+**Примеры кода (хорошо / плохо / шаблон, xbet-специфика) — `./conventions.md`.**

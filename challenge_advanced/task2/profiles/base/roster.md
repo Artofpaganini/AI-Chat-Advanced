@@ -27,3 +27,5 @@
 Skills: `compose-principles` (для Compose-задач) · `team-lead-orchestration` · любые релевантные (`navigation-3`,
 `material-3`, `edge-to-edge`, `koin-migration:di-migration`, `agp-9-upgrade`, `r8-analyzer`).
 Если проект окажется реальным xbet/alva — переключиться на их roster.
+
+**Примеры кода (хорошо / плохо / шаблон, под каждое направление Android/KMM/Backend) — `./conventions.md`.**

@@ -1,8 +1,8 @@
-# Конвенции (общий single-source; тела сабагентов ссылаются сюда)
+# Конвенции (общий single-source; только ОБЩЕЕ)
 
-Полные версии живут в скиллах (`<context>-project-context`, `*-udf-architecture`, `*-viewmodel`,
-`compose-principles`, `ux-writer-core`). Здесь — консолидированная общая база + дельты стеков. Сабагенты
-НЕ дублируют это в теле, а ссылаются на скилл + этот файл.
+Здесь — консолидированная **кросс-стек** база + обзор дельт + указатели на скиллы. **Конкретные примеры кода
+(хорошо / плохо / шаблон) — НЕ здесь, а в `<context>/conventions.md`** каждого каталога (под свой стек).
+Полные версии деталей — в скиллах.
 
 ## Общие (кросс-стек)
 - **Видимость (MANDATORY):** `internal` по умолчанию; `public` — ТОЛЬКО если символ потребляется из другого
@@ -18,22 +18,22 @@
 - **Coroutines:** structured concurrency; `launchIn`/`observeWithLifecycle`; ошибки не глотать; Mutex — только в data.
 - **Kotlin:** без `!!`, без `Any` (дженерики), без magic numbers, именованные лямбда-параметры (не `it`),
   типы параметров/возврата явно, `internal`-по-умолчанию, без незапрошенных комментариев/KDoc.
-- **Compose:** `Modifier` первым опциональным; порядок параметров (Modifier→data→params→onAction→content-slot);
+- **Compose:** `Modifier` первым опциональным; порядок (Modifier→data→params→onAction→content-slot);
   минимизировать recomposition; preview-driven; a11y. Детали — `compose-principles`.
 - **Секреты:** только `local.properties`→`BuildConfig`/`AppConfig`/env, не хардкодить, не коммитить.
 
-## Дельты стеков (резолвятся по контексту через roster)
+## Дельты стеков (обзор; конкретные примеры — в `<context>/conventions.md`)
 | Аспект | xbet (Android) | alva (KMM+CMP) | base |
 |---|---|---|---|
 | DI | Dagger 2 (+Koin-миграция) | Koin | по задаче |
-| Навигация | Cicerone `XPlatformRouter` (не менять классы) | Compose Navigation 3 | по задаче |
-| One-off эффект | **SideEffect** (`postSideEffect`) + Delegates (`UdfDelegate`) | **Event** (`postEvent`) | по задаче |
+| Навигация | Cicerone `XPlatformRouter` (не менять) | Compose Navigation 3 | по задаче |
+| One-off эффект | **SideEffect** (+Delegates) | **Event** | по задаче |
 | DS-префикс UI | `Ds` | `Alva` | по задаче |
 | Gradle | Groovy | Kotlin DSL + convention-plugins + version catalog | по задаче |
 | Ресурсы | `strings.xml` | `composeResources/` | по задаче |
 | Тесты | JUnit5+MockK+FlowTestResultHandler+verifyRouter (opt-in) | kotlin.test+Turbine (opt-in) | по задаче |
 | MCP-доки | Context7 | DeepWiki | оба |
-| Платформы | Android-only (шаг «identify platforms» пропустить) | Android+iOS из shared Compose | все |
+| Платформы | Android-only | Android+iOS из shared Compose | все |
 | Билд | `./gradlew assembleBetaDebug` | `./gradlew :androidApp:assembleDebug` | по проекту |
 
 ## Скиллы (single source деталей)

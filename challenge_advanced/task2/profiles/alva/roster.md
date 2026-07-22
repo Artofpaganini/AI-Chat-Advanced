@@ -25,3 +25,4 @@ MCP-доки: **DeepWiki**. Правила: `Alva/CLAUDE.md` + skill `alva-proje
 XS session-only: `Explore` · `alva-planner-expert` · `alva-android-ui-expert` · `alva-kotlin-expert` · `alva-review-expert` (`alva-ios-ui-expert` — только iOS).
 Skills: `alva-udf-architecture` (Event) · `alva-viewmodel` · `alva-project-context` · `navigation-3` · `compose-principles` · `ux-writer-core`.
 Правило UI: обычный экран = **один shared Compose** (@AndroidUiDev), НЕ плодить @IosUiDev параллельно.
+**Примеры кода (хорошо / плохо / шаблон, alva-специфика) — `./conventions.md`.**
