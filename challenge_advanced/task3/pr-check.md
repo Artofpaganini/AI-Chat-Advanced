@@ -1,6 +1,8 @@
-# Профиль: PR-Check (L1 код-тесты + L2 smoke → единый отчёт)
+# Профиль: PR-Check (L1 код-тесты + L2 smoke → единый отчёт) — base
 
-> Универсальный flow. Стек/сабагенты — из `<context>/roster.md`. Общее — `_shared/orchestration.md` + `_shared/conventions.md`.
+> Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
+> Стек/сабагенты — `base/roster.md`; общее — секции «Оркестрация»/«Стадии»/«Профили» глобального `~/.claude/CLAUDE.md` + `./conventions.md`.
+> **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (L2-smoke: мобилка — claude-in-mobile/adb; backend — HTTP-прогон эндпоинтов).
 
 ## Назначение / когда активен
 После PR / перед merge / после деплоя фичи — прогнать оба уровня тестов и собрать единый отчёт.
@@ -14,26 +16,28 @@
 | L/XL | эпик / много модулей | консилиум по слоям + параллельные smoke-сценарии |
 
 ## Стадии (DAG)
-`gather-diff → L1 (unit/integration изменённых модулей) → L2 (smoke-сценарии через MCP/adb) → aggregate → verdict`
+`gather-diff → L1 (unit/integration изменённых модулей) → L2 (smoke-сценарии через MCP/adb/HTTP) → aggregate → verdict`
 Переходы: L1↔L2 независимы (можно параллельно); при падении → `Chaining: pr-check → bug-fix` (или `incident` для прод).
 Persistent: `./swarm-report/<slug>-pr-check.md` + скрины smoke в `smoke/shots/`.
 
 ## Сабагенты по стадиям
-| Стадия | Роль | Модель | Цель |
+| Стадия | Роль → агент (base) | Модель | Цель |
 |---|---|---|---|
-| gather-diff | @Reviewer / session | sonnet | что изменил PR, какие модули/экраны затронуты |
-| L1 tests | @QA | sonnet | запустить unit/integration тесты затронутых модулей, зелёные |
-| L2 smoke | @DevOps/session (adb) или claude-in-mobile MCP | sonnet | протыкать сценарии, скрин на каждом шаге, PASS/FAIL |
-| aggregate | @Reviewer | sonnet | единый отчёт L1+L2 |
+| gather-diff | @Reviewer / session (`general-purpose`) | sonnet | что изменил PR, какие модули/экраны затронуты |
+| L1 tests | @QA (`general-purpose`) | sonnet | запустить unit/integration тесты затронутых модулей, зелёные |
+| L2 smoke | @DevOps/session (adb/HTTP) или claude-in-mobile MCP | sonnet | протыкать сценарии, скрин на каждом шаге, PASS/FAIL |
+| aggregate | @Reviewer (`general-purpose`) | sonnet | единый отчёт L1+L2 |
+
+**Base-агенты:** @QA/@Reviewer→`general-purpose` (@Reviewer +skill `superpowers:requesting-code-review`) · @DevOps→Bash в сессии. Роль+стек+I/O-контракт — в промпте агента.
 
 ## MCP / Skills (обязательные)
-`claude-in-mobile` (мобилка) или **adb** по эмулятору · Playwright MCP (если web) · ast-index · Sentry ·
+`claude-in-mobile` (мобилка) или **adb** по эмулятору · для backend — HTTP/curl прогон эндпоинтов (Testcontainers по надобности) · ast-index · Sentry ·
 профиль `test` (L1 тест-конвенции) · `smoke/scenarios.md` проекта.
 
 ## MUST (обязан)
-- Прогнать **оба** уровня. L1 — реально запустить тест-таск (не «на глаз»). L2 — реальные тапы + **скрин на каждом шаге**.
+- Прогнать **оба** уровня. L1 — реально запустить тест-таск (не «на глаз»). L2 — реальные тапы/запросы + **скрин на каждом шаге**.
 - Единый отчёт: L1 (N tests passed/failed) + L2 (сценарии PASS/FAIL + скрины) + итоговый вердикт.
-- При падении — указать **где** проблема (файл/строка для L1; шаг/экран + logcat FATAL для L2).
+- При падении — указать **где** проблема (файл/строка для L1; шаг/экран + logcat FATAL или HTTP-статус для L2).
 
 ## MUST NOT (нельзя)
 - Мержить/деплоить на красном (L1 fail или L2 FAIL).
@@ -50,5 +54,5 @@ L2 (smoke): S1..S5 — PASS/FAIL, скрины shots/*.png [шаг+диагно�
 
 ## Chaining / вариация «задеплоил фичу»
 - Запрос «я задеплоил новую фичу — обнови smoke и прогони всё заново»: сперва **обновить `smoke/scenarios.md`**
-  (добавить шаги под новую фичу — новые экраны/действия), затем полный прогон L1+L2 и единый отчёт.
+  (добавить шаги под новую фичу — новые экраны/действия/эндпоинты), затем полный прогон L1+L2 и единый отчёт.
 - Любой FAIL → `Chaining: pr-check → bug-fix` (прод → `incident`), передать диагноз/скрин/стек.
