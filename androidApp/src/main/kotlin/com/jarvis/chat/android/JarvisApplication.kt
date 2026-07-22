@@ -8,7 +8,10 @@ class JarvisApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        appConfig = AppConfig(deepSeekApiKey = BuildConfig.DEEPSEEK_API_KEY)
+        appConfig = AppConfig(
+            deepSeekApiKey = BuildConfig.DEEPSEEK_API_KEY,
+            filesDirectoryPath = filesDir.absolutePath,
+        )
         initKoin(appConfig)
     }
 

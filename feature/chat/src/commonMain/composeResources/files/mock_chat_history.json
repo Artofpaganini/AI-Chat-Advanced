@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "messages": [
+    {
+      "id": "mock-1",
+      "author": "USER",
+      "text": "Hi Jarvis, what can you do?",
+      "isFavorite": false
+    },
+    {
+      "id": "mock-2",
+      "author": "ASSISTANT",
+      "text": "I can chat with you, answer questions, and read my replies aloud.",
+      "isFavorite": true
+    },
+    {
+      "id": "mock-3",
+      "author": "USER",
+      "text": "Give me one productivity tip.",
+      "isFavorite": false
+    },
+    {
+      "id": "mock-4",
+      "author": "ASSISTANT",
+      "text": "Batch similar tasks together to reduce context switching.",
+      "isFavorite": true
+    }
+  ]
+}

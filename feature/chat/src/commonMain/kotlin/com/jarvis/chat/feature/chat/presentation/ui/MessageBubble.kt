@@ -1,7 +1,9 @@
 package com.jarvis.chat.feature.chat.presentation.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -19,12 +21,15 @@ private val bubbleMaxWidth = 320.dp
 private val bubbleContentPadding = 12.dp
 private val bubbleElevation = 1.dp
 private const val SPEAKER_LABEL = "🔊"
+private const val FAVORITE_ACTIVE_LABEL = "★"
+private const val FAVORITE_INACTIVE_LABEL = "☆"
 
 @Composable
 internal fun MessageBubble(
     message: ChatMessageUiModel,
     isTtsAvailable: Boolean,
     onSpeak: (String) -> Unit,
+    onToggleFavorite: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isFromUser = message.isFromUser
@@ -57,14 +62,39 @@ internal fun MessageBubble(
                     text = message.text,
                     style = MaterialTheme.typography.bodyLarge,
                 )
-                if (message.isSpeakable) {
-                    IconButton(
-                        onClick = { onSpeak(message.text) },
-                        enabled = isTtsAvailable,
-                    ) {
-                        Text(text = SPEAKER_LABEL)
-                    }
-                }
+                MessageActions(
+                    message = message,
+                    isTtsAvailable = isTtsAvailable,
+                    onSpeak = onSpeak,
+                    onToggleFavorite = onToggleFavorite,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MessageActions(
+    message: ChatMessageUiModel,
+    isTtsAvailable: Boolean,
+    onSpeak: (String) -> Unit,
+    onToggleFavorite: (String) -> Unit,
+) {
+    if (!message.isSpeakable && !message.canFavorite) {
+        return
+    }
+    Row(horizontalArrangement = Arrangement.Start) {
+        if (message.isSpeakable) {
+            IconButton(
+                onClick = { onSpeak(message.text) },
+                enabled = isTtsAvailable,
+            ) {
+                Text(text = SPEAKER_LABEL)
+            }
+        }
+        if (message.canFavorite) {
+            IconButton(onClick = { onToggleFavorite(message.id) }) {
+                Text(text = if (message.isFavorite) FAVORITE_ACTIVE_LABEL else FAVORITE_INACTIVE_LABEL)
             }
         }
     }
