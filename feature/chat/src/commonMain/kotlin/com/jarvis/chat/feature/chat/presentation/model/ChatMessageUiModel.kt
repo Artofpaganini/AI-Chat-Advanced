@@ -1,8 +1,10 @@
 package com.jarvis.chat.feature.chat.presentation.model
 
 internal data class ChatMessageUiModel(
-    val id: Int,
+    val id: String,
     val text: String,
     val isFromUser: Boolean,
     val isSpeakable: Boolean,
+    val isFavorite: Boolean,
+    val canFavorite: Boolean,
 )

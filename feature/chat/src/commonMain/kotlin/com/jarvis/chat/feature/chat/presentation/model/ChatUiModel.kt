@@ -6,4 +6,6 @@ internal data class ChatUiModel(
     val isLoading: Boolean,
     val isSendEnabled: Boolean,
     val isErrorVisible: Boolean,
+    val isFavoritesFilterActive: Boolean,
+    val favoritesCount: Int,
 )
