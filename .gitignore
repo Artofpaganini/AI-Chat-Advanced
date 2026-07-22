@@ -1,0 +1,28 @@
+# Android / local config
+local.properties
+captures
+.externalNativeBuild
+.cxx
+
+# Gradle
+.gradle/
+build/
+
+# Kotlin
+.kotlin/
+
+# IDEA
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Secrets
+*.jks
+*.keystore
+*.env
+
+# Logs & crash reports
+*.log
+*.hprof

@@ -1,0 +1,7 @@
+formatting:
+  active: true
+  android: false
+  autoCorrect: true
+  NoUnusedImports:
+    active: true
+    autoCorrect: true
