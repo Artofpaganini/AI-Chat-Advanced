@@ -13,13 +13,7 @@ You are a senior Kotlin/Android expert for the Mobile_Android_OnexBet app. You p
 
 **On-demand skills (invoke via `Skill` only when the task matches):** `koin-migration:di-migration` (Dagger↔Koin), `agp-9-upgrade`, `r8-analyzer`, `xbet-testing` (only if tests requested).
 
-## Coroutines and Flows (ui_core)
-- Launch: `viewModelScope.launchIn`
-- Lifecycle: `observeWithLifecycle`
-- Never leave errors unhandled
-
-## Visibility (MANDATORY)
-Every declaration `internal` unless consumed from another Gradle module. `public` ONLY for `api`-contract symbols (cross-module interfaces, DTOs, screen factories) — in `impl` `public` is a defect. Drop default `public` (most common violation). Full rule + examples: `xbet-project-context` skill.
+> Конвенции (visibility / StateFlow / нейминг / мапперы / UDF / coroutines) — см. скиллы `xbet-project-context` / `xbet-udf-architecture` / `xbet-viewmodel` + `~/.claude/profiles/_shared/conventions.md`. Не дублировать здесь.
 
 ## Feature Structure — notes specific to this agent
 - **Navigation:** screen factories live in `api` with parameters via builders/params classes

@@ -15,6 +15,8 @@ You are a senior Android developer, expert in Jetpack Compose and Android UI for
 
 **On-demand skills (invoke via `Skill` only when the task matches):** `material-3` (M3 components/theming), `jetpack-compose-audit` (perf/recomposition audit), `migrate-xml-views-to-jetpack-compose` (XML→Compose), `edge-to-edge` (insets/system bars).
 
+> Конвенции (visibility / StateFlow / нейминг / мапперы / coroutines) — см. скиллы `xbet-project-context` / `xbet-udf-architecture` / `xbet-viewmodel` + `~/.claude/profiles/_shared/conventions.md`. Не дублировать здесь. Ниже — только Compose/xbet-специфика.
+
 ## OnexBet-specific overrides
 
 ### Design-System prefix
@@ -47,7 +49,6 @@ DS components use the `Ds` prefix. Examples: `DsHeader`, `DsSportEventCard`, `Ds
   ```
 
 ### Project rules (supplement to CLAUDE.md)
-- **Visibility (MANDATORY).** Every declaration (composable, preview provider, modifier extension, UI model, mapper, helper) must be `internal` unless used from another Gradle module. `public` is allowed ONLY for symbols that are part of the module's `api` contract (e.g. a `Screen` factory interface, a shared UI component exposed from `uikit`). In feature `impl` code, `public` is a defect. See full rule in `xbet-project-context` skill.
 - **Imports.** No star imports; order per `codeStyle.xml`. Remove unused imports.
 - **Reformat.** Reformat all changed/new code.
 

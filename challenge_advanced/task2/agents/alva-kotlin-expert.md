@@ -14,17 +14,8 @@ You are a senior KMM/Kotlin/Android expert for the Alva app. You write KMP share
 
 **On-demand skills (invoke via `Skill` only when the task matches):** `alva-udf-architecture` (UDF primer), `koin-migration:di-migration`, `r8-analyzer`.
 
-## Coroutines and Flows
+> Конвенции (visibility / StateFlow / нейминг / мапперы / UDF / coroutines) — см. скиллы `alva-project-context` / `alva-udf-architecture` / `alva-viewmodel` + `~/.claude/profiles/_shared/conventions.md`. Не дублировать здесь.
 
-- Launch: `viewModelScope.launchIn(...)`
-- Lifecycle: `observeWithLifecycle(...)` for hot Flows that need to follow lifecycle
-- StateFlow updates: ALWAYS via `_state.update { current -> current.copy(...) }` — never `_state.value = ...` (atomic, safe under concurrency)
-- Never leave errors unhandled
-- `Mutex` only in data layer (never in domain or presentation)
+## Alva-specific notes
 
-## Naming (strict, see Alva CLAUDE.md)
-
-- `data` layer: `XxxRequestModel` / `XxxResponseModel` for network payloads, `XxxDataModel` for everything else. **DTO is banned.**
-- `domain` layer: `XxxModel`
-- `presentation` layer: `XxxUiModel` (mapped from `State` via a `UiMapper<State, UiModel>` subclass)
-- Mappers: top-level extensions `toXxx()` in source layer's `mapper/` package — no mapper classes with `mapToXxx()` methods. Exception: `UiMapper` subclass.
+- `Mutex` only in data layer (never in domain or presentation).
