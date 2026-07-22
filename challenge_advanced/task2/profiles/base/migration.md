@@ -1,0 +1,63 @@
+# Профиль: migration — base
+
+> Base-тюнинг универсального flow. **Контекст base — кросс-платформа (Android/KMM/Backend), generic-агенты; если проект окажется реальным xbet/alva — переключиться на их roster.**
+> Стек/сабагенты — `base/roster.md`; общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> **Направление стека (Android / KMM+CMP / Backend) выбирается на создании задачи** (шпаргалка — `base/roster.md` + глоб. CLAUDE «Стек 2026»).
+
+## Назначение / когда активен
+Перевод кодовой базы на другой фреймворк / версию / паттерн **батчами**. Конкретный тип резолвится на
+создании задачи (пример: Hilt/Dagger→Koin, AGP-upgrade, XML→Compose, Billing-upgrade, Koin-DSL→Safe-DSL, JPA→Exposed).
+**Триггеры:** «мигрируй», «переведи на», «обнови до версии», «замени X на Y».
+
+## Размер (XS→XL) → масштаб команды
+| Размер | Пример этого профиля | Команда |
+|---|---|---|
+| XS | 1 модуль/класс на новый паттерн | session-only: @Dev |
+| S | несколько классов, 1 батч | @Dev → gate |
+| M | фича целиком, 2-4 батча | @Architect (audit) → @Dev → gate ×N |
+| L | десятки модулей | @Architect → 2-3 @Dev на disjoint-батчах → gate ×N, SubLead |
+| XL | проект-wide (сотни точек) | full team + SubLead, worktree-параллель, периодический smoke |
+
+## Стадии (DAG)
+`audit → plan → migrate-batch → gate → (repeat) → report → done`.
+`audit` — поверхность миграции (точки, кластеры, зависимости). `plan` — нарезка на изолированные disjoint-батчи.
+`migrate-batch → gate` **после КАЖДОГО батча** → `repeat`, пока остаток не 0. Красный gate → фикс внутри
+батча, дальше не двигаться. Persistent: `./swarm-report/<slug>-migration.md` (поверхность, батчи, прогресс `[x]`,
+счётчик остатка) — перечитывать перед каждым батчем.
+
+## Сабагенты по стадиям
+| Стадия | Роль → агент (base) | Модель | Цель |
+|---|---|---|---|
+| audit | @Architect (`Plan`) + ast-index | Opus | посчитать площадь, кластеризовать, выявить loop/shared-типы, риск-порядок |
+| plan | @Architect (`Plan`) | Opus | нарезать на disjoint-батчи (~30-40 точек), порядок bottom-up |
+| migrate-batch | @Dev (2-3 `general-purpose` на disjoint-батчах) | Sonnet | механический перевод батча по skill-рецепту |
+| gate | @DevOps (Bash) + @Reviewer (`general-purpose`) | Sonnet | build + verify (напр. DI-граф) после КАЖДОГО батча; аудит регистраций |
+| report | оркестратор | — | поверхность / прогресс / остаток / гейт-результаты |
+
+**Base-агенты:** @Architect→`Plan`/`general-purpose` · @Dev→`general-purpose` · @Reviewer→`general-purpose` (+skill `superpowers:requesting-code-review`) · @DevOps→Bash в сессии. Роль+стек+I/O-контракт — в промпте агента.
+
+## MCP / Skills (обязательные)
+`koin-migration:di-migration` (DI-миграции — рецепты, compile-safety) · `agp-9-upgrade` (AGP) ·
+`migrate-xml-views-to-jetpack-compose` (XML→Compose) · `play-billing-library-version-upgrade` — **резолвится
+по типу задачи**. `ast-index` (площадь/usages) · `Context7`/DeepWiki (целевой API/версия) · caveman.
+Skills: `_shared/conventions.md` (base без project-context-скилла) · `team-lead-orchestration`.
+
+## MUST (обязан)
+- Гейт (build + verify) **после КАЖДОГО батча**; красный гейт → стоп, фикс в батче, только потом дальше (билд направления, тесты opt-in).
+- Текущая ветка + малые атомарные откатываемые коммиты (по просьбе) / бэкап-точки перед батчем.
+- DI-миграции — через skill `koin-migration:di-migration`.
+- Аудит declared-vs-registered каждые ~5 батчей (потерянная регистрация = зелёный build + runtime-краш).
+
+## MUST NOT (нельзя)
+- Big-bang (весь проект одним заходом) — только батчи.
+- Пропускать / откладывать гейт («наверстаю потом»).
+- Смешивать миграцию с рефактором / фичами в одном батче.
+- Удалять «мёртвый» код под видом миграции без разрешения (dead code мигрируется наравне).
+
+## Формат ответа
+Поверхность (N точек, кластеры) · батч-план · прогресс (сделано / осталось) · гейт-результат каждого батча
+(build + verify) · остаток до 0. Код — только если load-bearing (рецепт/конфликт).
+
+## Chaining (если апстрим)
+**Downstream от `architecture → migration`.** На входе — целевой паттерн/версия и порядок из архитектурного
+артефакта. Сам не апстрим: терминал `done`.

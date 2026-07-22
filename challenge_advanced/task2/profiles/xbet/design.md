@@ -1,0 +1,60 @@
+# Профиль: design — xbet (UX/UI дизайн)
+
+> Контекст **xbet** (`Mobile_Android_OnexBet`); также обслуживает twin **xbet1** (`own_xbet`).
+> Android-only · Material3 · DS-префикс **`Ds`** · Compose (реализуемость паттернов).
+> Стек/сабагенты — `roster.md`. Общее — `../_shared/orchestration.md` и `../_shared/conventions.md` (не дублировать).
+> **Апстрим-профиль:** производит design-spec (Figma/Pencil → спека) → чейнит в `feature`. **Не имплементация кода.**
+
+## Назначение / когда активен
+Спроектировать UX-flow и UI-спеку экрана/фичи: макет + все состояния + токены + тёмная тема. Код НЕ пишем.
+**Триггеры:** «дизайн», «макет», «Figma», «Pencil», «wireframe», «прототип», «UX-flow», «как выглядит экран».
+**Примеры:** «сделай дизайн экрана профиля», «нарисуй flow онбординга», «спроектируй пустое состояние ленты».
+
+## Размер (XS→XL) → масштаб команды
+| Размер | Пример этого профиля | Команда |
+|---|---|---|
+| XS | один компонент / одно состояние | session-only: `xbet-designer-expert` solo |
+| S/M | экран 1-2, все состояния | `xbet-designer-expert` (+ `xbet-writer-expert` — UX-copy) |
+| L/XL | flow 3+ экранов / вклад в дизайн-систему | `xbet-designer-expert` + `xbet-ba-expert` (вход-требования) + `xbet-writer-expert`, консилиум a11y / DS |
+
+## Стадии (DAG)
+`gather → ux-flow → design-spec → handoff`. Persistent-файл: `./swarm-report/<slug>-design.md`.
+- **gather** — контекст через Figma/Pencil MCP (существующие макеты + инвентарь DS/токенов) + спека требований, если есть.
+- **ux-flow** — путь пользователя: экраны, переходы, states-граф (что ведёт к чему).
+- **design-spec** — все состояния каждого экрана: loading / empty / error / success; таргеты; тёмная тема; токены `Ds`.
+- **handoff** — спека для разработки: компоненты, размеры, токены, ассеты, поведение, ссылки на ноды.
+**Переходы:** `gather→ux-flow→design-spec→handoff` линейно; назад в `gather` при нехватке DS/требований.
+Перед сменой стадии: `Переход: <текущая> → <следующая>`.
+
+## Сабагенты по стадиям
+| Стадия | Роль (subagent) | Модель | Цель |
+|---|---|---|---|
+| gather | `xbet-designer-expert` | sonnet | Figma/Pencil MCP: снять текущие макеты + инвентарь токенов/компонентов DS (`Ds`) |
+| ux-flow | `xbet-designer-expert` | sonnet | flow пользователя + states-граф |
+| copy | `xbet-writer-expert` | sonnet | UX-copy для всех состояний (заголовки, empty/error-тексты, кнопки) → `strings.xml` |
+| design-spec | `xbet-designer-expert` (+ консилиум a11y / DS на L/XL) | sonnet | спека всех состояний + токены + тёмная тема |
+
+## MCP / Skills (обязательные)
+**Figma MCP** (`mcp__claude_ai_Figma__*`) / **Pencil MCP** (`mcp__pencil__*`) — читать/создавать макеты (не из головы) ·
+`material-3` · `compose-principles` (какие паттерны реализуемы) · `ux-writer-core` (копирайт) ·
+`xbet-project-context` (DS-префикс `Ds`, токены проекта).
+
+## MUST (обязан)
+- **Правило всех состояний:** для КАЖДОГО экрана — loading / empty / error / success (не только happy-path).
+- **Размеры таргетов:** интерактив ≥ **48dp** (Android).
+- **Дизайн-токены:** цвет/типографика/spacing — из токенов DS (`Ds`), не произвольные значения.
+- **Тёмная тема** — проработать наравне со светлой.
+- **Figma/Pencil MCP** — источник макета; a11y (контраст, touch targets, screen-reader) заложить.
+
+## MUST NOT (нельзя)
+- Писать код реализации (Compose/вёрстку).
+- Вводить произвольные цвета/размеры/шрифты мимо токенов DS.
+- Отдавать макет без error/empty состояний или без тёмной темы.
+
+## Формат ответа
+Design-spec файл: **UX-flow · экраны × состояния (loading/empty/error/success) · токены `Ds` · таргеты · тёмная тема ·
+UX-copy · ассеты · handoff-заметки** + ссылки на Figma/Pencil ноды. Саммари сверху + путь к persistent-файлу.
+
+## Chaining (апстрим)
+По готовности макета: `Chaining: design → feature`. Design-spec (состояния + токены + таргеты + ссылки на ноды)
+передаётся как вход в промпт `feature`-исполнителя.

@@ -1,0 +1,63 @@
+# Профиль: bug-fix — alva (KMM+CMP baby-care)
+
+> Контекст **alva** (Kotlin Multiplatform + Compose Multiplatform, baby-care). Роли → сабагенты из `alva/roster.md`;
+> общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек: KMP · CMP (shared UI обе платформы) · Koin · Compose Navigation 3 · UDF со **Event** · `Alva`-префикс DS ·
+> Kotlin DSL + version catalog · `composeResources/` · доки — **DeepWiki**. Build: `./gradlew :androidApp:assembleDebug` (+ Xcode iOS).
+
+## Назначение / когда активен
+Починка дефекта/краша с обязательным воспроизведением. Точка приземления chaining'а от `incident`.
+**Триггеры:** «баг», «краш», «не работает», «падает», «ошибка», Sentry-issue, репорт с шагами.
+**Примеры:** NPE в условии (XS); неверный стейт экрана (S); гонка/утечка стейта в shared VM (M); регрессия по площади (XL). **Проверять на обеих платформах, если баг в shared-коде.**
+
+## Размер (XS→XL) → масштаб команды
+| Размер | Пример этого профиля | Команда |
+|---|---|---|
+| XS | однострочный/очевидный (NPE, опечатка в условии) | session-only: `Explore` + 1 исполнитель |
+| S | локальный баг в одном слое | `alva-kotlin-expert`/`alva-android-ui-expert` → `alva-review-expert` |
+| M | кросс-слойный / race / рассинхрон стейта | консилиум-diagnose → `alva-kotlin-expert` → `alva-review-expert` |
+| L | системный дефект, несколько модулей / платформа-специфичный | `alva-planner-expert` + консилиум → `alva-kotlin-expert`(+`alva-android-ui-expert`/`alva-ios-ui-expert`) → `alva-review-expert` |
+| XL | прод-инцидент, регрессия по площади | full team + SubLead, hotfix-ветка |
+
+## Стадии (DAG)
+`reproduce → diagnose → fix → validation → report → done`.
+Переходы: `reproduce` провалился 3× → статус «не воспроизводится» (стоп, вернуть запросившему с логом
+попыток, НЕ чинить вслепую); `diagnose → fix`; `validation` при провале → назад в `fix` (плохой фикс) или
+`diagnose` (неверный корень). **Баг в shared-коде → проверить обе платформы** (identify platforms). Persistent: `./swarm-report/<slug>-reproduce.md` (шаги, окружение, платформа, стек,
+гипотезы) — перечитывать перед каждым действием, отмечать `[x]`.
+
+## Сабагенты по стадиям
+| Стадия | Роль → сабагент | Модель | Цель |
+|---|---|---|---|
+| reproduce | @QA `general-purpose` / @Dev `alva-kotlin-expert` + @DevOps (Bash) | Sonnet | воспроизвести по репорту/Sentry; зафиксировать шаги+окружение+платформу в `-reproduce.md` |
+| diagnose | консилиум: diagnostics-линза · @Architect `alva-planner-expert` · security-линза · @DevOps | Opus | параллельно локализовать корень: стек, дифф, гонки, конфиг, expect/actual; синтез — оркестратор |
+| fix | @Dev `alva-kotlin-expert` · @UIDev `alva-android-ui-expert` · @IosUiDev `alva-ios-ui-expert` (только натив iOS) | Sonnet | минимальный фикс корня (не симптома), по conventions |
+| validation | @Reviewer `alva-review-expert` + @DevOps (Bash) | Opus/Sonnet | зелёная сборка (`:androidApp:assembleDebug`, iOS при shared-фиксе) + regression |
+| report | оркестратор | — | воспроизведение / корень / фикс / доказательство regression |
+
+## MCP / Skills (обязательные)
+`superpowers:systematic-debugging` (обязательно, до правки) · `ast-index` (стек/usages/callers) · **Sentry**
+(событие, частота, стек, релиз, платформа) · **DeepWiki** (доки KMP/Koin/Compose) · caveman.
+Skills: `alva-project-context` · `alva-udf-architecture` · `alva-viewmodel` · `compose-principles`.
+
+## MUST (обязан)
+- Сначала воспроизвести: до 3 попыток; не удалось — статус «не воспроизводится» с логом попыток, дальше НЕ чинить.
+- Читать Sentry-событие(я) + логи ДО диагноза; найти корень и чинить именно его.
+- **Баг в `commonMain` → regression-проверка на обеих платформах** (platform parity); iOS-специфика — через `expect/actual`, не хак в common.
+- Regression-проверка в `validation`: исходный сценарий больше не падает **и** существующие тесты остаются зелёными.
+- Вести `-reproduce.md`: перечитывать перед каждым шагом, отмечать выполненное.
+
+## MUST NOT (нельзя)
+- Чинить без воспроизведения и без установленного корня (диагноза).
+- Игнорировать / ослаблять / удалять существующие тесты ради «зелёного».
+- Глушить симптом (try/catch, скрытие поля) вместо устранения корня.
+- Плодить `alva-ios-ui-expert` на обычный shared-баг — натив iOS только когда корень реально в платформенном UI.
+- Добавлять НОВЫЕ тесты без явной просьбы (opt-in); при этом существующие обязаны остаться зелёными.
+
+## Формат ответа
+Воспроизведение (шаги + окружение + платформа) · корень (файл:строка, почему) · фикс (что изменено, файлы — абсолютные
+пути) · доказательство regression (сценарий + вывод сборки/тестов, обе платформы если shared). Код — только если load-bearing (сам баг).
+
+## Chaining (если апстрим)
+**Downstream от `incident`:** `incident → bug-fix` (urgent). На входе — прод-краш + Sentry-контекст; `reproduce`
+стартует с прод-сигнала (ускоренный путь, hotfix-ветка). Дальше не чейнится: терминал `done`.

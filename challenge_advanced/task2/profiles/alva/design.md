@@ -1,0 +1,63 @@
+# Профиль: Design — alva (KMM+CMP baby-care)
+
+> Контекст **alva** (Kotlin Multiplatform + Compose Multiplatform, baby-care). Роли → сабагенты из `alva/roster.md`;
+> общее — `_shared/orchestration.md` + `_shared/conventions.md` (не дублировать).
+> Стек: KMP · CMP (shared UI обе платформы) · Koin · Compose Navigation 3 · UDF со **Event** · **`Alva`-префикс DS** ·
+> `composeResources/` · доки — **DeepWiki**. Build: `./gradlew :androidApp:assembleDebug` (+ Xcode iOS).
+> **Апстрим-профиль:** производит design-spec (Figma/Pencil → спека) → чейнит в `feature`. **Не имплементация кода.**
+
+## Назначение / когда активен
+Спроектировать UX-flow и UI-спеку экрана/фичи: макет + все состояния + токены + тёмная тема + **кросс-платформенное поведение** (один shared Compose на Android И iOS). Код НЕ пишем.
+**Триггеры:** «дизайн», «макет», «Figma», «Pencil», «wireframe», «прототип», «UX-flow», «как выглядит экран».
+**Примеры:** «сделай дизайн экрана дневника кормлений», «нарисуй flow онбординга родителя», «спроектируй пустое состояние ленты активностей».
+
+## Размер (XS→XL) → масштаб команды
+| Размер | Пример этого профиля | Команда |
+|---|---|---|
+| XS | один компонент / одно состояние | session-only: `alva-designer-expert` solo |
+| S/M | экран 1-2, все состояния | `alva-designer-expert` (+ `alva-writer-expert` — UX-copy) |
+| L/XL | flow 3+ экранов / вклад в дизайн-систему `Alva` | `alva-designer-expert` + `alva-ba-expert` (вход-требования) + `alva-writer-expert`, консилиум a11y / DS |
+
+## Стадии (DAG)
+`gather → ux-flow → design-spec → handoff`. Persistent-файл: `./swarm-report/<slug>-design.md`.
+- **gather** — контекст через Figma/Pencil MCP (существующие макеты + инвентарь `Alva`-DS/токенов) + спека требований, если есть.
+- **ux-flow** — путь пользователя: экраны, переходы (Compose Navigation 3), states-граф (что ведёт к чему).
+- **design-spec** — все состояния каждого экрана: loading / empty / error / success; таргеты; тёмная тема; токены `Alva`; **платформенный паритет** (один shared Compose на обе; отметить, если где-то нужен натив iOS).
+- **handoff** — спека для разработки: `Alva`-компоненты, размеры, токены, ассеты (`composeResources/`), поведение, ссылки на ноды.
+**Переходы:** `gather→ux-flow→design-spec→handoff` линейно; назад в `gather` при нехватке DS/требований.
+Перед сменой стадии: `Переход: <текущая> → <следующая>`.
+
+## Сабагенты по стадиям
+| Стадия | Роль → сабагент | Модель | Цель |
+|---|---|---|---|
+| gather | @Designer `alva-designer-expert` | sonnet | Figma/Pencil MCP: снять текущие макеты + инвентарь токенов/компонентов `Alva`-DS |
+| ux-flow | @Designer `alva-designer-expert` | sonnet | flow пользователя + states-граф (переходы Nav 3) |
+| copy | @TextWriter `alva-writer-expert` | sonnet | UX-copy для всех состояний (заголовки, empty/error-тексты, кнопки), под `composeResources` |
+| design-spec | @Designer `alva-designer-expert` (+ консилиум a11y / DS на L/XL) | sonnet | спека всех состояний + токены `Alva` + тёмная тема + platform parity |
+
+## MCP / Skills (обязательные)
+**Figma MCP** (`mcp__claude_ai_Figma__*`) / **Pencil MCP** (`mcp__pencil__*`) — читать/создавать макеты (не из головы) ·
+`material-3` · `compose-principles` (какие паттерны реализуемы в CMP) · `ux-writer-core` (копирайт) ·
+`alva-project-context` (DS-префикс `Alva`, токены проекта, `composeResources/`).
+
+## MUST (обязан)
+- **Правило всех состояний:** для КАЖДОГО экрана — loading / empty / error / success (не только happy-path).
+- **Кросс-платформенность:** дефолт — один shared Compose-макет на Android И iOS (platform parity); натив iOS — отметить отдельно, только если реально нужен.
+- **Размеры таргетов:** интерактив ≥ **48dp** (Android) / **44pt** (iOS).
+- **Дизайн-токены `Alva`:** цвет/типографика/spacing — из токенов DS, не произвольные значения.
+- **Тёмная тема** — проработать наравне со светлой.
+- **Figma/Pencil MCP** — источник макета; a11y (контраст, touch targets, screen-reader) заложить.
+
+## MUST NOT (нельзя)
+- Писать код реализации (Compose/SwiftUI/вёрстку).
+- Вводить произвольные цвета/размеры/шрифты мимо токенов `Alva`.
+- Плодить отдельный натив-iOS-макет там, где хватает shared Compose (без нужды).
+- Отдавать макет без error/empty состояний или без тёмной темы.
+
+## Формат ответа
+Design-spec файл: **UX-flow · экраны × состояния (loading/empty/error/success) · токены `Alva` · таргеты · тёмная тема ·
+platform parity · UX-copy · ассеты (`composeResources/`) · handoff-заметки** + ссылки на Figma/Pencil ноды. Саммари сверху + путь к persistent-файлу.
+
+## Chaining (апстрим)
+По готовности макета: `Chaining: design → feature`. Design-spec (состояния + токены + таргеты + platform parity + ссылки на ноды)
+передаётся как вход в промпт `feature`-исполнителя.
