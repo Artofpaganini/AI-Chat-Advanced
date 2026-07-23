@@ -20,7 +20,7 @@ tap_text(){ local q="$1"; local b; b=$(dump | tr '>' '\n' | grep -iE "text=\"[^\
   local c; c=$(echo "$b" | grep -oE '[0-9]+' ); local x1=$(echo "$c"|sed -n 1p) y1=$(echo "$c"|sed -n 2p) x2=$(echo "$c"|sed -n 3p) y2=$(echo "$c"|sed -n 4p); \
   adb shell input tap $(((x1+x2)/2)) $(((y1+y2)/2)); }
 
-echo "# Smoke report — $(date '+%F %T')" > "$REPORT"
+echo "# Smoke report - $(date '+%F %T')" > "$REPORT"
 echo "Device: $(adb shell getprop ro.product.model 2>/dev/null) · APK: $APK" >> "$REPORT"
 echo "" >> "$REPORT"; echo "| Сценарий | Результат | Скрины | Комментарий |" >> "$REPORT"; echo "|---|---|---|---|" >> "$REPORT"
 
