@@ -2,7 +2,7 @@ package com.jarvis.chat.feature.chat.di
 
 import com.jarvis.chat.feature.ai.di.aiModule
 import com.jarvis.chat.feature.chat.data.datasource.ChatHistoryLocalDataSource
-import com.jarvis.chat.feature.chat.data.datasource.ChatHistoryLocalDataSourceImpl
+import com.jarvis.chat.feature.chat.data.datasource.createChatHistoryLocalDataSource
 import com.jarvis.chat.feature.chat.data.repository.ChatHistoryRepositoryImpl
 import com.jarvis.chat.feature.chat.domain.model.ChatStorageConfigModel
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
@@ -25,7 +25,9 @@ fun chatModule(storageDirectoryPath: String): Module = module {
     includes(aiModule)
     single { ChatStorageConfigModel(directoryPath = storageDirectoryPath) }
     single<CoroutineDispatcher> { Dispatchers.Default }
-    singleOf(::ChatHistoryLocalDataSourceImpl) bind ChatHistoryLocalDataSource::class
+    single<ChatHistoryLocalDataSource> {
+        createChatHistoryLocalDataSource(storageConfig = get(), ioDispatcher = get())
+    }
     singleOf(::ChatHistoryRepositoryImpl) bind ChatHistoryRepository::class
     factoryOf(::LoadChatHistoryUseCase)
     factoryOf(::SaveChatHistoryUseCase)

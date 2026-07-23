@@ -48,6 +48,7 @@ version-kotlinx-io = "0.9.1"
 version-window = "1.5.1"
 version-kvault = "1.12.0"
 version-text-to-speech = "3.0.0"
+version-kotlinx-browser = "0.5.0"
 inspektor = "0.4.1"
 
 [libraries]
@@ -75,6 +76,7 @@ ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", vers
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "version-ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "version-ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "version-ktor" }
+ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "version-ktor" }
 ktor-client-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "version-ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "version-ktor" }
 ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "version-ktor" }
@@ -144,6 +146,7 @@ inspektor = { module = "com.gyanoba.inspektor:inspektor", version.ref = "inspekt
 #Additional KMP libraries
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "version-kotlinx-datetime" }
 kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "version-kotlinx-io" }
+kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "version-kotlinx-browser" }
 
 #Secure Storage
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "version-multiplatform-settings" }

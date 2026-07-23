@@ -7,11 +7,14 @@ import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIViewController
 
+private const val DEEPSEEK_BASE_URL = "https://api.deepseek.com/"
+
 @Suppress("unused")
 fun mainViewController(): UIViewController {
     initKoin(
         appConfig = AppConfig(
             deepSeekApiKey = "",
+            deepSeekBaseUrl = DEEPSEEK_BASE_URL,
             filesDirectoryPath = resolveDocumentsDirectoryPath(),
         ),
     )

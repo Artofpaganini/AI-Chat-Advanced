@@ -15,7 +15,12 @@ fun initKoin(appConfig: AppConfig) {
         modules(
             module {
                 single { appConfig }
-                single { DeepSeekConfigModel(apiKey = appConfig.deepSeekApiKey) }
+                single {
+                    DeepSeekConfigModel(
+                        apiKey = appConfig.deepSeekApiKey,
+                        baseUrl = appConfig.deepSeekBaseUrl,
+                    )
+                }
             },
             chatModule(storageDirectoryPath = appConfig.filesDirectoryPath),
         )

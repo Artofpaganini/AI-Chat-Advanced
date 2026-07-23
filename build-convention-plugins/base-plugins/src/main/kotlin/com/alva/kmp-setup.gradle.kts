@@ -20,6 +20,10 @@ kotlin {
         }
     }
 
+    wasmJs {
+        browser()
+    }
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()

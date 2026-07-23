@@ -21,8 +21,6 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
-private const val DEEPSEEK_BASE_URL = "https://api.deepseek.com/"
-
 val aiModule: Module = module {
     single { provideDeepSeekHttpClient(config = get()) }
     singleOf(::DeepSeekRemoteDataSourceImpl) bind DeepSeekRemoteDataSource::class
@@ -41,7 +39,7 @@ private fun provideDeepSeekHttpClient(config: DeepSeekConfigModel): HttpClient =
             )
         }
         defaultRequest {
-            url(DEEPSEEK_BASE_URL)
+            url(config.baseUrl)
             header(HttpHeaders.Authorization, "Bearer ${config.apiKey}")
             contentType(ContentType.Application.Json)
         }
