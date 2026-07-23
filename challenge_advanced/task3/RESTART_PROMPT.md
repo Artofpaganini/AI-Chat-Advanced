@@ -3,37 +3,43 @@
 ---
 
 Продолжаем task3 в `/Users/Victor/AI-Chat-Advanced`, ветка `task3`. Приложение - Jarvis (KMM + Compose
-Multiplatform, чат с DeepSeek). Делаем **полный L2-чек с нуля по моим сценариям**, оба таргета.
+Multiplatform, чат с DeepSeek). Идём по `challenge_advanced/task3/PLAN.md`, сценарии даёт пользователь
+по одному, каждый закрывается его апрувом.
 
-Подними готовность и доложи, потом жди мои сценарии:
+Подними окружение и доложи готовность:
 
 1. Эмулятор `Small_Phone` (`~/Library/Android/sdk/emulator/emulator -avd Small_Phone -no-snapshot-save`),
    дождись `sys.boot_completed`.
-2. Поставь APK через MCP: `app:install` ->
-   `/Users/Victor/AI-Chat-Advanced/androidApp/build/outputs/apk/dev/debug/androidApp-dev-debug.apk`
-   (пакет `com.jarvis.chat.dev.debug`). Пересобирать не надо, если APK свежий.
-3. Web dev-сервер: `export JAVA_HOME=/Users/Victor/Library/Java/JavaVirtualMachines/corretto-21.0.9/Contents/Home`,
-   затем `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` (слушает `localhost:8080`, в нём CORS-proxy на DeepSeek).
-4. **Проверь, починился ли WebGL**: `device(enable_module:'browser')` -> `browser:open localhost:8080` ->
-   `evaluate`: есть ли `canvas` и `getContext('webgl2')`. Должен подняться настоящий Chrome (в конфиг MCP
-   прописан `CHROME_PATH=/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`).
-   Если WebGL так и `false` - скажи сразу, дальше web гоним через расширение `claude-in-chrome`.
-5. Доложи готовность: Android ✅/❌, Web ✅/❌ - и жди сценарии.
+2. Web dev-сервер: `export JAVA_HOME=/Users/Victor/Library/Java/JavaVirtualMachines/corretto-21.0.9/Contents/Home`,
+   затем `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` (слушает `localhost:8080`, внутри CORS-proxy на DeepSeek).
+3. **Проверь, что WebGL наконец есть:** `device(enable_module:'browser')` -> `browser:open localhost:8080` ->
+   `evaluate`: `getContext('webgl2')` и наличие `canvas`. Ожидание - **true и canvas отрисован**.
+4. Доложи: Android ✅/❌, Web ✅/❌, и жди сценарий от пользователя.
 
-Формат сценариев и словарь действий - `challenge_advanced/task3/smoke/SCENARIOS_CATALOG.md`.
+## Уже сделано, переделывать не надо
 
-## Верифицированный стейт (не переделывать)
-- **claude-in-mobile МСР починен**: user-scope, `npx -y claude-in-mobile@latest` (без `@latest` npx брал brew
-  Rust-CLI из PATH -> 0 тулов) + `env.CHROME_PATH` на настоящий Chrome.
-- **Android L2 через MCP: 5/5 PASS** (`smoke/mobile/report.md`, 10 скринов) - живой ответ DeepSeek,
-  export-файл 392 B на устройстве, persistence после force-stop.
-- **L1 код-тесты: 30 тестов, зелёные** (`:feature:chat:testAndroidHostTest :feature:ai:testAndroidHostTest`).
-- **Web-таргет wasmJs рабочий**: собирается, отдаётся, js+оба wasm грузятся, Compose монтируется,
-  CORS-proxy до реального DeepSeek подтверждён (401 от api.deepseek.com, без CORS-блока).
-  В обычном Chrome рисуется нормально. Не прогнаны только UI-сценарии - упор был в браузер MCP без WebGL.
+- **Уровень 1 закрыт:** 78 тестов, 0 падений, зелёные с первого прогона. 6 новых файлов (48 новых тестов).
+  Команда: `./gradlew :feature:chat:testAndroidHostTest :feature:ai:testAndroidHostTest :core:viewmodel:testAndroidHostTest`.
+- **Сценарий 1, Android: PASS.** `app:install` -> Success, `app:launch` -> старт,
+  `ui:assert_visible("Ask Jarvis anything to start the conversation.")` -> PASS, PID живой, FATAL = 0.
+  Скрины: `smoke/user-run/mobile/shots/s1_01_installed.png`, `s1_02_launched.png`.
+- **Сценарий 1, Web: не закрыт** - ждал этого рестарта.
+
+## Починка web-драйвера (главное, ради чего рестарт)
+
+Причина была не в приложении. Модуль `browser` пакета `claude-in-mobile` (`src/browser/client.ts`) жёстко
+зашивает `--disable-gpu` при запуске Chrome через `chrome-launcher`, а в текущем Chrome этот флаг убивает и
+программный WebGL. Skiko без WebGL не создаёт `DirectContext.makeGL()` -> Compose не рисует.
+
+Проверено фактом: `--disable-gpu` -> WebGL NO; `--disable-gpu --enable-unsafe-swiftshader` -> WebGL YES.
+
+Решение без форка пакета: `CHROME_PATH` в конфиге MCP указывает на обёртку
+`~/.claude/bin/chrome-swiftshader`, которая дописывает `--enable-unsafe-swiftshader` и пробрасывает остальные
+аргументы. Обновления `claude-in-mobile@latest` её не затирают.
 
 ## Ограничения (жёсткие)
-- Ключ DeepSeek - только `local.properties` (gitignored) и generated-файл в `build/`. **Не хардкодить, не коммитить.**
+- Ключ DeepSeek - только `local.properties` (gitignored) и generated-файл в `build/`. Не хардкодить, не коммитить.
 - НЕ трогать и НЕ коммитить `/Users/Victor/work`.
-- Коммит/пуш - только по явной просьбе. В дереве ~30 незакоммиченных изменений (web-таргет + доки task3).
-- Smoke: ставить APK **поверх** (`-r`), без `pm clear`/uninstall.
+- Коммит/пуш - только по явной просьбе.
+- Smoke: APK ставить **поверх** (`-r`), без `pm clear`/uninstall.
+- Каждый шаг размечать: `▶️ ШАГ`, `🎯 Задача`, `✅ Итог` / `❌ Провал`.
