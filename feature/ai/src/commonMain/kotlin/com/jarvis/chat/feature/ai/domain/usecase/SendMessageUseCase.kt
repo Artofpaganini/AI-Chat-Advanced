@@ -3,7 +3,7 @@ package com.jarvis.chat.feature.ai.domain.usecase
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
 
-class SendMessageUseCase internal constructor(
+class SendMessageUseCase(
     private val repository: AiRepository,
 ) {
 
