@@ -26,7 +26,7 @@
 - Реальный прогон на эмуляторе Small_Phone: S2 получил живой ответ DeepSeek, S5 подтвердил persistence после `force-stop`.
 
 ## Flow-интеграция
-Профиль **`pr-check`** (`pr-check.md` — копия в снапшоте, живёт в `~/.claude/profiles/_shared/profiles/`):
+Профиль **`pr-check`** (`pr-check.md` — копия в снапшоте; в системе живёт в каждом каталоге: `~/.claude/profiles/{base,xbet,alva}/pr-check.md`):
 после PR/деплоя → прогнать L1 (код-тесты затронутых модулей) + L2 (smoke) → **единый отчёт** → вердикт
 MERGE-READY/BLOCKED. Любой FAIL → chaining в `bug-fix`/`incident`.
 Вариация «я задеплоил фичу — обнови smoke и прогони заново»: сперва апдейт `smoke/scenarios.md` под новую
