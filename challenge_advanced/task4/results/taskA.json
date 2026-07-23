@@ -1,0 +1,122 @@
+[
+  {
+    "files": 21,
+    "lines": 320,
+    "violations": {
+      "implicit_it": 2,
+      "comment": 1
+    },
+    "violations_total": 3,
+    "required": {
+      "udf_generic_order": true,
+      "update_state": true,
+      "ui_mapper_class": true,
+      "extension_mapper": true,
+      "sealed_action": true,
+      "koin_module": true
+    },
+    "required_hit": 6,
+    "directories": {
+      "data/model": true,
+      "data/mapper": true,
+      "data/datasource": true,
+      "data/repository": true,
+      "domain/model": true,
+      "domain/repository": true,
+      "domain/usecase": true,
+      "presentation/model": true,
+      "presentation/mapper": true,
+      "presentation": true,
+      "di": true
+    },
+    "directories_hit": 11,
+    "one_entity_per_file": true,
+    "model": "qwen3-coder:30b",
+    "run": {
+      "turns": 21,
+      "eval_tokens": 2830,
+      "seconds": 63,
+      "missing": []
+    }
+  },
+  {
+    "files": 21,
+    "lines": 339,
+    "violations": {
+      "not_null_assert": 1,
+      "implicit_it": 1,
+      "comment": 1
+    },
+    "violations_total": 3,
+    "required": {
+      "udf_generic_order": true,
+      "update_state": true,
+      "ui_mapper_class": true,
+      "extension_mapper": true,
+      "sealed_action": true,
+      "koin_module": true
+    },
+    "required_hit": 6,
+    "directories": {
+      "data/model": true,
+      "data/mapper": true,
+      "data/datasource": true,
+      "data/repository": true,
+      "domain/model": true,
+      "domain/repository": true,
+      "domain/usecase": true,
+      "presentation/model": true,
+      "presentation/mapper": true,
+      "presentation": true,
+      "di": true
+    },
+    "directories_hit": 11,
+    "one_entity_per_file": false,
+    "model": "devstral:24b",
+    "run": {
+      "turns": 2,
+      "eval_tokens": 3260,
+      "seconds": 219,
+      "missing": []
+    }
+  },
+  {
+    "files": 21,
+    "lines": 322,
+    "violations": {
+      "implicit_it": 3
+    },
+    "violations_total": 3,
+    "required": {
+      "udf_generic_order": true,
+      "update_state": true,
+      "ui_mapper_class": true,
+      "extension_mapper": true,
+      "sealed_action": true,
+      "koin_module": true
+    },
+    "required_hit": 6,
+    "directories": {
+      "data/model": true,
+      "data/mapper": true,
+      "data/datasource": true,
+      "data/repository": true,
+      "domain/model": true,
+      "domain/repository": true,
+      "domain/usecase": true,
+      "presentation/model": true,
+      "presentation/mapper": true,
+      "presentation": true,
+      "di": true
+    },
+    "directories_hit": 11,
+    "one_entity_per_file": true,
+    "model": "qwen2.5-coder:14b",
+    "run": {
+      "turns": 1,
+      "eval_tokens": 2969,
+      "seconds": 131,
+      "missing": []
+    }
+  }
+]

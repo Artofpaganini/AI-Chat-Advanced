@@ -26,3 +26,10 @@ build/
 # Logs & crash reports
 *.log
 *.hprof
+
+# данные плагина ProxyAI (чекпойнты диалогов)
+.proxyai/
+
+# harness runtime-мусор
+challenge_advanced/task4/harness/__pycache__/
+challenge_advanced/task4/harness/.build_task

@@ -1,0 +1,65 @@
+[
+  {
+    "model": "qwen3-coder:30b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "files": 21,
+    "turns": 21,
+    "seconds": 60,
+    "violations_total": 2,
+    "violations": {
+      "implicit_it": 2
+    },
+    "required_hit": 6,
+    "directories_hit": 11,
+    "missing": 0
+  },
+  {
+    "model": "qwen3-coder:30b",
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "files": 21,
+    "turns": 21,
+    "seconds": 58,
+    "violations_total": 3,
+    "violations": {
+      "implicit_it": 2,
+      "comment": 1
+    },
+    "required_hit": 6,
+    "directories_hit": 11,
+    "missing": 0
+  },
+  {
+    "model": "qwen3-coder:30b",
+    "temperature": 0.4,
+    "top_p": 0.95,
+    "files": 21,
+    "turns": 21,
+    "seconds": 58,
+    "violations_total": 5,
+    "violations": {
+      "implicit_it": 2,
+      "comment": 3
+    },
+    "required_hit": 6,
+    "directories_hit": 11,
+    "missing": 0
+  },
+  {
+    "model": "qwen3-coder:30b",
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "files": 21,
+    "turns": 21,
+    "seconds": 56,
+    "violations_total": 3,
+    "violations": {
+      "implicit_it": 2,
+      "comment": 1
+    },
+    "required_hit": 6,
+    "directories_hit": 11,
+    "missing": 0
+  }
+]

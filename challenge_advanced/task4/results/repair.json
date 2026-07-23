@@ -1,0 +1,129 @@
+[
+  {
+    "model": "qwen3-coder:30b",
+    "green": false,
+    "rounds_used": 3,
+    "history": [
+      {
+        "round": 0,
+        "green": false,
+        "errors": 12
+      },
+      {
+        "round": 1,
+        "green": false,
+        "errors": 10
+      },
+      {
+        "round": 2,
+        "green": false,
+        "errors": 10
+      },
+      {
+        "round": 3,
+        "green": false,
+        "errors": 10
+      }
+    ],
+    "violations_total": 3,
+    "violations": {
+      "implicit_it": 2,
+      "comment": 1
+    }
+  },
+  {
+    "model": "qwen2.5-coder:14b",
+    "green": false,
+    "rounds_used": 3,
+    "history": [
+      {
+        "round": 0,
+        "green": false,
+        "errors": 33
+      },
+      {
+        "round": 1,
+        "green": false,
+        "errors": 35
+      },
+      {
+        "round": 2,
+        "green": false,
+        "errors": 40
+      },
+      {
+        "round": 3,
+        "green": false,
+        "errors": 40
+      }
+    ],
+    "violations_total": 3,
+    "violations": {
+      "implicit_it": 3
+    }
+  },
+  {
+    "model": "devstral:24b",
+    "green": false,
+    "rounds_used": 3,
+    "history": [
+      {
+        "round": 0,
+        "green": false,
+        "errors": 53
+      },
+      {
+        "round": 1,
+        "green": false,
+        "errors": 51
+      },
+      {
+        "round": 2,
+        "green": false,
+        "errors": 410
+      },
+      {
+        "round": 3,
+        "green": false,
+        "errors": 51
+      }
+    ],
+    "violations_total": 3,
+    "violations": {
+      "not_null_assert": 1,
+      "implicit_it": 1,
+      "comment": 1
+    }
+  },
+  {
+    "model": "deepseek-coder-v2:16b",
+    "green": false,
+    "rounds_used": 3,
+    "history": [
+      {
+        "round": 0,
+        "green": false,
+        "errors": 27
+      },
+      {
+        "round": 1,
+        "green": false,
+        "errors": 346
+      },
+      {
+        "round": 2,
+        "green": false,
+        "errors": 346
+      },
+      {
+        "round": 3,
+        "green": false,
+        "errors": 346
+      }
+    ],
+    "violations_total": 2,
+    "violations": {
+      "implicit_it": 2
+    }
+  }
+]

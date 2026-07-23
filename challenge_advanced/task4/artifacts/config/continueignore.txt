@@ -1,0 +1,41 @@
+# Что НЕ должно попадать в контекст локальной модели.
+# Причина: ретривер тянет ближайшее по эмбеддингу, и markdown-простыни вытесняют соседний Kotlin.
+# Маленькой base-модели автокомплита это ломает подсказку полностью.
+
+# документация и заметки
+*.md
+*.txt
+*.adoc
+docs/
+challenge_advanced/
+swarm-report/
+
+# результаты сборки и кеши
+build/
+.gradle/
+.idea/
+.kotlin/
+DerivedData/
+kotlin-js-store/
+node_modules/
+*.iml
+
+# бинарники и ресурсы
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.svg
+*.gif
+*.apk
+*.aab
+*.jar
+*.so
+*.wasm
+*.lock
+*.log
+
+# секреты - в контекст модели им точно не нужно
+local.properties
+*.jks
+*.keystore

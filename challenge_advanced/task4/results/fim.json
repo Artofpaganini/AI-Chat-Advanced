@@ -1,0 +1,242 @@
+[
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "bare",
+    "hole": "ChatUiMapper.kt:25",
+    "matched": false,
+    "truth": "favoritesCount = state.messages.count { message -> message.isFavorite },",
+    "completion": "",
+    "latency_ms": 300,
+    "prompt_tokens": 329
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "bare",
+    "hole": "ChatCompletionResponseMapper.kt:10",
+    "matched": false,
+    "truth": "text = choices.firstOrNull()?.message?.content.orEmpty().trim(),",
+    "completion": "content = this.choices.first().message.content ?: \"\",",
+    "latency_ms": 200,
+    "prompt_tokens": 84
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "bare",
+    "hole": "HistoryMessageDataMapper.kt:26",
+    "matched": false,
+    "truth": "messages = map { message -> message.toChatMessageDataModel() },",
+    "completion": "messages = map { it.toChatMessageDataModel() }",
+    "latency_ms": 200,
+    "prompt_tokens": 203
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "bare",
+    "hole": "HistoryMessageDataMapper.kt:16",
+    "matched": false,
+    "truth": "MessageAuthor.USER -> AUTHOR_USER\n            MessageAuthor.ASSISTANT -> AUTHOR_ASSISTANT",
+    "completion": "AUTHOR_USER -> MessageAuthor.USER\n            AUTHOR_ASSISTANT -> MessageAuthor.ASSISTANT",
+    "latency_ms": 200,
+    "prompt_tokens": 197
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "bare",
+    "hole": "UdfBaseViewModel.kt:45",
+    "matched": true,
+    "truth": "viewModelScope.launch {",
+    "completion": "viewModelScope.launch {",
+    "latency_ms": 200,
+    "prompt_tokens": 292
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "bare",
+    "hole": "ChatUiMapper.kt:19",
+    "matched": false,
+    "truth": "messages = visibleMessages.map { message -> message.toChatMessageUiModel() },",
+    "completion": "",
+    "latency_ms": 200,
+    "prompt_tokens": 326
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "repo",
+    "hole": "ChatUiMapper.kt:25",
+    "matched": false,
+    "truth": "favoritesCount = state.messages.count { message -> message.isFavorite },",
+    "completion": "favoritesCount = state.messages.filter { message -> message.isFavorite }.size,",
+    "latency_ms": 400,
+    "prompt_tokens": 542
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "repo",
+    "hole": "ChatCompletionResponseMapper.kt:10",
+    "matched": false,
+    "truth": "text = choices.firstOrNull()?.message?.content.orEmpty().trim(),",
+    "completion": "text = choices.first().message.content.value,",
+    "latency_ms": 200,
+    "prompt_tokens": 215
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "repo",
+    "hole": "HistoryMessageDataMapper.kt:26",
+    "matched": false,
+    "truth": "messages = map { message -> message.toChatMessageDataModel() },",
+    "completion": "messages = map { it.toChatMessageDataModel() }",
+    "latency_ms": 300,
+    "prompt_tokens": 362
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "repo",
+    "hole": "HistoryMessageDataMapper.kt:16",
+    "matched": false,
+    "truth": "MessageAuthor.USER -> AUTHOR_USER\n            MessageAuthor.ASSISTANT -> AUTHOR_ASSISTANT",
+    "completion": "MessageAuthor.USER -> AUTHOR_USER\n            else -> AUTHOR_ASSISTANT",
+    "latency_ms": 300,
+    "prompt_tokens": 333
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "repo",
+    "hole": "UdfBaseViewModel.kt:45",
+    "matched": true,
+    "truth": "viewModelScope.launch {",
+    "completion": "viewModelScope.launch {",
+    "latency_ms": 1000,
+    "prompt_tokens": 1870
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "repo",
+    "hole": "ChatUiMapper.kt:19",
+    "matched": false,
+    "truth": "messages = visibleMessages.map { message -> message.toChatMessageUiModel() },",
+    "completion": "",
+    "latency_ms": 300,
+    "prompt_tokens": 503
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "bare",
+    "hole": "ChatUiMapper.kt:25",
+    "matched": false,
+    "truth": "favoritesCount = state.messages.count { message -> message.isFavorite },",
+    "completion": "",
+    "latency_ms": 400,
+    "prompt_tokens": 329
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "bare",
+    "hole": "ChatCompletionResponseMapper.kt:10",
+    "matched": false,
+    "truth": "text = choices.firstOrNull()?.message?.content.orEmpty().trim(),",
+    "completion": "content = this.choices.first().message.content ?: \"\"",
+    "latency_ms": 300,
+    "prompt_tokens": 84
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "bare",
+    "hole": "HistoryMessageDataMapper.kt:26",
+    "matched": false,
+    "truth": "messages = map { message -> message.toChatMessageDataModel() },",
+    "completion": "messages = this.map { it.toChatMessageDataModel() }",
+    "latency_ms": 400,
+    "prompt_tokens": 203
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "bare",
+    "hole": "HistoryMessageDataMapper.kt:16",
+    "matched": false,
+    "truth": "MessageAuthor.USER -> AUTHOR_USER\n            MessageAuthor.ASSISTANT -> AUTHOR_ASSISTANT",
+    "completion": "MessageAuthor.USER -> AUTHOR_USER\n            else -> AUTHOR_ASSISTANT",
+    "latency_ms": 300,
+    "prompt_tokens": 197
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "bare",
+    "hole": "UdfBaseViewModel.kt:45",
+    "matched": true,
+    "truth": "viewModelScope.launch {",
+    "completion": "viewModelScope.launch {",
+    "latency_ms": 400,
+    "prompt_tokens": 292
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "bare",
+    "hole": "ChatUiMapper.kt:19",
+    "matched": false,
+    "truth": "messages = visibleMessages.map { message -> message.toChatMessageUiModel() },",
+    "completion": "messages = visibleMessages.map { it.toChatMessageUiModel() },",
+    "latency_ms": 500,
+    "prompt_tokens": 326
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "repo",
+    "hole": "ChatUiMapper.kt:25",
+    "matched": false,
+    "truth": "favoritesCount = state.messages.count { message -> message.isFavorite },",
+    "completion": "favoritesCount = state.messages.count { it.isFavorite },",
+    "latency_ms": 700,
+    "prompt_tokens": 542
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "repo",
+    "hole": "ChatCompletionResponseMapper.kt:10",
+    "matched": false,
+    "truth": "text = choices.firstOrNull()?.message?.content.orEmpty().trim(),",
+    "completion": "text = choices.first().message.content ?: \"\"",
+    "latency_ms": 400,
+    "prompt_tokens": 215
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "repo",
+    "hole": "HistoryMessageDataMapper.kt:26",
+    "matched": false,
+    "truth": "messages = map { message -> message.toChatMessageDataModel() },",
+    "completion": "messages = this.map { it.toChatMessageDataModel() }",
+    "latency_ms": 500,
+    "prompt_tokens": 362
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "repo",
+    "hole": "HistoryMessageDataMapper.kt:16",
+    "matched": true,
+    "truth": "MessageAuthor.USER -> AUTHOR_USER\n            MessageAuthor.ASSISTANT -> AUTHOR_ASSISTANT",
+    "completion": "MessageAuthor.USER -> AUTHOR_USER\n            MessageAuthor.ASSISTANT -> AUTHOR_ASSISTANT",
+    "latency_ms": 500,
+    "prompt_tokens": 333
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "repo",
+    "hole": "UdfBaseViewModel.kt:45",
+    "matched": true,
+    "truth": "viewModelScope.launch {",
+    "completion": "viewModelScope.launch {",
+    "latency_ms": 1900,
+    "prompt_tokens": 1870
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "repo",
+    "hole": "ChatUiMapper.kt:19",
+    "matched": false,
+    "truth": "messages = visibleMessages.map { message -> message.toChatMessageUiModel() },",
+    "completion": "messages = visibleMessages.map { it.toChatMessageUiModel() },",
+    "latency_ms": 700,
+    "prompt_tokens": 503
+  }
+]

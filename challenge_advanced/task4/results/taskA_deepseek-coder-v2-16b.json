@@ -1,0 +1,41 @@
+[
+  {
+    "files": 21,
+    "lines": 225,
+    "violations": {
+      "implicit_it": 1
+    },
+    "violations_total": 1,
+    "required": {
+      "udf_generic_order": true,
+      "update_state": true,
+      "ui_mapper_class": true,
+      "extension_mapper": false,
+      "sealed_action": true,
+      "koin_module": true
+    },
+    "required_hit": 5,
+    "directories": {
+      "data/model": true,
+      "data/mapper": true,
+      "data/datasource": true,
+      "data/repository": true,
+      "domain/model": true,
+      "domain/repository": true,
+      "domain/usecase": true,
+      "presentation/model": true,
+      "presentation/mapper": true,
+      "presentation": true,
+      "di": true
+    },
+    "directories_hit": 11,
+    "one_entity_per_file": true,
+    "model": "deepseek-coder-v2:16b",
+    "run": {
+      "turns": 2,
+      "eval_tokens": 3130,
+      "seconds": 48,
+      "missing": []
+    }
+  }
+]

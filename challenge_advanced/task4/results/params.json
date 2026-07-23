@@ -1,0 +1,82 @@
+[
+  {
+    "model": "qwen3-coder:30b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "violations_mean": 0,
+    "violations_max": 0,
+    "required_mean": 1,
+    "distinct_outputs": 1,
+    "eval_tps_mean": 70.5
+  },
+  {
+    "model": "qwen3-coder:30b",
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "violations_mean": 0,
+    "violations_max": 0,
+    "required_mean": 1,
+    "distinct_outputs": 1,
+    "eval_tps_mean": 70.2
+  },
+  {
+    "model": "qwen3-coder:30b",
+    "temperature": 0.4,
+    "top_p": 0.95,
+    "violations_mean": 0,
+    "violations_max": 0,
+    "required_mean": 1,
+    "distinct_outputs": 1,
+    "eval_tps_mean": 70.5
+  },
+  {
+    "model": "qwen3-coder:30b",
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "violations_mean": 0,
+    "violations_max": 0,
+    "required_mean": 1,
+    "distinct_outputs": 2,
+    "eval_tps_mean": 70.3
+  },
+  {
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "violations_mean": 0,
+    "violations_max": 0,
+    "required_mean": 1,
+    "distinct_outputs": 1,
+    "eval_tps_mean": 26.0
+  },
+  {
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.1,
+    "top_p": 0.9,
+    "violations_mean": 0,
+    "violations_max": 0,
+    "required_mean": 1,
+    "distinct_outputs": 2,
+    "eval_tps_mean": 26.4
+  },
+  {
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.4,
+    "top_p": 0.95,
+    "violations_mean": 0,
+    "violations_max": 0,
+    "required_mean": 1,
+    "distinct_outputs": 3,
+    "eval_tps_mean": 26.3
+  },
+  {
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "violations_mean": 0,
+    "violations_max": 0,
+    "required_mean": 1,
+    "distinct_outputs": 3,
+    "eval_tps_mean": 25.9
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "bare",
+    "exact": 1,
+    "total": 6,
+    "empty": 2,
+    "implicit_it": 1,
+    "p50_ms": 200.0,
+    "prompt_tokens_median": 247.5
+  },
+  {
+    "model": "qwen2.5-coder:1.5b-base",
+    "scheme": "repo",
+    "exact": 1,
+    "total": 6,
+    "empty": 1,
+    "implicit_it": 1,
+    "p50_ms": 300.0,
+    "prompt_tokens_median": 432.5
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "bare",
+    "exact": 1,
+    "total": 6,
+    "empty": 1,
+    "implicit_it": 2,
+    "p50_ms": 400.0,
+    "prompt_tokens_median": 247.5
+  },
+  {
+    "model": "qwen2.5-coder:3b-base",
+    "scheme": "repo",
+    "exact": 2,
+    "total": 6,
+    "empty": 0,
+    "implicit_it": 3,
+    "p50_ms": 600.0,
+    "prompt_tokens_median": 432.5
+  }
+]
