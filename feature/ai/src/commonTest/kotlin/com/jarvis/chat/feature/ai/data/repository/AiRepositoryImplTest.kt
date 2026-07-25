@@ -9,7 +9,10 @@ import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.request.HttpRequestBuilder
 import kotlinx.coroutines.test.runTest
+import kotlinx.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -70,6 +73,30 @@ class AiRepositoryImplTest {
         }
 
         assertEquals(AiErrorModel.Unknown, error.error)
+    }
+
+    @Test
+    fun sendMessage_whenDataSourceFailsWithIoException_throwsAiExceptionWithNoConnection() = runTest {
+        val dataSource = FakeDeepSeekRemoteDataSource(error = IOException("network down"))
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+
+        val error = assertFailsWith<AiException> {
+            repository.sendMessage(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x")))
+        }
+
+        assertEquals(AiErrorModel.NoConnection, error.error)
+    }
+
+    @Test
+    fun sendMessage_whenDataSourceFailsWithTimeout_throwsAiExceptionWithTimeout() = runTest {
+        val dataSource = FakeDeepSeekRemoteDataSource(error = HttpRequestTimeoutException(HttpRequestBuilder()))
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+
+        val error = assertFailsWith<AiException> {
+            repository.sendMessage(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x")))
+        }
+
+        assertEquals(AiErrorModel.Timeout, error.error)
     }
 
     @Test

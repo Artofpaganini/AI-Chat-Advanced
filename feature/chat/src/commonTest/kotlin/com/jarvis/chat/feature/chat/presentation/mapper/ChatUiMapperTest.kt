@@ -200,6 +200,40 @@ class ChatUiMapperTest {
         assertFalse(uiModel.isLoading)
     }
 
+    @Test
+    fun map_everyAiErrorVariant_producesNonEmptyErrorMessage() {
+        ALL_AI_ERROR_VARIANTS.forEach { error ->
+            val uiModel = mapper.map(ChatState(error = error))
+
+            assertTrue(uiModel.errorMessage.orEmpty().isNotEmpty(), "empty message for $error")
+        }
+    }
+
+    @Test
+    fun map_everyAiErrorVariant_producesDistinctErrorMessages() {
+        val messages = ALL_AI_ERROR_VARIANTS.map { error -> mapper.map(ChatState(error = error)).errorMessage }
+
+        assertEquals(ALL_AI_ERROR_VARIANTS.size, messages.toSet().size)
+    }
+
+    @Test
+    fun map_serverError_includesErrorCodeInMessage() {
+        val state = ChatState(error = AiErrorModel.ServerError(code = TEST_SERVER_ERROR_CODE))
+
+        val uiModel = mapper.map(state)
+
+        assertTrue(uiModel.errorMessage.orEmpty().contains(TEST_SERVER_ERROR_CODE.toString()))
+    }
+
+    @Test
+    fun map_badRequest_includesApiMessageVerbatim() {
+        val state = ChatState(error = AiErrorModel.BadRequest(message = TEST_BAD_REQUEST_MESSAGE))
+
+        val uiModel = mapper.map(state)
+
+        assertEquals(TEST_BAD_REQUEST_MESSAGE, uiModel.errorMessage)
+    }
+
     private fun userMessage(id: String, text: String, timestamp: Long = TEST_TIMESTAMP): HistoryMessageModel =
         HistoryMessageModel(
             id = id,
@@ -227,4 +261,15 @@ class ChatUiMapperTest {
 private const val TEST_TIMESTAMP = 1_700_000_000_000L
 private const val LATER_TEST_TIMESTAMP = 1_700_000_100_000L
 private const val ZERO_TIMESTAMP = 0L
+private const val TEST_SERVER_ERROR_CODE = 503
+private const val TEST_BAD_REQUEST_MESSAGE = "model overloaded, retry later"
 private val TIME_LABEL_REGEX = Regex("^\\d{2}:\\d{2}$")
+private val ALL_AI_ERROR_VARIANTS = listOf(
+    AiErrorModel.NoConnection,
+    AiErrorModel.Timeout,
+    AiErrorModel.Unauthorized,
+    AiErrorModel.BadRequest(message = TEST_BAD_REQUEST_MESSAGE),
+    AiErrorModel.RateLimited,
+    AiErrorModel.ServerError(code = TEST_SERVER_ERROR_CODE),
+    AiErrorModel.Unknown,
+)
