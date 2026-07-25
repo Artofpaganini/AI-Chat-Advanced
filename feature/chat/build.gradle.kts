@@ -28,6 +28,10 @@ kotlin {
             implementation(libs.text.to.speech.compose)
         }
 
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
+        }
+
         wasmJsMain.dependencies {
             implementation(libs.kotlinx.browser)
         }

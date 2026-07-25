@@ -58,7 +58,7 @@ import com.jarvis.chat.feature.chat.presentation.ui.ChatEmptyState
 import com.jarvis.chat.feature.chat.presentation.ui.MessageBubble
 import com.jarvis.chat.feature.chat.presentation.ui.MessageInputBar
 import com.jarvis.chat.feature.chat.presentation.ui.TypingIndicator
-import com.jarvis.chat.feature.chat.resources.Res
+import com.jarvis.chat.feature.chat.presentation.ui.rememberJsonFilePicker
 import com.jarvis.chat.feature.voice.model.SpeechRecognitionStateModel
 import com.jarvis.chat.feature.voice.rememberSpeechRecognitionController
 import kotlinx.coroutines.launch
@@ -77,7 +77,7 @@ private const val CLEAR_HISTORY_DIALOG_TITLE = "Clear chat history?"
 private const val CLEAR_HISTORY_DIALOG_TEXT = "This will permanently delete all messages. This action cannot be undone."
 private const val CLEAR_HISTORY_CONFIRM_BUTTON = "Clear"
 private const val CLEAR_HISTORY_DISMISS_BUTTON = "Cancel"
-private const val MOCK_HISTORY_PATH = "files/mock_chat_history.json"
+private const val IMPORT_READ_FAILED_MESSAGE = "Failed to read file. Please try again."
 private const val SCROLL_TO_BOTTOM_CONTENT_DESCRIPTION = "Scroll to bottom"
 
 @Composable
@@ -103,6 +103,12 @@ internal fun ChatContent(
     )
     val recognitionState by speechRecognitionController.state.collectAsState()
     val isListening = recognitionState is SpeechRecognitionStateModel.Listening
+    val importJsonFile = rememberJsonFilePicker(
+        onFilePicked = { json -> viewModel.onAction(ChatAction.Ui.ImportRequested(json)) },
+        onFailure = {
+            coroutineScope.launch { snackbarHostState.showSnackbar(IMPORT_READ_FAILED_MESSAGE) }
+        },
+    )
     val scrollToBottom: suspend () -> Unit = {
         val lastIndex = (listState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
         listState.animateScrollToItem(lastIndex)
@@ -134,12 +140,7 @@ internal fun ChatContent(
                         isFavoritesFilterActive = uiState.isFavoritesFilterActive,
                         onFavoritesClick = { viewModel.onAction(ChatAction.Ui.FavoritesFilterToggled) },
                         onExportClick = { viewModel.onAction(ChatAction.Ui.ExportClicked) },
-                        onImportClick = {
-                            coroutineScope.launch {
-                                runCatching { Res.readBytes(MOCK_HISTORY_PATH).decodeToString() }
-                                    .onSuccess { json -> viewModel.onAction(ChatAction.Ui.ImportRequested(json)) }
-                            }
-                        },
+                        onImportClick = importJsonFile,
                         onClearHistoryClick = { viewModel.onAction(ChatAction.Ui.ClearHistoryClicked) },
                         onSettingsClick = onSettingsClick,
                     )
