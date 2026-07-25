@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.ai.data.datasource
 
 import com.jarvis.chat.feature.ai.data.model.ChatMessageRequestModel
+import com.jarvis.chat.feature.ai.domain.model.DeepSeekPromptConfigModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -42,6 +43,10 @@ class DeepSeekRemoteDataSourceImplTest {
         val sentBody = (captured.single().body as TextContent).text
         val roles = Regex("\"role\":\"(\\w+)\"").findAll(sentBody).map { match -> match.groupValues[1] }.toList()
         assertEquals(listOf("system", "user"), roles)
+        assertTrue(
+            sentBody.contains("\"content\":\"${testPromptConfig.systemPrompt}\""),
+            "system prompt from config missing in: $sentBody",
+        )
     }
 
     @Test
@@ -63,7 +68,7 @@ class DeepSeekRemoteDataSourceImplTest {
         dataSource.requestCompletion(listOf(userMessage("hello")))
 
         val sentBody = (captured.single().body as TextContent).text
-        assertTrue(sentBody.contains("\"model\":\"deepseek-chat\""), "model missing in: $sentBody")
+        assertTrue(sentBody.contains("\"model\":\"${testPromptConfig.model}\""), "model missing in: $sentBody")
     }
 
     @Test
@@ -97,7 +102,7 @@ class DeepSeekRemoteDataSourceImplTest {
         ) {
             install(ContentNegotiation) { json(lenientJson) }
         }
-        val dataSource = DeepSeekRemoteDataSourceImpl(httpClient = client)
+        val dataSource = DeepSeekRemoteDataSourceImpl(httpClient = client, promptConfig = testPromptConfig)
 
         assertFails { dataSource.requestCompletion(listOf(userMessage("hello"))) }
     }
@@ -107,9 +112,15 @@ class DeepSeekRemoteDataSourceImplTest {
         isLenient = true
     }
 
+    private val testPromptConfig = DeepSeekPromptConfigModel(
+        model = "test-model",
+        systemPrompt = "You are a test system prompt.",
+    )
+
     private fun dataSourceReturning(
         body: String,
         captured: MutableList<HttpRequestData> = mutableListOf(),
+        promptConfig: DeepSeekPromptConfigModel = testPromptConfig,
     ): DeepSeekRemoteDataSourceImpl {
         val client = HttpClient(
             MockEngine { request ->
@@ -123,7 +134,7 @@ class DeepSeekRemoteDataSourceImplTest {
         ) {
             install(ContentNegotiation) { json(lenientJson) }
         }
-        return DeepSeekRemoteDataSourceImpl(httpClient = client)
+        return DeepSeekRemoteDataSourceImpl(httpClient = client, promptConfig = promptConfig)
     }
 
     private fun successBody(content: String): String =

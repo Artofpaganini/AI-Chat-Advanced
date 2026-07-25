@@ -4,6 +4,7 @@ import com.jarvis.chat.feature.ai.data.datasource.DeepSeekRemoteDataSource
 import com.jarvis.chat.feature.ai.data.datasource.DeepSeekRemoteDataSourceImpl
 import com.jarvis.chat.feature.ai.data.repository.AiRepositoryImpl
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
+import com.jarvis.chat.feature.ai.domain.model.DeepSeekPromptConfigModel
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageUseCase
 import io.ktor.client.HttpClient
@@ -23,6 +24,12 @@ import org.koin.dsl.module
 
 val aiModule: Module = module {
     single { provideDeepSeekHttpClient(config = get()) }
+    single {
+        DeepSeekPromptConfigModel(
+            model = DeepSeekDefaults.CHAT_MODEL,
+            systemPrompt = DeepSeekDefaults.SYSTEM_PROMPT,
+        )
+    }
     singleOf(::DeepSeekRemoteDataSourceImpl) bind DeepSeekRemoteDataSource::class
     singleOf(::AiRepositoryImpl) bind AiRepository::class
     factoryOf(::SendMessageUseCase)
