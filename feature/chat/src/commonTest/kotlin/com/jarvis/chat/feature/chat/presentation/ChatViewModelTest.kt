@@ -356,6 +356,66 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun clearHistoryClicked_showsConfirmationDialog() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(ChatAction.Ui.ClearHistoryClicked)
+
+        assertTrue(viewModel.uiState.value.showClearConfirmation)
+    }
+
+    @Test
+    fun clearHistoryConfirmed_clearsMessagesAndPersistsThroughRepository() = runTest {
+        val repository = FakeChatHistoryRepository()
+        val stored = listOf(
+            historyMessage(id = "1", text = "one"),
+            historyMessage(id = "2", text = "two"),
+        )
+        val viewModel = createViewModel(storedMessages = stored, chatRepository = repository)
+
+        viewModel.onAction(ChatAction.Ui.ClearHistoryClicked)
+        viewModel.onAction(ChatAction.Ui.ClearHistoryConfirmed)
+
+        assertTrue(viewModel.uiState.value.messages.isEmpty())
+        assertTrue(repository.stored.isEmpty())
+        assertFalse(viewModel.uiState.value.showClearConfirmation)
+    }
+
+    @Test
+    fun clearHistoryCancelled_keepsHistoryIntactAndHidesDialog() = runTest {
+        val repository = FakeChatHistoryRepository()
+        val stored = listOf(
+            historyMessage(id = "1", text = "one"),
+            historyMessage(id = "2", text = "two"),
+        )
+        val viewModel = createViewModel(storedMessages = stored, chatRepository = repository)
+
+        viewModel.onAction(ChatAction.Ui.ClearHistoryClicked)
+        viewModel.onAction(ChatAction.Ui.ClearHistoryCancelled)
+
+        assertEquals(listOf("1", "2"), viewModel.uiState.value.messages.map { message -> message.id })
+        assertFalse(viewModel.uiState.value.showClearConfirmation)
+        assertTrue(repository.stored.isNotEmpty())
+    }
+
+    @Test
+    fun clearHistoryConfirmed_onRepositoryFailure_showsErrorAndKeepsHistoryIntact() = runTest {
+        val repository = FakeChatHistoryRepository(clearError = IllegalStateException("disk error"))
+        val stored = listOf(historyMessage(id = "1", text = "one"))
+        val viewModel = createViewModel(storedMessages = stored, chatRepository = repository)
+
+        viewModel.onAction(ChatAction.Ui.ClearHistoryClicked)
+        viewModel.onAction(ChatAction.Ui.ClearHistoryConfirmed)
+
+        assertEquals(listOf("1"), viewModel.uiState.value.messages.map { message -> message.id })
+        viewModel.events.test {
+            assertEquals(ChatEvent.ScrollToBottom, awaitItem())
+            assertEquals(ChatEvent.ShowMessage("Failed to clear history. Please try again."), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun deleteMessageClicked_showsConfirmationDialog() = runTest {
         val viewModel = createViewModel(
             storedMessages = listOf(historyMessage(id = "1", text = "one")),
@@ -515,6 +575,7 @@ class ChatViewModelTest {
         private val importError: Throwable? = null,
         private val exportResult: String = "/tmp/export.json",
         private val exportError: Throwable? = null,
+        private val clearError: Throwable? = null,
     ) : ChatHistoryRepository {
 
         var stored: List<HistoryMessageModel> = emptyList()
@@ -529,6 +590,7 @@ class ChatViewModelTest {
         }
 
         override suspend fun clearMessages() {
+            clearError?.let { failure -> throw failure }
             stored = emptyList()
         }
 
