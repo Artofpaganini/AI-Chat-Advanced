@@ -66,6 +66,7 @@ internal fun JarvisTheme(
     val colorScheme = if (darkTheme) JarvisDarkColorScheme else JarvisLightColorScheme
     MaterialTheme(
         colorScheme = colorScheme,
+        typography = JarvisTypography,
         content = content,
     )
 }
