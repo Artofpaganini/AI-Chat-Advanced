@@ -44,15 +44,15 @@
 
 | # | Задача | Статус | С первого раза? | Автофиксы | Время (мин) | Коммит | Заметка |
 |---|---|---|---|---|---|---|---|
-| 1 | AppTheme light/dark | todo | - | - | - | - | - |
-| 2 | Typography | todo | - | - | - | - | - |
-| 3 | Spacing tokens | todo | - | - | - | - | - |
-| 4 | Material icons | todo | - | - | - | - | - |
-| 5 | Copy message | todo | - | - | - | - | - |
-| 6 | Timestamps | todo | - | - | - | - | - |
-| 7 | Retry on error | todo | - | - | - | - | - |
-| 8 | Typing indicator | todo | - | - | - | - | - |
-| 9 | Clear history | todo | - | - | - | - | - |
+| 1 | AppTheme light/dark | done | да | 0 | 2.5 | af14643 | зелёная 26s, git-proof ok |
+| 2 | Typography | done | да | 0 | 1.5 | e434b26 | зелёная, git-proof ok |
+| 3 | Spacing tokens | done | да | 0 | 149s | 620499d | граф модулей верно разобран |
+| 4 | Material icons | done | да | 0 | 6.5 | 8986a6f | иконки сверены с jar, зелёная 26s |
+| 5 | Copy message | done | да | 0 | 3.3 | d0a7973 | UDF Action->Event, зелёная |
+| 6 | Timestamps | done | да | 1* | 7.2 | c2dc1b1 | миграция 0L; *self-fix API времени; тесты зелёные |
+| 7 | Retry on error | done | да | 0 | 4.0 | 4521300 | UDF, тесты 14/14 зелёные |
+| 8 | Typing indicator | done | да | 0 | 1.2 | 7137afc | зелёная; **самопауза №1** после: сбой формата tool-call (громоздкий Bash), само-восстановился |
+| 9 | Clear history | done | да | 0 | 4.5 | 3ae3b87 | topbar + confirm-диалог, зелёная |
 | 10 | Empty state | todo | - | - | - | - | - |
 | 11 | Scroll-to-bottom FAB | todo | - | - | - | - | - |
 | 12 | Settings + theme pick | todo | - | - | - | - | - |
