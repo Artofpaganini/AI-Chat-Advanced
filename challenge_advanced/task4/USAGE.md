@@ -166,6 +166,7 @@ tail -f challenge_advanced/task4/raw/ide_traffic.jsonl
 | ProxyAI: `IOException ... against a directory: .proxyai` | плагин читает свою служебную папку как файл | `.proxyai/` уже в `.gitignore` и `.continueignore`; перезапусти IDE |
 | Панель чата Continue: «Unable to load / JCEF» | webview Continue не стартует на этой сборке Studio | это ожидаемо, чат вынесен в ProxyAI; панель Continue не открывать - см. `IDE_VERIFICATION.md` |
 | Inline Edit Continue (`Cmd+I`) висит | до этого открывалась чат-панель Continue и уронила шину плагина | перезапусти IDE, панель Continue не трогай |
+| **Автокомплит совсем молчит, в `idea.log` цикл `node:internal/process/promises:288` + `retrying in N seconds`** | ядро Continue падает в цикле; провайдер `codebase` + эмбеддер роняют node-ядро на этой сборке 1.0.67 | в `~/.continue/config.yaml` убери из `context:` строку `provider: codebase` и модель с ролью `embed`; перезапусти IDE. Проверить: `pgrep -f continue-binary` - процесс должен жить, `grep -c promises:288 idea.log` - не расти. Движок и модель при этом исправны (проверь: `curl` FIM-запросом к `/api/generate`) |
 | Всё тормозит, мало памяти | две модели в памяти = ~20 GB | `ollama stop <модель>` для ненужной |
 
 ---

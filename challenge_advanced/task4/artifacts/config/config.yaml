@@ -2,11 +2,13 @@ name: JarvisChat local assistant
 version: 1.0.0
 schema: v1
 
-# Каждое число здесь взято из замера, см. challenge_advanced/task4/BENCHMARK.md.
+# Числа взяты из замера, см. challenge_advanced/task4/BENCHMARK.md.
+# ВАЖНО: провайдер `codebase` и эмбеддер `nomic` отключены намеренно - на этой сборке
+# continue-intellij-extension 1.0.67 они роняли node-ядро в цикле
+# (node:internal/process/promises:288). Для автокомплита и чата они не нужны.
 
 models:
-  # Чат, правки и агентный режим.
-  # MoE 30.5B, активных 3.3B - отсюда 66.9 tok/s против 24.8 у плотной 14B.
+  # Чат, правки, агент. MoE 30.5B, активных 3.3B - отсюда 66.9 tok/s против 24.8 у плотной 14B.
   - name: Qwen3-Coder 30B
     provider: ollama
     model: qwen3-coder:30b
@@ -16,17 +18,14 @@ models:
       - edit
       - apply
     defaultCompletionOptions:
-      # 23k токенов промпта = 85 секунд только на его обработку. 12k = 32 c, 6.5k = 15 c.
-      # 16384 - потолок, при котором ассистент ещё интерактивный.
+      # 23k токенов промпта = 85 c обработки, 12k = 32 c, 6.5k = 15 c. 16384 - потолок интерактива.
       contextLength: 16384
       maxTokens: 4096
       temperature: 0.1
       topP: 0.9
       topK: 40
-      keepAlive: 3600
 
   # Автокомплит. Только BASE-модель: instruct на fill-in-the-middle отвечает разговором, а не кодом.
-  # 1.5B против 3B: 200 мс против 400-600 мс.
   - name: Qwen2.5-Coder 1.5B Base
     provider: ollama
     model: qwen2.5-coder:1.5b-base
@@ -38,20 +37,10 @@ models:
       maxTokens: 128
       temperature: 0.05
       topP: 0.9
-      keepAlive: 3600
-    autocompleteOptions:
-      debounceDelay: 250
-      maxPromptTokens: 1024
-      prefixPercentage: 0.5
-      onlyMyCode: true
-
-  # Эмбеддер для индексации кодовой базы под провайдер @codebase.
-  - name: Nomic Embed
-    provider: ollama
-    model: nomic-embed-text:latest
-    apiBase: http://localhost:11434
-    roles:
-      - embed
+      # Без стопа модель переписывает полфайла (900 мс, упор в лимит), плагин такую подсказку выбрасывает.
+      # Со стопом на пустой строке: 171 мс и чистая подсказка.
+      stop:
+        - "\n\n"
 
 context:
   - provider: file
@@ -59,7 +48,3 @@ context:
   - provider: diff
   - provider: terminal
   - provider: currentFile
-  - provider: codebase
-    params:
-      nRetrieve: 20
-      nFinal: 6
