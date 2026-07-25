@@ -7,6 +7,7 @@ import com.jarvis.chat.feature.ai.domain.usecase.SendMessageUseCase
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
+import com.jarvis.chat.feature.chat.domain.usecase.ClearChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ExportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ImportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.LoadChatHistoryUseCase
@@ -198,6 +199,7 @@ class ChatViewModelTest {
             sendMessageUseCase = sendMessageUseCase,
             loadChatHistoryUseCase = LoadChatHistoryUseCase(chatRepository),
             saveChatHistoryUseCase = SaveChatHistoryUseCase(chatRepository),
+            clearChatHistoryUseCase = ClearChatHistoryUseCase(chatRepository),
             exportChatHistoryUseCase = ExportChatHistoryUseCase(chatRepository),
             importChatHistoryUseCase = ImportChatHistoryUseCase(chatRepository),
             uiMapper = ChatUiMapper(),
@@ -237,6 +239,10 @@ class ChatViewModelTest {
         override suspend fun saveMessages(messages: List<HistoryMessageModel>) {
             saved += messages
             stored = messages
+        }
+
+        override suspend fun clearMessages() {
+            stored = emptyList()
         }
 
         override suspend fun exportMessages(messages: List<HistoryMessageModel>): String = "/tmp/export.json"

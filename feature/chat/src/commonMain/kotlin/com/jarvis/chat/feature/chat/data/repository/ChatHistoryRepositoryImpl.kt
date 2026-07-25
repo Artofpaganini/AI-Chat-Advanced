@@ -18,6 +18,10 @@ internal class ChatHistoryRepositoryImpl(
         localDataSource.writeHistory(messages.toChatHistoryDataModel())
     }
 
+    override suspend fun clearMessages() {
+        saveMessages(emptyList())
+    }
+
     override suspend fun exportMessages(messages: List<HistoryMessageModel>): String =
         localDataSource.writeExport(messages.toChatHistoryDataModel())
 

@@ -16,10 +16,12 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,6 +63,11 @@ private const val RETRY_BUTTON_TEXT = "Retry"
 private const val FAVORITES_CONTENT_DESCRIPTION = "Toggle favorites filter"
 private const val EXPORT_CONTENT_DESCRIPTION = "Export chat history"
 private const val IMPORT_CONTENT_DESCRIPTION = "Import chat history"
+private const val CLEAR_HISTORY_CONTENT_DESCRIPTION = "Clear chat history"
+private const val CLEAR_HISTORY_DIALOG_TITLE = "Clear chat history?"
+private const val CLEAR_HISTORY_DIALOG_TEXT = "This will permanently delete all messages. This action cannot be undone."
+private const val CLEAR_HISTORY_CONFIRM_BUTTON = "Clear"
+private const val CLEAR_HISTORY_DISMISS_BUTTON = "Cancel"
 private const val MOCK_HISTORY_PATH = "files/mock_chat_history.json"
 
 @Composable
@@ -99,6 +106,13 @@ internal fun ChatContent(
         }
     }
 
+    if (uiState.showClearConfirmation) {
+        ClearHistoryConfirmationDialog(
+            onConfirm = { viewModel.onAction(ChatAction.Ui.ClearHistoryConfirmed) },
+            onDismiss = { viewModel.onAction(ChatAction.Ui.ClearHistoryCancelled) },
+        )
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -115,6 +129,7 @@ internal fun ChatContent(
                                     .onSuccess { json -> viewModel.onAction(ChatAction.Ui.ImportRequested(json)) }
                             }
                         },
+                        onClearHistoryClick = { viewModel.onAction(ChatAction.Ui.ClearHistoryClicked) },
                     )
                 },
             )
@@ -153,6 +168,7 @@ private fun ChatTopBarActions(
     onFavoritesClick: () -> Unit,
     onExportClick: () -> Unit,
     onImportClick: () -> Unit,
+    onClearHistoryClick: () -> Unit,
 ) {
     IconButton(onClick = onFavoritesClick) {
         Icon(
@@ -177,6 +193,34 @@ private fun ChatTopBarActions(
             contentDescription = IMPORT_CONTENT_DESCRIPTION,
         )
     }
+    IconButton(onClick = onClearHistoryClick) {
+        Icon(
+            imageVector = Icons.Filled.Delete,
+            contentDescription = CLEAR_HISTORY_CONTENT_DESCRIPTION,
+        )
+    }
+}
+
+@Composable
+private fun ClearHistoryConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = CLEAR_HISTORY_DIALOG_TITLE) },
+        text = { Text(text = CLEAR_HISTORY_DIALOG_TEXT) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(text = CLEAR_HISTORY_CONFIRM_BUTTON)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = CLEAR_HISTORY_DISMISS_BUTTON)
+            }
+        },
+    )
 }
 
 @Composable

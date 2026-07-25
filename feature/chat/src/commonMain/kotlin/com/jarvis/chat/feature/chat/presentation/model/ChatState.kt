@@ -9,4 +9,5 @@ internal data class ChatState(
     val hasError: Boolean = false,
     val isFavoritesFilterActive: Boolean = false,
     val lastSentText: String = "",
+    val showClearConfirmation: Boolean = false,
 )

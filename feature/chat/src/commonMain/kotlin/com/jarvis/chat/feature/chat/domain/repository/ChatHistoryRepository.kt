@@ -9,6 +9,8 @@ internal interface ChatHistoryRepository {
 
     suspend fun saveMessages(messages: List<HistoryMessageModel>)
 
+    suspend fun clearMessages()
+
     suspend fun exportMessages(messages: List<HistoryMessageModel>): String
 
     suspend fun importMessages(

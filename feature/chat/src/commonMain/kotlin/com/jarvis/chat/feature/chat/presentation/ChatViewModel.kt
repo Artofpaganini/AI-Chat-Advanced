@@ -8,6 +8,7 @@ import com.jarvis.chat.feature.ai.domain.usecase.SendMessageUseCase
 import com.jarvis.chat.feature.chat.domain.mapper.toChatMessageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
+import com.jarvis.chat.feature.chat.domain.usecase.ClearChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ExportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ImportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.LoadChatHistoryUseCase
@@ -28,11 +29,14 @@ private const val IMPORT_FAILED_MESSAGE = "Import failed. Invalid file."
 private const val IMPORT_MESSAGE_PREFIX = "Imported history: "
 private const val IMPORT_MESSAGE_SUFFIX = " messages."
 private const val COPIED_MESSAGE = "Скопировано"
+private const val CLEAR_HISTORY_MESSAGE = "Chat history cleared."
+private const val CLEAR_HISTORY_FAILED_MESSAGE = "Failed to clear history. Please try again."
 
 internal class ChatViewModel(
     private val sendMessageUseCase: SendMessageUseCase,
     private val loadChatHistoryUseCase: LoadChatHistoryUseCase,
     private val saveChatHistoryUseCase: SaveChatHistoryUseCase,
+    private val clearChatHistoryUseCase: ClearChatHistoryUseCase,
     private val exportChatHistoryUseCase: ExportChatHistoryUseCase,
     private val importChatHistoryUseCase: ImportChatHistoryUseCase,
     uiMapper: ChatUiMapper,
@@ -56,6 +60,9 @@ internal class ChatViewModel(
             is ChatAction.Ui.FavoritesFilterToggled -> onFavoritesFilterToggled()
             is ChatAction.Ui.ExportClicked -> onExportClicked()
             is ChatAction.Ui.ImportRequested -> onImportRequested(action.json)
+            is ChatAction.Ui.ClearHistoryClicked -> onClearHistoryClicked()
+            is ChatAction.Ui.ClearHistoryConfirmed -> onClearHistoryConfirmed()
+            is ChatAction.Ui.ClearHistoryCancelled -> onClearHistoryCancelled()
             is ChatAction.Internal.HistoryLoaded -> onHistoryLoaded(action.messages)
             is ChatAction.Internal.ReplyReceived -> onReplyReceived(action.message)
             is ChatAction.Internal.ReplyFailed -> onReplyFailed()
@@ -63,6 +70,8 @@ internal class ChatViewModel(
             is ChatAction.Internal.ExportFailed -> onExportFailed()
             is ChatAction.Internal.Imported -> onImported(action.messages)
             is ChatAction.Internal.ImportFailed -> onImportFailed()
+            is ChatAction.Internal.HistoryCleared -> onHistoryCleared()
+            is ChatAction.Internal.ClearHistoryFailed -> onClearHistoryFailed()
         }
     }
 
@@ -184,6 +193,39 @@ internal class ChatViewModel(
 
     private fun onImportFailed() {
         postEvent(ChatEvent.ShowMessage(IMPORT_FAILED_MESSAGE))
+    }
+
+    private fun onClearHistoryClicked() {
+        updateState { copy(showClearConfirmation = true) }
+    }
+
+    private fun onClearHistoryCancelled() {
+        updateState { copy(showClearConfirmation = false) }
+    }
+
+    private fun onClearHistoryConfirmed() {
+        updateState { copy(showClearConfirmation = false) }
+        viewModelScope.launch {
+            clearChatHistoryUseCase()
+                .onSuccess { onAction(ChatAction.Internal.HistoryCleared) }
+                .onFailure { onAction(ChatAction.Internal.ClearHistoryFailed) }
+        }
+    }
+
+    private fun onHistoryCleared() {
+        updateState {
+            copy(
+                messages = emptyList(),
+                isFavoritesFilterActive = false,
+                hasError = false,
+                lastSentText = "",
+            )
+        }
+        postEvent(ChatEvent.ShowMessage(CLEAR_HISTORY_MESSAGE))
+    }
+
+    private fun onClearHistoryFailed() {
+        postEvent(ChatEvent.ShowMessage(CLEAR_HISTORY_FAILED_MESSAGE))
     }
 
     private fun loadHistory() {

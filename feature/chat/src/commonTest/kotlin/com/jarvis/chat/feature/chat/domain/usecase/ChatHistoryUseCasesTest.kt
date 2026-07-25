@@ -112,6 +112,11 @@ private class FakeChatHistoryRepository(
         this.messages = messages
     }
 
+    override suspend fun clearMessages() {
+        failIfRequested()
+        messages = emptyList()
+    }
+
     override suspend fun exportMessages(messages: List<HistoryMessageModel>): String {
         failIfRequested()
         return exportPath

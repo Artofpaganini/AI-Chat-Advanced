@@ -8,4 +8,5 @@ internal data class ChatUiModel(
     val isErrorVisible: Boolean,
     val isFavoritesFilterActive: Boolean,
     val favoritesCount: Int,
+    val showClearConfirmation: Boolean,
 )

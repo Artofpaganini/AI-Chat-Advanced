@@ -24,6 +24,12 @@ internal sealed interface ChatAction {
         data object ExportClicked : Ui
 
         data class ImportRequested(val json: String) : Ui
+
+        data object ClearHistoryClicked : Ui
+
+        data object ClearHistoryConfirmed : Ui
+
+        data object ClearHistoryCancelled : Ui
     }
 
     sealed interface Internal : ChatAction {
@@ -41,5 +47,9 @@ internal sealed interface ChatAction {
         data class Imported(val messages: List<HistoryMessageModel>) : Internal
 
         data object ImportFailed : Internal
+
+        data object HistoryCleared : Internal
+
+        data object ClearHistoryFailed : Internal
     }
 }
