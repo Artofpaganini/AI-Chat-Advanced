@@ -75,7 +75,7 @@ API снял модель, а гейт из сборки и моков тако�
 | 1 | Различать ошибки | done | да | 0 | 22.0 | 8112630 | 14 файлов: `AiErrorModel` (7 вариантов) + `AiException` + `AiErrorMapper`, `expectSuccess = true`, `hasError` -> `error: AiErrorModel?`, текст собирает `ChatUiMapper`. Гейт прогнал сам: 3 таргета + 74 теста, 0 падений. **Инцидент №1**: я преждевременно похоронил агента и передиспатчил, два агента писали одни файлы (см. ниже) |
 | 2 | Таймауты HTTP | done | да | 0 | 3.0 | 93005ab | request 90s / connect 10s / socket 60s именованными константами; ловушка обойдена - алиас `ktor-client-http-timeout` НЕ подключён, плагин взят из `ktor-client-core`; 3 таргета + тесты, XML подтверждён; на wasmJs гарантирован только request-таймаут |
 | 3 | Deprecated clipboard | todo | - | - | - | - | - |
-| 6 | Тесты маппинга ошибок | todo | - | - | - | - | - |
+| 6 | Тесты маппинга ошибок | done | да | 0 | 7.0 | 8a07d8f | +15 тестов: новый `AiErrorMapperTest` (9), `AiRepositoryImplTest` (+2), `ChatUiMapperTest` (+4). Ключевой - текст от API реально доезжает в `BadRequest.message`. Находка агента: `HttpRequestTimeoutException` на JVM наследует `IOException`, приоритет ветки `Timeout` проверен тестом, а не на глаз |
 | 5 | wasmJs-тесты истории | todo | - | - | - | - | - |
 | 4 | Импорт через пикер | todo | - | - | - | - | - |
 | 7 | Выбор модели | todo | - | - | - | - | - |
