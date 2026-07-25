@@ -1,0 +1,96 @@
+{
+  "model": "qwen3-coder:30b",
+  "results": [
+    {
+      "index": 1,
+      "title": "Счётчик символов",
+      "done": true,
+      "reason": "ok",
+      "steps": 27,
+      "tool_calls": 23,
+      "tool_calls_failed": 0,
+      "build_runs": 8,
+      "eval_tokens": 4190,
+      "finish": "answered",
+      "nudges": 3,
+      "changed_files": [
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/ui/ChatDimens.kt",
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/ui/MessageInputBar.kt"
+      ],
+      "minutes": 6.0
+    },
+    {
+      "index": 2,
+      "title": "Лимит длины сообщения",
+      "done": true,
+      "reason": "ok",
+      "steps": 32,
+      "tool_calls": 28,
+      "tool_calls_failed": 3,
+      "build_runs": 4,
+      "eval_tokens": 5211,
+      "finish": "answered",
+      "nudges": 3,
+      "changed_files": [
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/ui/ChatDimens.kt",
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/ui/MessageInputBar.kt"
+      ],
+      "minutes": 6.5
+    },
+    {
+      "index": 3,
+      "title": "Крестик очистки поля ввода",
+      "done": true,
+      "reason": "ok",
+      "steps": 38,
+      "tool_calls": 34,
+      "tool_calls_failed": 1,
+      "build_runs": 9,
+      "eval_tokens": 8903,
+      "finish": "answered",
+      "nudges": 3,
+      "changed_files": [
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/ui/MessageInputBar.kt"
+      ],
+      "minutes": 12.6
+    },
+    {
+      "index": 4,
+      "title": "Число сообщений в заголовке",
+      "done": false,
+      "reason": "сборка красная",
+      "steps": 38,
+      "tool_calls": 38,
+      "tool_calls_failed": 3,
+      "build_runs": 11,
+      "eval_tokens": 18424,
+      "finish": "max_steps",
+      "nudges": 0,
+      "changed_files": [
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/ChatScreen.kt",
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/mapper/ChatUiMapper.kt",
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/model/ChatUiModel.kt",
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/ui/ChatDimens.kt"
+      ],
+      "minutes": 41.0
+    },
+    {
+      "index": 5,
+      "title": "Плейсхолдер во время генерации",
+      "done": true,
+      "reason": "ok",
+      "steps": 42,
+      "tool_calls": 38,
+      "tool_calls_failed": 15,
+      "build_runs": 3,
+      "eval_tokens": 3659,
+      "finish": "answered",
+      "nudges": 3,
+      "changed_files": [
+        "feature/chat/src/commonMain/kotlin/com/jarvis/chat/feature/chat/presentation/ui/MessageInputBar.kt"
+      ],
+      "minutes": 10.0
+    }
+  ],
+  "total_minutes": 76.0
+}
