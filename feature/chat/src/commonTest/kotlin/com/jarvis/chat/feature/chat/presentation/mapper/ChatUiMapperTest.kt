@@ -149,23 +149,81 @@ class ChatUiMapperTest {
         assertFalse(uiModel.isFavoritesEmptyState)
     }
 
-    private fun userMessage(id: String, text: String): HistoryMessageModel =
+    @Test
+    fun map_userMessage_projectsTimestampAsHourMinuteTimeLabel() {
+        val state = ChatState(messages = listOf(userMessage(id = "u1", text = "hello", timestamp = TEST_TIMESTAMP)))
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertTrue(TIME_LABEL_REGEX.matches(uiMessage.timeLabel))
+    }
+
+    @Test
+    fun map_zeroTimestamp_doesNotCrashAndProducesTimeLabel() {
+        val state = ChatState(messages = listOf(userMessage(id = "u1", text = "legacy", timestamp = ZERO_TIMESTAMP)))
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertTrue(TIME_LABEL_REGEX.matches(uiMessage.timeLabel))
+    }
+
+    @Test
+    fun map_messagesWithDifferentAuthorsAndTimestamps_preservesMessageOrder() {
+        val state = ChatState(
+            messages = listOf(
+                userMessage(id = "u1", text = "question", timestamp = TEST_TIMESTAMP),
+                assistantMessage(id = "a1", text = "answer", isFavorite = false, timestamp = LATER_TEST_TIMESTAMP),
+            ),
+        )
+
+        val uiModel = mapper.map(state)
+
+        assertEquals(listOf("u1", "a1"), uiModel.messages.map { message -> message.id })
+    }
+
+    @Test
+    fun map_isLoadingTrue_showsTypingIndicator() {
+        val state = ChatState(isLoading = true)
+
+        val uiModel = mapper.map(state)
+
+        assertTrue(uiModel.isLoading)
+    }
+
+    @Test
+    fun map_isLoadingFalse_hidesTypingIndicator() {
+        val state = ChatState(isLoading = false)
+
+        val uiModel = mapper.map(state)
+
+        assertFalse(uiModel.isLoading)
+    }
+
+    private fun userMessage(id: String, text: String, timestamp: Long = TEST_TIMESTAMP): HistoryMessageModel =
         HistoryMessageModel(
             id = id,
             author = MessageAuthor.USER,
             text = text,
             isFavorite = false,
-            timestamp = TEST_TIMESTAMP,
+            timestamp = timestamp,
         )
 
-    private fun assistantMessage(id: String, text: String, isFavorite: Boolean): HistoryMessageModel =
+    private fun assistantMessage(
+        id: String,
+        text: String,
+        isFavorite: Boolean,
+        timestamp: Long = TEST_TIMESTAMP,
+    ): HistoryMessageModel =
         HistoryMessageModel(
             id = id,
             author = MessageAuthor.ASSISTANT,
             text = text,
             isFavorite = isFavorite,
-            timestamp = TEST_TIMESTAMP,
+            timestamp = timestamp,
         )
 }
 
 private const val TEST_TIMESTAMP = 1_700_000_000_000L
+private const val LATER_TEST_TIMESTAMP = 1_700_000_100_000L
+private const val ZERO_TIMESTAMP = 0L
+private val TIME_LABEL_REGEX = Regex("^\\d{2}:\\d{2}$")
