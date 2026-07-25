@@ -56,7 +56,7 @@
 | 10 | Empty state | done | да | 0 | 8.0 | 52fdc61 | сборка 2s; флаг в UiMapper, Action.SuggestionClicked; **инцидент №2**: агент нарушил контракт - `git stash -u` для A/B pre-existing (дерево вернул); **инцидент №3**: отфильтрованный `git status` дал пустоту при 9 правках -> git-proof только `rtk proxy git status --porcelain` |
 | 11 | Scroll-to-bottom FAB | done | да | 0 | 3.5 | fad60b4 | 1 файл; `derivedStateOf` по `visibleItemsInfo`, FAB внутри Box (не слот Scaffold - иначе прыжок над imePadding); разведка сняла все риски, автофиксов 0 |
 | 12 | Settings + theme pick | done | да | 0 | 11.0 | d3dc651 | самая тяжёлая: новый модуль `feature/settings` (22 файла), multiplatform-settings-no-arg, синхронное чтение -> нет вспышки темы; `JarvisTheme` не расширял - тема применяется в App.kt; **гейт добит мной**: агент не гонял iOS, я прогнал `compileKotlinIosSimulatorArm64` -> зелёный 4s |
-| 13 | Extract prompt/model | todo | - | - | - | - | - |
+| 13 | Extract prompt/model | done | да | 0 | 4.0 | b5d2168 | `DeepSeekPromptConfigModel` + `DeepSeekDefaults`, типизированный бин обошёл резолв `singleOf` по String; платформенные входы не задеты (проверено diff); агент сверил XML-отчёт, а не вывод gradle |
 | 14 | ChatUiMapper tests | todo | - | - | - | - | - |
 | 15 | feature/chat README | todo | - | - | - | - | - |
 
