@@ -1,5 +1,10 @@
 package com.jarvis.chat.feature.chat.presentation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,10 +24,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -69,6 +77,7 @@ private const val CLEAR_HISTORY_DIALOG_TEXT = "This will permanently delete all 
 private const val CLEAR_HISTORY_CONFIRM_BUTTON = "Clear"
 private const val CLEAR_HISTORY_DISMISS_BUTTON = "Cancel"
 private const val MOCK_HISTORY_PATH = "files/mock_chat_history.json"
+private const val SCROLL_TO_BOTTOM_CONTENT_DESCRIPTION = "Scroll to bottom"
 
 @Composable
 fun ChatScreen(modifier: Modifier = Modifier) {
@@ -92,15 +101,15 @@ internal fun ChatContent(
     )
     val recognitionState by speechRecognitionController.state.collectAsState()
     val isListening = recognitionState is SpeechRecognitionStateModel.Listening
+    val scrollToBottom: suspend () -> Unit = {
+        val lastIndex = (listState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
+        listState.animateScrollToItem(lastIndex)
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                ChatEvent.ScrollToBottom -> {
-                    val lastIndex = (listState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
-                    listState.animateScrollToItem(lastIndex)
-                }
-
+                ChatEvent.ScrollToBottom -> scrollToBottom()
                 is ChatEvent.ShowMessage -> snackbarHostState.showSnackbar(event.text)
             }
         }
@@ -158,6 +167,7 @@ internal fun ChatContent(
             onCopy = { viewModel.onAction(ChatAction.Ui.MessageCopied) },
             onRetryClick = { viewModel.onAction(ChatAction.Ui.RetryClicked) },
             onSuggestionClick = { suggestion -> viewModel.onAction(ChatAction.Ui.SuggestionClicked(suggestion)) },
+            onScrollToBottomClick = { coroutineScope.launch { scrollToBottom() } },
             modifier = Modifier.padding(innerPadding),
         )
     }
@@ -234,6 +244,7 @@ private fun ChatMessages(
     onCopy: () -> Unit,
     onRetryClick: () -> Unit,
     onSuggestionClick: (String) -> Unit,
+    onScrollToBottomClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -249,6 +260,15 @@ private fun ChatMessages(
                     .padding(ChatDimens.spacingMd),
             )
         } else {
+            val isScrollToBottomVisible by remember {
+                derivedStateOf {
+                    val layoutInfo = listState.layoutInfo
+                    val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                    val lastItemIndex = layoutInfo.totalItemsCount - 1
+                    lastVisibleIndex != null && lastVisibleIndex < lastItemIndex
+                }
+            }
+
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
@@ -286,6 +306,22 @@ private fun ChatMessages(
                             }
                         }
                     }
+                }
+            }
+
+            AnimatedVisibility(
+                visible = isScrollToBottomVisible,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut(),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(ChatDimens.spacingMd),
+            ) {
+                FloatingActionButton(onClick = onScrollToBottomClick) {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = SCROLL_TO_BOTTOM_CONTENT_DESCRIPTION,
+                    )
                 }
             }
         }
