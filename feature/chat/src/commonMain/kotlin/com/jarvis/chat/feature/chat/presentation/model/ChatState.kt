@@ -11,4 +11,5 @@ internal data class ChatState(
     val isFavoritesFilterActive: Boolean = false,
     val lastSentText: String = "",
     val showClearConfirmation: Boolean = false,
+    val pendingDeleteMessageId: String? = null,
 )

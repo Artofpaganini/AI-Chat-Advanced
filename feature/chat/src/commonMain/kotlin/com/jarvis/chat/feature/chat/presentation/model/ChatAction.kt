@@ -34,6 +34,12 @@ internal sealed interface ChatAction {
         data object ClearHistoryConfirmed : Ui
 
         data object ClearHistoryCancelled : Ui
+
+        data class DeleteMessageClicked(val messageId: String) : Ui
+
+        data object DeleteMessageConfirmed : Ui
+
+        data object DeleteMessageCancelled : Ui
     }
 
     sealed interface Internal : ChatAction {
@@ -57,5 +63,9 @@ internal sealed interface ChatAction {
         data object HistoryCleared : Internal
 
         data object ClearHistoryFailed : Internal
+
+        data class MessageDeleted(val messages: List<HistoryMessageModel>) : Internal
+
+        data object DeleteMessageFailed : Internal
     }
 }

@@ -81,6 +81,35 @@ class ChatHistoryUseCasesTest {
         assertTrue(result.isFailure)
     }
 
+    @Test
+    fun delete_removesTargetMessageAndKeepsSiblings() = runTest {
+        val repository = FakeChatHistoryRepository()
+        val messages = listOf(message(id = "m1"), message(id = "m2"), message(id = "m3"))
+
+        val result = DeleteMessageUseCase(repository).invoke(messages = messages, messageId = "m2")
+
+        assertEquals(listOf("m1", "m3"), result.getOrNull()?.map { deletedMessage -> deletedMessage.id })
+    }
+
+    @Test
+    fun delete_onSuccess_persistsUpdatedHistoryToRepository() = runTest {
+        val repository = FakeChatHistoryRepository()
+        val messages = listOf(message(id = "m1"), message(id = "m2"))
+
+        DeleteMessageUseCase(repository).invoke(messages = messages, messageId = "m1")
+
+        assertEquals(listOf("m2"), repository.loadMessages().map { savedMessage -> savedMessage.id })
+    }
+
+    @Test
+    fun delete_onRepositoryFailure_returnsFailure() = runTest {
+        val repository = FakeChatHistoryRepository(shouldFail = true)
+
+        val result = DeleteMessageUseCase(repository).invoke(messages = listOf(message(id = "m1")), messageId = "m1")
+
+        assertTrue(result.isFailure)
+    }
+
     private fun message(id: String): HistoryMessageModel =
         HistoryMessageModel(
             id = id,

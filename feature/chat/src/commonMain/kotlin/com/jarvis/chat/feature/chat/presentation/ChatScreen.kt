@@ -77,6 +77,10 @@ private const val CLEAR_HISTORY_DIALOG_TITLE = "Clear chat history?"
 private const val CLEAR_HISTORY_DIALOG_TEXT = "This will permanently delete all messages. This action cannot be undone."
 private const val CLEAR_HISTORY_CONFIRM_BUTTON = "Clear"
 private const val CLEAR_HISTORY_DISMISS_BUTTON = "Cancel"
+private const val DELETE_MESSAGE_DIALOG_TITLE = "Delete message?"
+private const val DELETE_MESSAGE_DIALOG_TEXT = "This will permanently delete this message. This action cannot be undone."
+private const val DELETE_MESSAGE_CONFIRM_BUTTON = "Delete"
+private const val DELETE_MESSAGE_DISMISS_BUTTON = "Cancel"
 private const val IMPORT_READ_FAILED_MESSAGE = "Failed to read file. Please try again."
 private const val SCROLL_TO_BOTTOM_CONTENT_DESCRIPTION = "Scroll to bottom"
 
@@ -130,6 +134,13 @@ internal fun ChatContent(
         )
     }
 
+    if (uiState.isDeleteMessageConfirmationVisible) {
+        DeleteMessageConfirmationDialog(
+            onConfirm = { viewModel.onAction(ChatAction.Ui.DeleteMessageConfirmed) },
+            onDismiss = { viewModel.onAction(ChatAction.Ui.DeleteMessageCancelled) },
+        )
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -171,6 +182,7 @@ internal fun ChatContent(
             onSpeak = { text -> coroutineScope.launch { textToSpeech?.say(text) } },
             onToggleFavorite = { messageId -> viewModel.onAction(ChatAction.Ui.FavoriteToggled(messageId)) },
             onCopy = { viewModel.onAction(ChatAction.Ui.MessageCopied) },
+            onDeleteRequest = { messageId -> viewModel.onAction(ChatAction.Ui.DeleteMessageClicked(messageId)) },
             onRetryClick = { viewModel.onAction(ChatAction.Ui.RetryClicked) },
             onSuggestionClick = { suggestion -> viewModel.onAction(ChatAction.Ui.SuggestionClicked(suggestion)) },
             onScrollToBottomClick = { coroutineScope.launch { scrollToBottom() } },
@@ -248,6 +260,28 @@ private fun ClearHistoryConfirmationDialog(
 }
 
 @Composable
+private fun DeleteMessageConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = DELETE_MESSAGE_DIALOG_TITLE) },
+        text = { Text(text = DELETE_MESSAGE_DIALOG_TEXT) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(text = DELETE_MESSAGE_CONFIRM_BUTTON)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = DELETE_MESSAGE_DISMISS_BUTTON)
+            }
+        },
+    )
+}
+
+@Composable
 private fun ChatMessages(
     uiState: ChatUiModel,
     listState: LazyListState,
@@ -255,6 +289,7 @@ private fun ChatMessages(
     onSpeak: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
     onCopy: () -> Unit,
+    onDeleteRequest: (String) -> Unit,
     onRetryClick: () -> Unit,
     onSuggestionClick: (String) -> Unit,
     onScrollToBottomClick: () -> Unit,
@@ -295,6 +330,7 @@ private fun ChatMessages(
                         onSpeak = onSpeak,
                         onToggleFavorite = onToggleFavorite,
                         onCopy = onCopy,
+                        onDeleteRequest = onDeleteRequest,
                     )
                 }
                 if (uiState.isLoading) {

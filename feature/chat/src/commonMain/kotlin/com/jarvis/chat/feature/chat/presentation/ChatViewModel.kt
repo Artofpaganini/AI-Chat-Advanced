@@ -10,6 +10,7 @@ import com.jarvis.chat.feature.chat.domain.mapper.toChatMessageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
 import com.jarvis.chat.feature.chat.domain.usecase.ClearChatHistoryUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.DeleteMessageUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ExportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ImportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.LoadChatHistoryUseCase
@@ -35,12 +36,15 @@ private const val IMPORT_MESSAGE_SUFFIX = " messages."
 private const val COPIED_MESSAGE = "Скопировано"
 private const val CLEAR_HISTORY_MESSAGE = "Chat history cleared."
 private const val CLEAR_HISTORY_FAILED_MESSAGE = "Failed to clear history. Please try again."
+private const val DELETE_MESSAGE_MESSAGE = "Message deleted."
+private const val DELETE_MESSAGE_FAILED_MESSAGE = "Failed to delete message. Please try again."
 
 internal class ChatViewModel(
     private val sendMessageStreamUseCase: SendMessageStreamUseCase,
     private val loadChatHistoryUseCase: LoadChatHistoryUseCase,
     private val saveChatHistoryUseCase: SaveChatHistoryUseCase,
     private val clearChatHistoryUseCase: ClearChatHistoryUseCase,
+    private val deleteMessageUseCase: DeleteMessageUseCase,
     private val exportChatHistoryUseCase: ExportChatHistoryUseCase,
     private val importChatHistoryUseCase: ImportChatHistoryUseCase,
     uiMapper: ChatUiMapper,
@@ -72,6 +76,9 @@ internal class ChatViewModel(
             is ChatAction.Ui.ClearHistoryClicked -> onClearHistoryClicked()
             is ChatAction.Ui.ClearHistoryConfirmed -> onClearHistoryConfirmed()
             is ChatAction.Ui.ClearHistoryCancelled -> onClearHistoryCancelled()
+            is ChatAction.Ui.DeleteMessageClicked -> onDeleteMessageClicked(action.messageId)
+            is ChatAction.Ui.DeleteMessageConfirmed -> onDeleteMessageConfirmed()
+            is ChatAction.Ui.DeleteMessageCancelled -> onDeleteMessageCancelled()
             is ChatAction.Internal.HistoryLoaded -> onHistoryLoaded(action.messages)
             is ChatAction.Internal.ReplyChunkReceived -> onReplyChunkReceived(action.messageId, action.textChunk)
             is ChatAction.Internal.ReplyCompleted -> onReplyCompleted()
@@ -82,6 +89,8 @@ internal class ChatViewModel(
             is ChatAction.Internal.ImportFailed -> onImportFailed()
             is ChatAction.Internal.HistoryCleared -> onHistoryCleared()
             is ChatAction.Internal.ClearHistoryFailed -> onClearHistoryFailed()
+            is ChatAction.Internal.MessageDeleted -> onMessageDeleted(action.messages)
+            is ChatAction.Internal.DeleteMessageFailed -> onDeleteMessageFailed()
         }
     }
 
@@ -276,6 +285,34 @@ internal class ChatViewModel(
 
     private fun onClearHistoryFailed() {
         postEvent(ChatEvent.ShowMessage(CLEAR_HISTORY_FAILED_MESSAGE))
+    }
+
+    private fun onDeleteMessageClicked(messageId: String) {
+        updateState { copy(pendingDeleteMessageId = messageId) }
+    }
+
+    private fun onDeleteMessageCancelled() {
+        updateState { copy(pendingDeleteMessageId = null) }
+    }
+
+    private fun onDeleteMessageConfirmed() {
+        val messageId = currentState.pendingDeleteMessageId ?: return
+        val messages = currentState.messages
+        updateState { copy(pendingDeleteMessageId = null) }
+        viewModelScope.launch {
+            deleteMessageUseCase(messages = messages, messageId = messageId)
+                .onSuccess { updatedMessages -> onAction(ChatAction.Internal.MessageDeleted(updatedMessages)) }
+                .onFailure { onAction(ChatAction.Internal.DeleteMessageFailed) }
+        }
+    }
+
+    private fun onMessageDeleted(messages: List<HistoryMessageModel>) {
+        updateState { copy(messages = messages) }
+        postEvent(ChatEvent.ShowMessage(DELETE_MESSAGE_MESSAGE))
+    }
+
+    private fun onDeleteMessageFailed() {
+        postEvent(ChatEvent.ShowMessage(DELETE_MESSAGE_FAILED_MESSAGE))
     }
 
     private fun loadHistory() {

@@ -8,6 +8,7 @@ import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
 import com.jarvis.chat.feature.chat.domain.usecase.ClearChatHistoryUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.DeleteMessageUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ExportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ImportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.LoadChatHistoryUseCase
@@ -268,6 +269,51 @@ class ChatViewModelTest {
         assertEquals("spoken text", viewModel.uiState.value.inputText)
     }
 
+    @Test
+    fun deleteMessageClicked_showsConfirmationDialog() = runTest {
+        val viewModel = createViewModel(
+            storedMessages = listOf(historyMessage(id = "1", text = "one")),
+        )
+
+        viewModel.onAction(ChatAction.Ui.DeleteMessageClicked("1"))
+
+        assertTrue(viewModel.uiState.value.isDeleteMessageConfirmationVisible)
+    }
+
+    @Test
+    fun deleteMessageConfirmed_removesTargetMessageOnlyAndPersistsHistory() = runTest {
+        val repository = FakeChatHistoryRepository()
+        val stored = listOf(
+            historyMessage(id = "1", text = "one"),
+            historyMessage(id = "2", text = "two"),
+        )
+        val viewModel = createViewModel(storedMessages = stored, chatRepository = repository)
+
+        viewModel.onAction(ChatAction.Ui.DeleteMessageClicked("1"))
+        viewModel.onAction(ChatAction.Ui.DeleteMessageConfirmed)
+
+        assertEquals(listOf("2"), viewModel.uiState.value.messages.map { message -> message.id })
+        assertFalse(viewModel.uiState.value.isDeleteMessageConfirmationVisible)
+        assertEquals(listOf("2"), repository.saved.last().map { message -> message.id })
+    }
+
+    @Test
+    fun deleteMessageCancelled_keepsAllMessagesAndHidesDialog() = runTest {
+        val repository = FakeChatHistoryRepository()
+        val stored = listOf(
+            historyMessage(id = "1", text = "one"),
+            historyMessage(id = "2", text = "two"),
+        )
+        val viewModel = createViewModel(storedMessages = stored, chatRepository = repository)
+
+        viewModel.onAction(ChatAction.Ui.DeleteMessageClicked("1"))
+        viewModel.onAction(ChatAction.Ui.DeleteMessageCancelled)
+
+        assertEquals(listOf("1", "2"), viewModel.uiState.value.messages.map { message -> message.id })
+        assertFalse(viewModel.uiState.value.isDeleteMessageConfirmationVisible)
+        assertTrue(repository.saved.isEmpty())
+    }
+
     private fun createViewModel(
         storedMessages: List<HistoryMessageModel> = emptyList(),
         chatRepository: FakeChatHistoryRepository = FakeChatHistoryRepository(),
@@ -282,6 +328,7 @@ class ChatViewModelTest {
             loadChatHistoryUseCase = LoadChatHistoryUseCase(chatRepository),
             saveChatHistoryUseCase = SaveChatHistoryUseCase(chatRepository),
             clearChatHistoryUseCase = ClearChatHistoryUseCase(chatRepository),
+            deleteMessageUseCase = DeleteMessageUseCase(chatRepository),
             exportChatHistoryUseCase = ExportChatHistoryUseCase(chatRepository),
             importChatHistoryUseCase = ImportChatHistoryUseCase(chatRepository),
             uiMapper = ChatUiMapper(),
