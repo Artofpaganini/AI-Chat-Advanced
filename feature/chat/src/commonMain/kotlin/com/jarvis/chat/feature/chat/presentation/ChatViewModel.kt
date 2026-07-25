@@ -50,6 +50,7 @@ internal class ChatViewModel(
             is ChatAction.Ui.InputChanged -> onInputChanged(action.text)
             is ChatAction.Ui.VoiceTranscribed -> onInputChanged(action.text)
             is ChatAction.Ui.SendClicked -> onSendClicked()
+            is ChatAction.Ui.RetryClicked -> onRetryClicked()
             is ChatAction.Ui.FavoriteToggled -> onFavoriteToggled(action.messageId)
             is ChatAction.Ui.MessageCopied -> onMessageCopied()
             is ChatAction.Ui.FavoritesFilterToggled -> onFavoritesFilterToggled()
@@ -82,11 +83,26 @@ internal class ChatViewModel(
                 inputText = "",
                 isLoading = true,
                 hasError = false,
+                lastSentText = text,
             )
         }
         postEvent(ChatEvent.ScrollToBottom)
         persist(history)
         requestReply(history)
+    }
+
+    private fun onRetryClicked() {
+        val text = currentState.lastSentText
+        if (text.isEmpty() || currentState.isLoading) {
+            return
+        }
+        updateState {
+            copy(
+                isLoading = true,
+                hasError = false,
+            )
+        }
+        requestReply(currentState.messages)
     }
 
     private fun requestReply(history: List<HistoryMessageModel>) {

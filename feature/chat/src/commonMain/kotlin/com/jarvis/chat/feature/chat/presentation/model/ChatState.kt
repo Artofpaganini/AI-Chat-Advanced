@@ -8,4 +8,5 @@ internal data class ChatState(
     val isLoading: Boolean = false,
     val hasError: Boolean = false,
     val isFavoritesFilterActive: Boolean = false,
+    val lastSentText: String = "",
 )

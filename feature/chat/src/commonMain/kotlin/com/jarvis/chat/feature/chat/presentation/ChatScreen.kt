@@ -2,6 +2,7 @@ package com.jarvis.chat.feature.chat.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +58,7 @@ private const val TITLE = "Jarvis"
 private const val EMPTY_HINT = "Ask Jarvis anything to start the conversation."
 private const val EMPTY_FAVORITES_HINT = "No favorites yet. Tap the star icon on an answer to save it."
 private const val ERROR_MESSAGE = "Something went wrong. Please try again."
+private const val RETRY_BUTTON_TEXT = "Retry"
 private const val FAVORITES_CONTENT_DESCRIPTION = "Toggle favorites filter"
 private const val EXPORT_CONTENT_DESCRIPTION = "Export chat history"
 private const val IMPORT_CONTENT_DESCRIPTION = "Import chat history"
@@ -138,6 +142,7 @@ internal fun ChatContent(
             onSpeak = { text -> coroutineScope.launch { textToSpeech?.say(text) } },
             onToggleFavorite = { messageId -> viewModel.onAction(ChatAction.Ui.FavoriteToggled(messageId)) },
             onCopy = { viewModel.onAction(ChatAction.Ui.MessageCopied) },
+            onRetryClick = { viewModel.onAction(ChatAction.Ui.RetryClicked) },
             modifier = Modifier.padding(innerPadding),
         )
     }
@@ -183,6 +188,7 @@ private fun ChatMessages(
     onSpeak: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
     onCopy: () -> Unit,
+    onRetryClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isEmpty = uiState.messages.isEmpty() && !uiState.isLoading && !uiState.isErrorVisible
@@ -219,11 +225,20 @@ private fun ChatMessages(
                 }
                 if (uiState.isErrorVisible) {
                     item {
-                        Text(
-                            text = ERROR_MESSAGE,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                text = ERROR_MESSAGE,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            TextButton(onClick = onRetryClick) {
+                                Icon(
+                                    imageVector = Icons.Filled.Refresh,
+                                    contentDescription = null,
+                                )
+                                Text(text = RETRY_BUTTON_TEXT)
+                            }
+                        }
                     }
                 }
             }

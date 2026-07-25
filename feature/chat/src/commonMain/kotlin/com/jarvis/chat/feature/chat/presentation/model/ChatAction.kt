@@ -13,6 +13,8 @@ internal sealed interface ChatAction {
 
         data object SendClicked : Ui
 
+        data object RetryClicked : Ui
+
         data class FavoriteToggled(val messageId: String) : Ui
 
         data object MessageCopied : Ui
