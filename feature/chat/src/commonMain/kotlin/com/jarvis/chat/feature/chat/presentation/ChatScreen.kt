@@ -15,8 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -48,11 +53,11 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private const val TITLE = "Jarvis"
 private const val EMPTY_HINT = "Ask Jarvis anything to start the conversation."
-private const val EMPTY_FAVORITES_HINT = "No favorites yet. Tap ☆ on an answer to save it."
+private const val EMPTY_FAVORITES_HINT = "No favorites yet. Tap the star icon on an answer to save it."
 private const val ERROR_MESSAGE = "Something went wrong. Please try again."
-private const val FAVORITES_LABEL = "★"
-private const val EXPORT_LABEL = "⬆︎"
-private const val IMPORT_LABEL = "⬇︎"
+private const val FAVORITES_CONTENT_DESCRIPTION = "Toggle favorites filter"
+private const val EXPORT_CONTENT_DESCRIPTION = "Export chat history"
+private const val IMPORT_CONTENT_DESCRIPTION = "Import chat history"
 private const val MOCK_HISTORY_PATH = "files/mock_chat_history.json"
 
 @Composable
@@ -145,9 +150,10 @@ private fun ChatTopBarActions(
     onImportClick: () -> Unit,
 ) {
     IconButton(onClick = onFavoritesClick) {
-        Text(
-            text = FAVORITES_LABEL,
-            color = if (isFavoritesFilterActive) {
+        Icon(
+            imageVector = Icons.Filled.Star,
+            contentDescription = FAVORITES_CONTENT_DESCRIPTION,
+            tint = if (isFavoritesFilterActive) {
                 MaterialTheme.colorScheme.primary
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
@@ -155,10 +161,16 @@ private fun ChatTopBarActions(
         )
     }
     IconButton(onClick = onExportClick) {
-        Text(text = EXPORT_LABEL)
+        Icon(
+            imageVector = Icons.Filled.FileUpload,
+            contentDescription = EXPORT_CONTENT_DESCRIPTION,
+        )
     }
     IconButton(onClick = onImportClick) {
-        Text(text = IMPORT_LABEL)
+        Icon(
+            imageVector = Icons.Filled.FileDownload,
+            contentDescription = IMPORT_CONTENT_DESCRIPTION,
+        )
     }
 }
 

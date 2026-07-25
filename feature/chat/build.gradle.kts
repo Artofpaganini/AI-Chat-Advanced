@@ -16,6 +16,7 @@ kotlin {
             implementation(projects.feature.voice)
             implementation(projects.core.viewmodel)
             implementation(libs.compose.material3)
+            implementation(libs.compose.material.icons.extended)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)

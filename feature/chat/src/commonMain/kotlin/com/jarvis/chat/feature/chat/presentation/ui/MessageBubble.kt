@@ -7,6 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,9 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
 
-private const val SPEAKER_LABEL = "🔊"
-private const val FAVORITE_ACTIVE_LABEL = "★"
-private const val FAVORITE_INACTIVE_LABEL = "☆"
+private const val SPEAK_CONTENT_DESCRIPTION = "Speak message aloud"
+private const val FAVORITE_ACTIVE_CONTENT_DESCRIPTION = "Remove from favorites"
+private const val FAVORITE_INACTIVE_CONTENT_DESCRIPTION = "Add to favorites"
 
 @Composable
 internal fun MessageBubble(
@@ -85,12 +90,22 @@ private fun MessageActions(
                 onClick = { onSpeak(message.text) },
                 enabled = isTtsAvailable,
             ) {
-                Text(text = SPEAKER_LABEL)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                    contentDescription = SPEAK_CONTENT_DESCRIPTION,
+                )
             }
         }
         if (message.canFavorite) {
             IconButton(onClick = { onToggleFavorite(message.id) }) {
-                Text(text = if (message.isFavorite) FAVORITE_ACTIVE_LABEL else FAVORITE_INACTIVE_LABEL)
+                Icon(
+                    imageVector = if (message.isFavorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                    contentDescription = if (message.isFavorite) {
+                        FAVORITE_ACTIVE_CONTENT_DESCRIPTION
+                    } else {
+                        FAVORITE_INACTIVE_CONTENT_DESCRIPTION
+                    },
+                )
             }
         }
     }

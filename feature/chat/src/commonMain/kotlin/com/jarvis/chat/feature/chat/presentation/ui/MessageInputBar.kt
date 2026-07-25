@@ -5,8 +5,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -17,9 +22,9 @@ import androidx.compose.ui.Modifier
 
 private const val INPUT_MAX_LINES = 5
 private const val INPUT_PLACEHOLDER = "Message Jarvis…"
-private const val SEND_LABEL = "Send"
-private const val MIC_IDLE_LABEL = "🎤"
-private const val MIC_ACTIVE_LABEL = "⏹"
+private const val SEND_CONTENT_DESCRIPTION = "Send message"
+private const val MIC_IDLE_CONTENT_DESCRIPTION = "Start voice input"
+private const val MIC_ACTIVE_CONTENT_DESCRIPTION = "Stop voice input"
 
 @Composable
 internal fun MessageInputBar(
@@ -49,7 +54,14 @@ internal fun MessageInputBar(
                     IconButtonDefaults.filledTonalIconButtonColors()
                 },
             ) {
-                Text(text = if (isListening) MIC_ACTIVE_LABEL else MIC_IDLE_LABEL)
+                Icon(
+                    imageVector = if (isListening) Icons.Filled.Stop else Icons.Filled.Mic,
+                    contentDescription = if (isListening) {
+                        MIC_ACTIVE_CONTENT_DESCRIPTION
+                    } else {
+                        MIC_IDLE_CONTENT_DESCRIPTION
+                    },
+                )
             }
             Spacer(modifier = Modifier.width(ChatDimens.spacingXs))
             OutlinedTextField(
@@ -64,7 +76,10 @@ internal fun MessageInputBar(
                 onClick = onSendClick,
                 enabled = isSendEnabled,
             ) {
-                Text(text = SEND_LABEL)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = SEND_CONTENT_DESCRIPTION,
+                )
             }
         }
     }
