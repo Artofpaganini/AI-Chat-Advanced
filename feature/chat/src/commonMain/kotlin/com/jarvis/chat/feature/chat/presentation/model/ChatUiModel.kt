@@ -5,6 +5,7 @@ internal data class ChatUiModel(
     val inputText: String,
     val isLoading: Boolean,
     val isSendEnabled: Boolean,
+    val isGenerating: Boolean,
     val isErrorVisible: Boolean,
     val errorMessage: String?,
     val isFavoritesFilterActive: Boolean,

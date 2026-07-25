@@ -14,8 +14,11 @@ import com.jarvis.chat.feature.chat.domain.usecase.LoadChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
 import com.jarvis.chat.feature.chat.presentation.mapper.ChatUiMapper
 import com.jarvis.chat.feature.chat.presentation.model.ChatAction
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -121,6 +124,42 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun stopClicked_cancelsInFlightRequestAndClearsLoadingWithoutError() = runTest {
+        val aiRepository = SuspendingAiRepository()
+        val viewModel = createViewModel(aiRepository = aiRepository)
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+        assertTrue(viewModel.uiState.value.isLoading)
+
+        viewModel.onAction(ChatAction.Ui.StopClicked)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.isLoading)
+        assertFalse(viewModel.uiState.value.isErrorVisible)
+        assertEquals(listOf("ping"), viewModel.uiState.value.messages.map { message -> message.text })
+        assertTrue(aiRepository.wasCancelled)
+    }
+
+    @Test
+    fun stopClicked_allowsImmediateResend() = runTest {
+        val viewModel = createViewModel(aiRepository = SuspendingAiRepository())
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+        viewModel.onAction(ChatAction.Ui.StopClicked)
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("second"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        assertTrue(viewModel.uiState.value.isLoading)
+        assertEquals(
+            listOf("ping", "second"),
+            viewModel.uiState.value.messages.map { message -> message.text },
+        )
+    }
+
+    @Test
     fun favoriteToggled_flipsFlagForTargetMessageOnly() = runTest {
         val stored = listOf(
             historyMessage(id = "1", text = "one"),
@@ -201,11 +240,10 @@ class ChatViewModelTest {
         chatRepository: FakeChatHistoryRepository = FakeChatHistoryRepository(),
         reply: String = "reply",
         aiError: Throwable? = null,
+        aiRepository: AiRepository = FakeAiRepository(reply = reply, error = aiError),
     ): ChatViewModel {
         chatRepository.stored = storedMessages
-        val sendMessageUseCase = SendMessageUseCase(
-            repository = FakeAiRepository(reply = reply, error = aiError),
-        )
+        val sendMessageUseCase = SendMessageUseCase(repository = aiRepository)
         return ChatViewModel(
             sendMessageUseCase = sendMessageUseCase,
             loadChatHistoryUseCase = LoadChatHistoryUseCase(chatRepository),
@@ -234,6 +272,21 @@ class ChatViewModelTest {
         override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel {
             error?.let { failure -> throw failure }
             return ChatMessageModel(author = MessageAuthor.ASSISTANT, text = reply)
+        }
+    }
+
+    private class SuspendingAiRepository : AiRepository {
+
+        var wasCancelled: Boolean = false
+            private set
+
+        override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel {
+            try {
+                awaitCancellation()
+            } catch (cancellation: CancellationException) {
+                wasCancelled = true
+                throw cancellation
+            }
         }
     }
 

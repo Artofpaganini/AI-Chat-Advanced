@@ -14,6 +14,8 @@ internal sealed interface ChatAction {
 
         data object SendClicked : Ui
 
+        data object StopClicked : Ui
+
         data class SuggestionClicked(val text: String) : Ui
 
         data object RetryClicked : Ui

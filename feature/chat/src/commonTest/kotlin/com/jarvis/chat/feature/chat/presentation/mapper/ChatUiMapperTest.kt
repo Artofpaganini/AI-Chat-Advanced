@@ -201,6 +201,24 @@ class ChatUiMapperTest {
     }
 
     @Test
+    fun map_isLoadingTrue_setsGeneratingRegardlessOfFavoritesFilter() {
+        val active = ChatState(isLoading = true, isFavoritesFilterActive = true)
+        val inactive = ChatState(isLoading = true, isFavoritesFilterActive = false)
+
+        assertTrue(mapper.map(active).isGenerating)
+        assertTrue(mapper.map(inactive).isGenerating)
+    }
+
+    @Test
+    fun map_isLoadingFalse_clearsGenerating() {
+        val state = ChatState(isLoading = false)
+
+        val uiModel = mapper.map(state)
+
+        assertFalse(uiModel.isGenerating)
+    }
+
+    @Test
     fun map_everyAiErrorVariant_producesNonEmptyErrorMessage() {
         ALL_AI_ERROR_VARIANTS.forEach { error ->
             val uiModel = mapper.map(ChatState(error = error))

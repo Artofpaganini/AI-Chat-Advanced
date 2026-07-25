@@ -35,6 +35,7 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             inputText = state.inputText,
             isLoading = state.isLoading && !state.isFavoritesFilterActive,
             isSendEnabled = state.inputText.isNotBlank() && !state.isLoading,
+            isGenerating = state.isLoading,
             isErrorVisible = state.error != null && !state.isFavoritesFilterActive,
             errorMessage = state.error?.toErrorMessage(),
             isFavoritesFilterActive = state.isFavoritesFilterActive,

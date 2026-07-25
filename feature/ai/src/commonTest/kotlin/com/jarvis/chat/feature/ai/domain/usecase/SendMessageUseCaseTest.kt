@@ -3,9 +3,11 @@ package com.jarvis.chat.feature.ai.domain.usecase
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class SendMessageUseCaseTest {
@@ -31,6 +33,16 @@ class SendMessageUseCaseTest {
 
         assertTrue(result.isFailure)
         assertEquals("network down", result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun invoke_onCancellation_rethrowsInsteadOfWrappingInResult() = runTest {
+        val repository = FakeAiRepository(error = CancellationException("request cancelled"))
+
+        assertFailsWith<CancellationException> {
+            SendMessageUseCase(repository)
+                .invoke(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "hello")))
+        }
     }
 }
 

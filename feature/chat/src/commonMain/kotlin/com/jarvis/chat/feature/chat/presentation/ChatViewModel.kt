@@ -20,6 +20,7 @@ import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
 import com.jarvis.chat.feature.chat.presentation.model.ChatState
 import com.jarvis.chat.feature.chat.presentation.model.ChatUiModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 import kotlin.time.Clock
@@ -47,6 +48,8 @@ internal class ChatViewModel(
     uiMapper = uiMapper,
 ) {
 
+    private var replyJob: Job? = null
+
     init {
         loadHistory()
     }
@@ -56,6 +59,7 @@ internal class ChatViewModel(
             is ChatAction.Ui.InputChanged -> onInputChanged(action.text)
             is ChatAction.Ui.VoiceTranscribed -> onInputChanged(action.text)
             is ChatAction.Ui.SendClicked -> onSendClicked()
+            is ChatAction.Ui.StopClicked -> onStopClicked()
             is ChatAction.Ui.SuggestionClicked -> onSuggestionClicked(action.text)
             is ChatAction.Ui.RetryClicked -> onRetryClicked()
             is ChatAction.Ui.FavoriteToggled -> onFavoriteToggled(action.messageId)
@@ -122,8 +126,15 @@ internal class ChatViewModel(
         requestReply(currentState.messages)
     }
 
+    private fun onStopClicked() {
+        replyJob?.cancel()
+        replyJob = null
+        updateState { copy(isLoading = false, error = null) }
+    }
+
     private fun requestReply(history: List<HistoryMessageModel>) {
-        viewModelScope.launch {
+        replyJob?.cancel()
+        replyJob = viewModelScope.launch {
             sendMessageUseCase(history.map { message -> message.toChatMessageModel() })
                 .onSuccess { reply -> onAction(ChatAction.Internal.ReplyReceived(reply)) }
                 .onFailure { throwable ->

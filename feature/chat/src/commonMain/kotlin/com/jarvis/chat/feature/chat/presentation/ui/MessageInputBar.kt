@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 private const val INPUT_MAX_LINES = 5
 private const val INPUT_PLACEHOLDER = "Message Jarvis…"
 private const val SEND_CONTENT_DESCRIPTION = "Send message"
+private const val STOP_CONTENT_DESCRIPTION = "Stop generating response"
 private const val MIC_IDLE_CONTENT_DESCRIPTION = "Start voice input"
 private const val MIC_ACTIVE_CONTENT_DESCRIPTION = "Stop voice input"
 
@@ -30,9 +31,11 @@ private const val MIC_ACTIVE_CONTENT_DESCRIPTION = "Stop voice input"
 internal fun MessageInputBar(
     inputText: String,
     isSendEnabled: Boolean,
+    isGenerating: Boolean,
     isListening: Boolean,
     onInputChange: (String) -> Unit,
     onSendClick: () -> Unit,
+    onStopClick: () -> Unit,
     onMicClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -73,12 +76,12 @@ internal fun MessageInputBar(
             )
             Spacer(modifier = Modifier.width(ChatDimens.spacingXs))
             Button(
-                onClick = onSendClick,
-                enabled = isSendEnabled,
+                onClick = if (isGenerating) onStopClick else onSendClick,
+                enabled = if (isGenerating) true else isSendEnabled,
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = SEND_CONTENT_DESCRIPTION,
+                    imageVector = if (isGenerating) Icons.Filled.Stop else Icons.AutoMirrored.Filled.Send,
+                    contentDescription = if (isGenerating) STOP_CONTENT_DESCRIPTION else SEND_CONTENT_DESCRIPTION,
                 )
             }
         }

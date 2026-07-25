@@ -152,9 +152,11 @@ internal fun ChatContent(
             MessageInputBar(
                 inputText = uiState.inputText,
                 isSendEnabled = uiState.isSendEnabled,
+                isGenerating = uiState.isGenerating,
                 isListening = isListening,
                 onInputChange = { text -> viewModel.onAction(ChatAction.Ui.InputChanged(text)) },
                 onSendClick = { viewModel.onAction(ChatAction.Ui.SendClicked) },
+                onStopClick = { viewModel.onAction(ChatAction.Ui.StopClicked) },
                 onMicClick = { speechRecognitionController.toggle() },
                 modifier = Modifier
                     .windowInsetsPadding(WindowInsets.navigationBars)
