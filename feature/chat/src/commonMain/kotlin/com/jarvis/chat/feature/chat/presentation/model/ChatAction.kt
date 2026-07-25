@@ -1,5 +1,6 @@
 package com.jarvis.chat.feature.chat.presentation.model
 
+import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 
@@ -40,7 +41,7 @@ internal sealed interface ChatAction {
 
         data class ReplyReceived(val message: ChatMessageModel) : Internal
 
-        data object ReplyFailed : Internal
+        data class ReplyFailed(val error: AiErrorModel) : Internal
 
         data class Exported(val filePath: String) : Internal
 

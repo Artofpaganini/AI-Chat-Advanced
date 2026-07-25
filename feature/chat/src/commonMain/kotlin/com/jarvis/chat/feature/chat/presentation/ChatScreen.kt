@@ -67,7 +67,6 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private const val TITLE = "Jarvis"
 private const val EMPTY_FAVORITES_HINT = "No favorites yet. Tap the star icon on an answer to save it."
-private const val ERROR_MESSAGE = "Something went wrong. Please try again."
 private const val RETRY_BUTTON_TEXT = "Retry"
 private const val FAVORITES_CONTENT_DESCRIPTION = "Toggle favorites filter"
 private const val EXPORT_CONTENT_DESCRIPTION = "Export chat history"
@@ -304,7 +303,7 @@ private fun ChatMessages(
                     item {
                         Column(modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                text = ERROR_MESSAGE,
+                                text = uiState.errorMessage.orEmpty(),
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.fillMaxWidth(),
                             )

@@ -6,6 +6,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestData
 import io.ktor.http.ContentType
@@ -18,7 +19,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class DeepSeekRemoteDataSourceImplTest {
@@ -96,15 +97,19 @@ class DeepSeekRemoteDataSourceImplTest {
     }
 
     @Test
-    fun requestCompletion_onServerError_throws() = runTest {
+    fun requestCompletion_onServerError_throwsClientRequestExceptionWithStatus() = runTest {
         val client = HttpClient(
             MockEngine { respondError(HttpStatusCode.Unauthorized) },
         ) {
+            expectSuccess = true
             install(ContentNegotiation) { json(lenientJson) }
         }
         val dataSource = DeepSeekRemoteDataSourceImpl(httpClient = client, promptConfig = testPromptConfig)
 
-        assertFails { dataSource.requestCompletion(listOf(userMessage("hello"))) }
+        val exception = assertFailsWith<ClientRequestException> {
+            dataSource.requestCompletion(listOf(userMessage("hello")))
+        }
+        assertEquals(HttpStatusCode.Unauthorized, exception.response.status)
     }
 
     private val lenientJson: Json = Json {

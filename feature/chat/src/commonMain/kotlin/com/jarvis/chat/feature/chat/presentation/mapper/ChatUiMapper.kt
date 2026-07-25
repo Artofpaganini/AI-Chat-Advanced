@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.chat.presentation.mapper
 
 import com.jarvis.chat.core.viewmodel.UiMapper
+import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
@@ -13,6 +14,13 @@ import kotlin.time.Instant
 private const val TIME_LABEL_PAD_LENGTH = 2
 private const val TIME_LABEL_PAD_CHAR = '0'
 private const val TIME_LABEL_SEPARATOR = ":"
+private const val ERROR_MESSAGE_NO_CONNECTION = "No internet connection. Check your network and try again."
+private const val ERROR_MESSAGE_TIMEOUT = "The request timed out. Please try again."
+private const val ERROR_MESSAGE_UNAUTHORIZED = "Authorization failed. Check your API key in settings."
+private const val ERROR_MESSAGE_RATE_LIMITED = "Too many requests. Please wait a moment and try again."
+private const val ERROR_MESSAGE_SERVER_ERROR_PREFIX = "Server error ("
+private const val ERROR_MESSAGE_SERVER_ERROR_SUFFIX = "). Please try again later."
+private const val ERROR_MESSAGE_UNKNOWN = "Something went wrong. Please try again."
 
 internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
 
@@ -27,13 +35,14 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             inputText = state.inputText,
             isLoading = state.isLoading && !state.isFavoritesFilterActive,
             isSendEnabled = state.inputText.isNotBlank() && !state.isLoading,
-            isErrorVisible = state.hasError && !state.isFavoritesFilterActive,
+            isErrorVisible = state.error != null && !state.isFavoritesFilterActive,
+            errorMessage = state.error?.toErrorMessage(),
             isFavoritesFilterActive = state.isFavoritesFilterActive,
             favoritesCount = state.messages.count { message -> message.isFavorite },
             showClearConfirmation = state.showClearConfirmation,
             isEmptyState = state.messages.isEmpty() &&
                 !state.isLoading &&
-                !state.hasError &&
+                state.error == null &&
                 !state.isFavoritesFilterActive,
             isFavoritesEmptyState = state.isFavoritesFilterActive && visibleMessages.isEmpty(),
         )
@@ -58,4 +67,14 @@ private fun Long.toTimeLabel(): String {
     val hour = dateTime.hour.toString().padStart(TIME_LABEL_PAD_LENGTH, TIME_LABEL_PAD_CHAR)
     val minute = dateTime.minute.toString().padStart(TIME_LABEL_PAD_LENGTH, TIME_LABEL_PAD_CHAR)
     return "$hour$TIME_LABEL_SEPARATOR$minute"
+}
+
+private fun AiErrorModel.toErrorMessage(): String = when (this) {
+    AiErrorModel.NoConnection -> ERROR_MESSAGE_NO_CONNECTION
+    AiErrorModel.Timeout -> ERROR_MESSAGE_TIMEOUT
+    AiErrorModel.Unauthorized -> ERROR_MESSAGE_UNAUTHORIZED
+    is AiErrorModel.BadRequest -> message
+    AiErrorModel.RateLimited -> ERROR_MESSAGE_RATE_LIMITED
+    is AiErrorModel.ServerError -> "$ERROR_MESSAGE_SERVER_ERROR_PREFIX$code$ERROR_MESSAGE_SERVER_ERROR_SUFFIX"
+    AiErrorModel.Unknown -> ERROR_MESSAGE_UNKNOWN
 }

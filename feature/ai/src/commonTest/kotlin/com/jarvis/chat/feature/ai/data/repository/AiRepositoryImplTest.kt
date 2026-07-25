@@ -5,6 +5,8 @@ import com.jarvis.chat.feature.ai.data.model.ChatChoiceResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatMessageRequestModel
 import com.jarvis.chat.feature.ai.data.model.ChatMessageResponseModel
+import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
+import com.jarvis.chat.feature.ai.domain.model.AiException
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import kotlinx.coroutines.test.runTest
@@ -59,15 +61,15 @@ class AiRepositoryImplTest {
     }
 
     @Test
-    fun sendMessage_whenDataSourceFails_propagatesException() = runTest {
+    fun sendMessage_whenDataSourceFails_throwsAiExceptionWithMappedError() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(error = IllegalStateException("network down"))
         val repository = AiRepositoryImpl(remoteDataSource = dataSource)
 
-        val error = assertFailsWith<IllegalStateException> {
+        val error = assertFailsWith<AiException> {
             repository.sendMessage(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x")))
         }
 
-        assertEquals("network down", error.message)
+        assertEquals(AiErrorModel.Unknown, error.error)
     }
 
     @Test

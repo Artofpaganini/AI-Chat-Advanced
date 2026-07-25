@@ -42,6 +42,7 @@ private const val DEEP_SEEK_SOCKET_TIMEOUT_MILLIS = 60_000L
 
 private fun provideDeepSeekHttpClient(config: DeepSeekConfigModel): HttpClient =
     HttpClient {
+        expectSuccess = true
         install(ContentNegotiation) {
             json(
                 Json {

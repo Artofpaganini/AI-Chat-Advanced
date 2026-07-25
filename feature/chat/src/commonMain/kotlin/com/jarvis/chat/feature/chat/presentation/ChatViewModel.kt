@@ -2,6 +2,8 @@ package com.jarvis.chat.feature.chat.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.jarvis.chat.core.viewmodel.UdfBaseViewModel
+import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
+import com.jarvis.chat.feature.ai.domain.model.AiException
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageUseCase
@@ -66,7 +68,7 @@ internal class ChatViewModel(
             is ChatAction.Ui.ClearHistoryCancelled -> onClearHistoryCancelled()
             is ChatAction.Internal.HistoryLoaded -> onHistoryLoaded(action.messages)
             is ChatAction.Internal.ReplyReceived -> onReplyReceived(action.message)
-            is ChatAction.Internal.ReplyFailed -> onReplyFailed()
+            is ChatAction.Internal.ReplyFailed -> onReplyFailed(action.error)
             is ChatAction.Internal.Exported -> onExported(action.filePath)
             is ChatAction.Internal.ExportFailed -> onExportFailed()
             is ChatAction.Internal.Imported -> onImported(action.messages)
@@ -92,7 +94,7 @@ internal class ChatViewModel(
                 messages = history,
                 inputText = "",
                 isLoading = true,
-                hasError = false,
+                error = null,
                 lastSentText = text,
             )
         }
@@ -114,7 +116,7 @@ internal class ChatViewModel(
         updateState {
             copy(
                 isLoading = true,
-                hasError = false,
+                error = null,
             )
         }
         requestReply(currentState.messages)
@@ -124,7 +126,10 @@ internal class ChatViewModel(
         viewModelScope.launch {
             sendMessageUseCase(history.map { message -> message.toChatMessageModel() })
                 .onSuccess { reply -> onAction(ChatAction.Internal.ReplyReceived(reply)) }
-                .onFailure { onAction(ChatAction.Internal.ReplyFailed) }
+                .onFailure { throwable ->
+                    val error = (throwable as? AiException)?.error ?: AiErrorModel.Unknown
+                    onAction(ChatAction.Internal.ReplyFailed(error))
+                }
         }
     }
 
@@ -135,18 +140,18 @@ internal class ChatViewModel(
             copy(
                 messages = history,
                 isLoading = false,
-                hasError = false,
+                error = null,
             )
         }
         postEvent(ChatEvent.ScrollToBottom)
         persist(history)
     }
 
-    private fun onReplyFailed() {
+    private fun onReplyFailed(error: AiErrorModel) {
         updateState {
             copy(
                 isLoading = false,
-                hasError = true,
+                error = error,
             )
         }
     }
@@ -223,7 +228,7 @@ internal class ChatViewModel(
             copy(
                 messages = emptyList(),
                 isFavoritesFilterActive = false,
-                hasError = false,
+                error = null,
                 lastSentText = "",
             )
         }

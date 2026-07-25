@@ -1,5 +1,6 @@
 package com.jarvis.chat.feature.chat.presentation.mapper
 
+import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.presentation.model.ChatState
@@ -97,8 +98,8 @@ class ChatUiMapperTest {
 
     @Test
     fun map_loadingAndError_visibleOnlyWhenFilterInactive() {
-        val active = ChatState(isLoading = true, hasError = true, isFavoritesFilterActive = true)
-        val inactive = ChatState(isLoading = true, hasError = true, isFavoritesFilterActive = false)
+        val active = ChatState(isLoading = true, error = AiErrorModel.Unknown, isFavoritesFilterActive = true)
+        val inactive = ChatState(isLoading = true, error = AiErrorModel.Unknown, isFavoritesFilterActive = false)
 
         val activeUi = mapper.map(active)
         val inactiveUi = mapper.map(inactive)
@@ -121,7 +122,7 @@ class ChatUiMapperTest {
     @Test
     fun map_loadingOrError_hidesEmptyState() {
         val loading = ChatState(isLoading = true)
-        val errored = ChatState(hasError = true)
+        val errored = ChatState(error = AiErrorModel.Unknown)
 
         assertFalse(mapper.map(loading).isEmptyState)
         assertFalse(mapper.map(errored).isEmptyState)
