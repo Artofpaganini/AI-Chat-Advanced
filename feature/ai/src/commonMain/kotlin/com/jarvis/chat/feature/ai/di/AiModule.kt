@@ -6,6 +6,7 @@ import com.jarvis.chat.feature.ai.data.repository.AiRepositoryImpl
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekPromptConfigModel
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
+import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageUseCase
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
@@ -24,27 +25,30 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val aiModule: Module = module {
-    single { provideDeepSeekHttpClient(config = get()) }
+    single { provideDeepSeekJson() }
+    single { provideDeepSeekHttpClient(config = get(), json = get()) }
     single { DeepSeekPromptConfigModel(systemPrompt = DeepSeekDefaults.SYSTEM_PROMPT) }
     singleOf(::DeepSeekRemoteDataSourceImpl) bind DeepSeekRemoteDataSource::class
     singleOf(::AiRepositoryImpl) bind AiRepository::class
     factoryOf(::SendMessageUseCase)
+    factoryOf(::SendMessageStreamUseCase)
 }
 
 private const val DEEP_SEEK_REQUEST_TIMEOUT_MILLIS = 90_000L
 private const val DEEP_SEEK_CONNECT_TIMEOUT_MILLIS = 10_000L
 private const val DEEP_SEEK_SOCKET_TIMEOUT_MILLIS = 60_000L
 
-private fun provideDeepSeekHttpClient(config: DeepSeekConfigModel): HttpClient =
+private fun provideDeepSeekJson(): Json =
+    Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
+
+private fun provideDeepSeekHttpClient(config: DeepSeekConfigModel, json: Json): HttpClient =
     HttpClient {
         expectSuccess = true
         install(ContentNegotiation) {
-            json(
-                Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                },
-            )
+            json(json)
         }
         install(HttpTimeout) {
             requestTimeoutMillis = DEEP_SEEK_REQUEST_TIMEOUT_MILLIS

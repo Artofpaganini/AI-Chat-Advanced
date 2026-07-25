@@ -1,7 +1,6 @@
 package com.jarvis.chat.feature.chat.presentation.model
 
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
-import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 
 internal sealed interface ChatAction {
@@ -41,9 +40,11 @@ internal sealed interface ChatAction {
 
         data class HistoryLoaded(val messages: List<HistoryMessageModel>) : Internal
 
-        data class ReplyReceived(val message: ChatMessageModel) : Internal
+        data class ReplyChunkReceived(val messageId: String, val textChunk: String) : Internal
 
-        data class ReplyFailed(val error: AiErrorModel) : Internal
+        data object ReplyCompleted : Internal
+
+        data class ReplyFailed(val messageId: String, val error: AiErrorModel) : Internal
 
         data class Exported(val filePath: String) : Internal
 

@@ -3,7 +3,7 @@ package com.jarvis.chat.feature.chat.presentation
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
-import com.jarvis.chat.feature.ai.domain.usecase.SendMessageUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
@@ -17,6 +17,8 @@ import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -154,9 +156,40 @@ class ChatViewModelTest {
 
         assertTrue(viewModel.uiState.value.isLoading)
         assertEquals(
-            listOf("ping", "second"),
+            listOf("ping", "second", ""),
             viewModel.uiState.value.messages.map { message -> message.text },
         )
+    }
+
+    @Test
+    fun sendClicked_joinsMultipleChunksIntoFinalAssistantText() = runTest {
+        val viewModel = createViewModel(aiRepository = FakeAiRepository(chunks = listOf("po", "ng")))
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        val texts = viewModel.uiState.value.messages.map { message -> message.text }
+        assertEquals(listOf("ping", "pong"), texts)
+        assertFalse(viewModel.uiState.value.isLoading)
+    }
+
+    @Test
+    fun stopClicked_afterPartialChunksArrived_keepsPartialTextWithoutError() = runTest {
+        val aiRepository = PartialThenHangingAiRepository()
+        val viewModel = createViewModel(aiRepository = aiRepository)
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+        viewModel.onAction(ChatAction.Ui.StopClicked)
+        advanceUntilIdle()
+
+        assertEquals(
+            listOf("ping", "Hello"),
+            viewModel.uiState.value.messages.map { message -> message.text },
+        )
+        assertFalse(viewModel.uiState.value.isLoading)
+        assertFalse(viewModel.uiState.value.isErrorVisible)
+        assertTrue(aiRepository.wasCancelled)
     }
 
     @Test
@@ -243,9 +276,9 @@ class ChatViewModelTest {
         aiRepository: AiRepository = FakeAiRepository(reply = reply, error = aiError),
     ): ChatViewModel {
         chatRepository.stored = storedMessages
-        val sendMessageUseCase = SendMessageUseCase(repository = aiRepository)
+        val sendMessageStreamUseCase = SendMessageStreamUseCase(repository = aiRepository)
         return ChatViewModel(
-            sendMessageUseCase = sendMessageUseCase,
+            sendMessageStreamUseCase = sendMessageStreamUseCase,
             loadChatHistoryUseCase = LoadChatHistoryUseCase(chatRepository),
             saveChatHistoryUseCase = SaveChatHistoryUseCase(chatRepository),
             clearChatHistoryUseCase = ClearChatHistoryUseCase(chatRepository),
@@ -265,13 +298,19 @@ class ChatViewModelTest {
         )
 
     private class FakeAiRepository(
-        private val reply: String,
-        private val error: Throwable?,
+        private val reply: String = "reply",
+        private val error: Throwable? = null,
+        private val chunks: List<String> = listOf(reply),
     ) : AiRepository {
 
         override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel {
             error?.let { failure -> throw failure }
             return ChatMessageModel(author = MessageAuthor.ASSISTANT, text = reply)
+        }
+
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+            error?.let { failure -> throw failure }
+            chunks.forEach { chunk -> emit(chunk) }
         }
     }
 
@@ -281,6 +320,35 @@ class ChatViewModelTest {
             private set
 
         override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel {
+            try {
+                awaitCancellation()
+            } catch (cancellation: CancellationException) {
+                wasCancelled = true
+                throw cancellation
+            }
+        }
+
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+            try {
+                awaitCancellation()
+            } catch (cancellation: CancellationException) {
+                wasCancelled = true
+                throw cancellation
+            }
+        }
+    }
+
+    private class PartialThenHangingAiRepository : AiRepository {
+
+        var wasCancelled: Boolean = false
+            private set
+
+        override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel =
+            error("not used in streaming tests")
+
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+            emit("Hel")
+            emit("lo")
             try {
                 awaitCancellation()
             } catch (cancellation: CancellationException) {

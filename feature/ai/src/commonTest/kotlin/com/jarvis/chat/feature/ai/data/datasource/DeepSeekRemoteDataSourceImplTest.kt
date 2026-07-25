@@ -16,6 +16,7 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -131,10 +132,57 @@ class DeepSeekRemoteDataSourceImplTest {
             httpClient = client,
             promptConfig = testPromptConfig,
             modelProvider = testModelProvider,
+            json = lenientJson,
         )
 
         val exception = assertFailsWith<ClientRequestException> {
             dataSource.requestCompletion(listOf(userMessage("hello")))
+        }
+        assertEquals(HttpStatusCode.Unauthorized, exception.response.status)
+    }
+
+    @Test
+    fun requestCompletionStream_enablesStreaming() = runTest {
+        val captured = mutableListOf<HttpRequestData>()
+        val dataSource = dataSourceReturning(body = "", captured = captured)
+
+        dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList()
+
+        val sentBody = (captured.single().body as TextContent).text
+        assertTrue(sentBody.contains("\"stream\":true"), "stream flag missing in: $sentBody")
+    }
+
+    @Test
+    fun requestCompletionStream_emitsDeltaContentInOrder() = runTest {
+        val sseBody = buildString {
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"Hel\"}}]}\n\n")
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"lo\"}}]}\n\n")
+            append("data: [DONE]\n\n")
+        }
+        val dataSource = dataSourceReturning(body = sseBody)
+
+        val chunks = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList()
+
+        assertEquals(listOf("Hel", "lo"), chunks)
+    }
+
+    @Test
+    fun requestCompletionStream_on4xxError_throwsClientRequestException() = runTest {
+        val client = HttpClient(
+            MockEngine { respondError(HttpStatusCode.Unauthorized) },
+        ) {
+            expectSuccess = true
+            install(ContentNegotiation) { json(lenientJson) }
+        }
+        val dataSource = DeepSeekRemoteDataSourceImpl(
+            httpClient = client,
+            promptConfig = testPromptConfig,
+            modelProvider = testModelProvider,
+            json = lenientJson,
+        )
+
+        val exception = assertFailsWith<ClientRequestException> {
+            dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList()
         }
         assertEquals(HttpStatusCode.Unauthorized, exception.response.status)
     }
@@ -168,7 +216,12 @@ class DeepSeekRemoteDataSourceImplTest {
         ) {
             install(ContentNegotiation) { json(lenientJson) }
         }
-        return DeepSeekRemoteDataSourceImpl(httpClient = client, promptConfig = promptConfig, modelProvider = modelProvider)
+        return DeepSeekRemoteDataSourceImpl(
+            httpClient = client,
+            promptConfig = promptConfig,
+            modelProvider = modelProvider,
+            json = lenientJson,
+        )
     }
 
     private fun successBody(content: String): String =

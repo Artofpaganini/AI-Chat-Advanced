@@ -4,6 +4,8 @@ import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,5 +60,11 @@ private class FakeAiRepository(
         lastHistory = history
         error?.let { failure -> throw failure }
         return reply
+    }
+
+    override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+        lastHistory = history
+        error?.let { failure -> throw failure }
+        emit(reply.text)
     }
 }

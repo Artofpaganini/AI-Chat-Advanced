@@ -1,12 +1,16 @@
 package com.jarvis.chat.feature.ai.data.mapper
 
 import com.jarvis.chat.feature.ai.data.model.ChatChoiceResponseModel
+import com.jarvis.chat.feature.ai.data.model.ChatChunkChoiceResponseModel
+import com.jarvis.chat.feature.ai.data.model.ChatChunkDeltaResponseModel
+import com.jarvis.chat.feature.ai.data.model.ChatCompletionChunkResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatMessageResponseModel
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class AiDataMappersTest {
 
@@ -75,6 +79,43 @@ class AiDataMappersTest {
 
         assertEquals("  spaced  ", result.content)
     }
+
+    @Test
+    fun toDeltaTextOrNull_withContent_returnsContent() {
+        val chunk = chunkWith(content = "Hel")
+
+        assertEquals("Hel", chunk.toDeltaTextOrNull())
+    }
+
+    @Test
+    fun toDeltaTextOrNull_withEmptyContent_returnsNull() {
+        val chunk = chunkWith(content = "")
+
+        assertNull(chunk.toDeltaTextOrNull())
+    }
+
+    @Test
+    fun toDeltaTextOrNull_withNullContent_returnsNull() {
+        val chunk = chunkWith(content = null)
+
+        assertNull(chunk.toDeltaTextOrNull())
+    }
+
+    @Test
+    fun toDeltaTextOrNull_withoutChoices_returnsNull() {
+        val chunk = ChatCompletionChunkResponseModel(choices = emptyList())
+
+        assertNull(chunk.toDeltaTextOrNull())
+    }
+
+    private fun chunkWith(content: String?): ChatCompletionChunkResponseModel =
+        ChatCompletionChunkResponseModel(
+            choices = listOf(
+                ChatChunkChoiceResponseModel(
+                    delta = ChatChunkDeltaResponseModel(content = content),
+                ),
+            ),
+        )
 
     private fun responseWith(vararg contents: String): ChatCompletionResponseModel =
         ChatCompletionResponseModel(

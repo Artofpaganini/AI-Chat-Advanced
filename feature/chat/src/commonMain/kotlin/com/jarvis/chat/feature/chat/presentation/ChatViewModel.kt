@@ -4,9 +4,8 @@ import androidx.lifecycle.viewModelScope
 import com.jarvis.chat.core.viewmodel.UdfBaseViewModel
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
-import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
-import com.jarvis.chat.feature.ai.domain.usecase.SendMessageUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.chat.domain.mapper.toChatMessageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
@@ -20,7 +19,9 @@ import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
 import com.jarvis.chat.feature.chat.presentation.model.ChatState
 import com.jarvis.chat.feature.chat.presentation.model.ChatUiModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 import kotlin.time.Clock
@@ -36,7 +37,7 @@ private const val CLEAR_HISTORY_MESSAGE = "Chat history cleared."
 private const val CLEAR_HISTORY_FAILED_MESSAGE = "Failed to clear history. Please try again."
 
 internal class ChatViewModel(
-    private val sendMessageUseCase: SendMessageUseCase,
+    private val sendMessageStreamUseCase: SendMessageStreamUseCase,
     private val loadChatHistoryUseCase: LoadChatHistoryUseCase,
     private val saveChatHistoryUseCase: SaveChatHistoryUseCase,
     private val clearChatHistoryUseCase: ClearChatHistoryUseCase,
@@ -49,6 +50,7 @@ internal class ChatViewModel(
 ) {
 
     private var replyJob: Job? = null
+    private var activeAssistantMessageId: String? = null
 
     init {
         loadHistory()
@@ -71,8 +73,9 @@ internal class ChatViewModel(
             is ChatAction.Ui.ClearHistoryConfirmed -> onClearHistoryConfirmed()
             is ChatAction.Ui.ClearHistoryCancelled -> onClearHistoryCancelled()
             is ChatAction.Internal.HistoryLoaded -> onHistoryLoaded(action.messages)
-            is ChatAction.Internal.ReplyReceived -> onReplyReceived(action.message)
-            is ChatAction.Internal.ReplyFailed -> onReplyFailed(action.error)
+            is ChatAction.Internal.ReplyChunkReceived -> onReplyChunkReceived(action.messageId, action.textChunk)
+            is ChatAction.Internal.ReplyCompleted -> onReplyCompleted()
+            is ChatAction.Internal.ReplyFailed -> onReplyFailed(action.messageId, action.error)
             is ChatAction.Internal.Exported -> onExported(action.filePath)
             is ChatAction.Internal.ExportFailed -> onExportFailed()
             is ChatAction.Internal.Imported -> onImported(action.messages)
@@ -129,38 +132,63 @@ internal class ChatViewModel(
     private fun onStopClicked() {
         replyJob?.cancel()
         replyJob = null
-        updateState { copy(isLoading = false, error = null) }
-    }
-
-    private fun requestReply(history: List<HistoryMessageModel>) {
-        replyJob?.cancel()
-        replyJob = viewModelScope.launch {
-            sendMessageUseCase(history.map { message -> message.toChatMessageModel() })
-                .onSuccess { reply -> onAction(ChatAction.Internal.ReplyReceived(reply)) }
-                .onFailure { throwable ->
-                    val error = (throwable as? AiException)?.error ?: AiErrorModel.Unknown
-                    onAction(ChatAction.Internal.ReplyFailed(error))
-                }
+        val pendingMessage = currentState.messages.find { message -> message.id == activeAssistantMessageId }
+        activeAssistantMessageId = null
+        val history = if (pendingMessage != null && pendingMessage.text.isEmpty()) {
+            currentState.messages.withoutMessage(pendingMessage.id)
+        } else {
+            currentState.messages
+        }
+        updateState { copy(messages = history, isLoading = false, error = null) }
+        if (pendingMessage != null && pendingMessage.text.isNotEmpty()) {
+            persist(history)
         }
     }
 
-    private fun onReplyReceived(message: ChatMessageModel) {
-        val assistantMessage = createMessage(author = message.author, text = message.text)
-        val history = currentState.messages + assistantMessage
+    @Suppress("TooGenericExceptionCaught")
+    private fun requestReply(history: List<HistoryMessageModel>) {
+        replyJob?.cancel()
+        val assistantMessage = createMessage(author = MessageAuthor.ASSISTANT, text = "")
+        activeAssistantMessageId = assistantMessage.id
+        updateState { copy(messages = history + assistantMessage) }
+        replyJob = viewModelScope.launch {
+            try {
+                sendMessageStreamUseCase(history.map { message -> message.toChatMessageModel() })
+                    .collect { textChunk ->
+                        onAction(ChatAction.Internal.ReplyChunkReceived(assistantMessage.id, textChunk))
+                    }
+                onAction(ChatAction.Internal.ReplyCompleted)
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (throwable: Throwable) {
+                val error = (throwable as? AiException)?.error ?: AiErrorModel.Unknown
+                onAction(ChatAction.Internal.ReplyFailed(assistantMessage.id, error))
+            }
+        }
+    }
+
+    private fun onReplyChunkReceived(messageId: String, textChunk: String) {
+        val history = currentState.messages.map { message ->
+            if (message.id == messageId) message.copy(text = message.text + textChunk) else message
+        }
+        updateState { copy(messages = history) }
+    }
+
+    private fun onReplyCompleted() {
+        activeAssistantMessageId = null
+        replyJob = null
+        updateState { copy(isLoading = false, error = null) }
+        postEvent(ChatEvent.ScrollToBottom)
+        persist(currentState.messages)
+    }
+
+    private fun onReplyFailed(messageId: String, error: AiErrorModel) {
+        activeAssistantMessageId = null
+        replyJob = null
+        val history = currentState.messages.withoutMessage(messageId)
         updateState {
             copy(
                 messages = history,
-                isLoading = false,
-                error = null,
-            )
-        }
-        postEvent(ChatEvent.ScrollToBottom)
-        persist(history)
-    }
-
-    private fun onReplyFailed(error: AiErrorModel) {
-        updateState {
-            copy(
                 isLoading = false,
                 error = error,
             )
@@ -276,4 +304,7 @@ internal class ChatViewModel(
             isFavorite = false,
             timestamp = Clock.System.now().toEpochMilliseconds(),
         )
+
+    private fun List<HistoryMessageModel>.withoutMessage(messageId: String): List<HistoryMessageModel> =
+        filterNot { message -> message.id == messageId }
 }

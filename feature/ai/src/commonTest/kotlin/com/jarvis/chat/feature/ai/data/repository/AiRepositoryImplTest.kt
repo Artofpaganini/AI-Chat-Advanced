@@ -11,6 +11,10 @@ import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.HttpRequestBuilder
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
 import kotlin.test.Test
@@ -111,8 +115,61 @@ class AiRepositoryImplTest {
         assertEquals("", result.text)
     }
 
+    @Test
+    fun sendMessageStream_forwardsHistoryAsRequestMessagesInSameOrder() = runTest {
+        val dataSource = FakeDeepSeekRemoteDataSource(chunks = listOf("ok"))
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+
+        repository.sendMessageStream(
+            listOf(
+                ChatMessageModel(author = MessageAuthor.USER, text = "first"),
+                ChatMessageModel(author = MessageAuthor.ASSISTANT, text = "second"),
+            ),
+        ).toList()
+
+        assertEquals(
+            listOf("user" to "first", "assistant" to "second"),
+            dataSource.received.map { message -> message.role to message.content },
+        )
+    }
+
+    @Test
+    fun sendMessageStream_emitsChunksFromDataSourceInOrder() = runTest {
+        val dataSource = FakeDeepSeekRemoteDataSource(chunks = listOf("Hel", "lo"))
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+
+        val chunks = repository.sendMessageStream(
+            listOf(ChatMessageModel(author = MessageAuthor.USER, text = "question")),
+        ).toList()
+
+        assertEquals(listOf("Hel", "lo"), chunks)
+    }
+
+    @Test
+    fun sendMessageStream_whenDataSourceFails_throwsAiExceptionWithMappedError() = runTest {
+        val dataSource = FakeDeepSeekRemoteDataSource(error = IllegalStateException("network down"))
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+
+        val error = assertFailsWith<AiException> {
+            repository.sendMessageStream(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x"))).toList()
+        }
+
+        assertEquals(AiErrorModel.Unknown, error.error)
+    }
+
+    @Test
+    fun sendMessageStream_onCancellation_rethrowsCancellationInsteadOfWrapping() = runTest {
+        val dataSource = FakeDeepSeekRemoteDataSource(error = CancellationException("cancelled"))
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+
+        assertFailsWith<CancellationException> {
+            repository.sendMessageStream(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x"))).toList()
+        }
+    }
+
     private class FakeDeepSeekRemoteDataSource(
         private val reply: String? = null,
+        private val chunks: List<String> = emptyList(),
         private val error: Throwable? = null,
     ) : DeepSeekRemoteDataSource {
 
@@ -131,6 +188,14 @@ class AiRepositoryImplTest {
                 )
             }.orEmpty()
             return ChatCompletionResponseModel(choices = choices)
+        }
+
+        override fun requestCompletionStream(
+            messages: List<ChatMessageRequestModel>,
+        ): Flow<String> = flow {
+            received += messages
+            error?.let { failure -> throw failure }
+            chunks.forEach { chunk -> emit(chunk) }
         }
     }
 }
