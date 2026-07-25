@@ -7,4 +7,5 @@ internal data class HistoryMessageModel(
     val author: MessageAuthor,
     val text: String,
     val isFavorite: Boolean,
+    val timestamp: Long,
 )

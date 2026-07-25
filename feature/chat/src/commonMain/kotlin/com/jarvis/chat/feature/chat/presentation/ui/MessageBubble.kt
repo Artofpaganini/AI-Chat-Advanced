@@ -68,6 +68,11 @@ internal fun MessageBubble(
                     text = message.text,
                     style = MaterialTheme.typography.bodyLarge,
                 )
+                Text(
+                    text = message.timeLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 MessageActions(
                     message = message,
                     isTtsAvailable = isTtsAvailable,

@@ -19,6 +19,7 @@ import com.jarvis.chat.feature.chat.presentation.model.ChatState
 import com.jarvis.chat.feature.chat.presentation.model.ChatUiModel
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+import kotlin.time.Clock
 
 private const val MESSAGE_ID_PREFIX = "msg-"
 private const val EXPORT_MESSAGE_PREFIX = "History exported to "
@@ -193,5 +194,6 @@ internal class ChatViewModel(
             author = author,
             text = text,
             isFavorite = false,
+            timestamp = Clock.System.now().toEpochMilliseconds(),
         )
 }

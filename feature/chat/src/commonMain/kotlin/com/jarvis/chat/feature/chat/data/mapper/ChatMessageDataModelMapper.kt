@@ -12,4 +12,5 @@ internal fun ChatMessageDataModel.toHistoryMessageModel(): HistoryMessageModel =
         author = if (author == AUTHOR_ASSISTANT) MessageAuthor.ASSISTANT else MessageAuthor.USER,
         text = text,
         isFavorite = isFavorite,
+        timestamp = timestamp,
     )

@@ -7,4 +7,5 @@ internal data class ChatMessageUiModel(
     val isSpeakable: Boolean,
     val isFavorite: Boolean,
     val canFavorite: Boolean,
+    val timeLabel: String,
 )

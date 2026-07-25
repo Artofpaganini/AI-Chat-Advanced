@@ -8,4 +8,5 @@ internal data class ChatMessageDataModel(
     val author: String,
     val text: String,
     val isFavorite: Boolean,
+    val timestamp: Long = 0L,
 )

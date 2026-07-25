@@ -205,7 +205,13 @@ class ChatViewModelTest {
     }
 
     private fun historyMessage(id: String, text: String): HistoryMessageModel =
-        HistoryMessageModel(id = id, author = MessageAuthor.USER, text = text, isFavorite = false)
+        HistoryMessageModel(
+            id = id,
+            author = MessageAuthor.USER,
+            text = text,
+            isFavorite = false,
+            timestamp = TEST_TIMESTAMP,
+        )
 
     private class FakeAiRepository(
         private val reply: String,
@@ -245,3 +251,5 @@ class ChatViewModelTest {
         }
     }
 }
+
+private const val TEST_TIMESTAMP = 1_700_000_000_000L

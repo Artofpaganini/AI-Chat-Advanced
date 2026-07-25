@@ -6,6 +6,13 @@ import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
 import com.jarvis.chat.feature.chat.presentation.model.ChatState
 import com.jarvis.chat.feature.chat.presentation.model.ChatUiModel
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
+
+private const val TIME_LABEL_PAD_LENGTH = 2
+private const val TIME_LABEL_PAD_CHAR = '0'
+private const val TIME_LABEL_SEPARATOR = ":"
 
 internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
 
@@ -35,6 +42,14 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             isSpeakable = !isFromUser,
             isFavorite = isFavorite,
             canFavorite = !isFromUser,
+            timeLabel = timestamp.toTimeLabel(),
         )
     }
+}
+
+private fun Long.toTimeLabel(): String {
+    val dateTime = Instant.fromEpochMilliseconds(this).toLocalDateTime(TimeZone.currentSystemDefault())
+    val hour = dateTime.hour.toString().padStart(TIME_LABEL_PAD_LENGTH, TIME_LABEL_PAD_CHAR)
+    val minute = dateTime.minute.toString().padStart(TIME_LABEL_PAD_LENGTH, TIME_LABEL_PAD_CHAR)
+    return "$hour$TIME_LABEL_SEPARATOR$minute"
 }

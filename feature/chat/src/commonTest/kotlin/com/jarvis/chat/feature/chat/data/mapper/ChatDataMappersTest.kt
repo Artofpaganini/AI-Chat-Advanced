@@ -27,6 +27,7 @@ class ChatDataMappersTest {
             author = MessageAuthor.ASSISTANT,
             text = "answer",
             isFavorite = true,
+            timestamp = TEST_TIMESTAMP,
         )
 
         val dataModel = model.toChatMessageDataModel()
@@ -55,8 +56,20 @@ class ChatDataMappersTest {
     @Test
     fun modelToDataAndBack_roundTripsForBothAuthors() {
         val original = listOf(
-            HistoryMessageModel(id = "u1", author = MessageAuthor.USER, text = "q", isFavorite = false),
-            HistoryMessageModel(id = "a1", author = MessageAuthor.ASSISTANT, text = "a", isFavorite = true),
+            HistoryMessageModel(
+                id = "u1",
+                author = MessageAuthor.USER,
+                text = "q",
+                isFavorite = false,
+                timestamp = TEST_TIMESTAMP,
+            ),
+            HistoryMessageModel(
+                id = "a1",
+                author = MessageAuthor.ASSISTANT,
+                text = "a",
+                isFavorite = true,
+                timestamp = TEST_TIMESTAMP,
+            ),
         )
 
         val roundTripped = original
@@ -69,8 +82,20 @@ class ChatDataMappersTest {
     @Test
     fun listToChatHistoryDataModel_setsVersionAndPreservesOrder() {
         val messages = listOf(
-            HistoryMessageModel(id = "1", author = MessageAuthor.USER, text = "a", isFavorite = false),
-            HistoryMessageModel(id = "2", author = MessageAuthor.ASSISTANT, text = "b", isFavorite = false),
+            HistoryMessageModel(
+                id = "1",
+                author = MessageAuthor.USER,
+                text = "a",
+                isFavorite = false,
+                timestamp = TEST_TIMESTAMP,
+            ),
+            HistoryMessageModel(
+                id = "2",
+                author = MessageAuthor.ASSISTANT,
+                text = "b",
+                isFavorite = false,
+                timestamp = TEST_TIMESTAMP,
+            ),
         )
 
         val history = messages.toChatHistoryDataModel()
@@ -86,6 +111,7 @@ class ChatDataMappersTest {
             author = MessageAuthor.ASSISTANT,
             text = "keep me",
             isFavorite = true,
+            timestamp = TEST_TIMESTAMP,
         )
 
         val chatMessage = historyMessage.toChatMessageModel()
@@ -95,8 +121,10 @@ class ChatDataMappersTest {
     }
 
     private fun message(author: MessageAuthor): HistoryMessageModel =
-        HistoryMessageModel(id = "id", author = author, text = "text", isFavorite = false)
+        HistoryMessageModel(id = "id", author = author, text = "text", isFavorite = false, timestamp = TEST_TIMESTAMP)
 
     private fun dataModel(author: String): ChatMessageDataModel =
         ChatMessageDataModel(id = "id", author = author, text = "text", isFavorite = false)
 }
+
+private const val TEST_TIMESTAMP = 1_700_000_000_000L

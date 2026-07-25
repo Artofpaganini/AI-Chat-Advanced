@@ -82,8 +82,16 @@ class ChatHistoryUseCasesTest {
     }
 
     private fun message(id: String): HistoryMessageModel =
-        HistoryMessageModel(id = id, author = MessageAuthor.USER, text = "text", isFavorite = false)
+        HistoryMessageModel(
+            id = id,
+            author = MessageAuthor.USER,
+            text = "text",
+            isFavorite = false,
+            timestamp = TEST_TIMESTAMP,
+        )
 }
+
+private const val TEST_TIMESTAMP = 1_700_000_000_000L
 
 private class FakeChatHistoryRepository(
     initial: List<HistoryMessageModel> = emptyList(),

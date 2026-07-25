@@ -108,8 +108,22 @@ class ChatUiMapperTest {
     }
 
     private fun userMessage(id: String, text: String): HistoryMessageModel =
-        HistoryMessageModel(id = id, author = MessageAuthor.USER, text = text, isFavorite = false)
+        HistoryMessageModel(
+            id = id,
+            author = MessageAuthor.USER,
+            text = text,
+            isFavorite = false,
+            timestamp = TEST_TIMESTAMP,
+        )
 
     private fun assistantMessage(id: String, text: String, isFavorite: Boolean): HistoryMessageModel =
-        HistoryMessageModel(id = id, author = MessageAuthor.ASSISTANT, text = text, isFavorite = isFavorite)
+        HistoryMessageModel(
+            id = id,
+            author = MessageAuthor.ASSISTANT,
+            text = text,
+            isFavorite = isFavorite,
+            timestamp = TEST_TIMESTAMP,
+        )
 }
+
+private const val TEST_TIMESTAMP = 1_700_000_000_000L
