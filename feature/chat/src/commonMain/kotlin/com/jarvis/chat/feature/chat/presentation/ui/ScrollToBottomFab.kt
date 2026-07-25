@@ -18,6 +18,12 @@ import androidx.compose.ui.Modifier
 
 private const val SCROLL_TO_BOTTOM_CONTENT_DESCRIPTION = "Scroll to bottom"
 
+internal fun LazyListState.isScrolledToBottom(): Boolean {
+    val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
+    val lastItemIndex = layoutInfo.totalItemsCount - 1
+    return lastVisibleIndex == null || lastVisibleIndex >= lastItemIndex
+}
+
 @Composable
 internal fun ScrollToBottomFab(
     listState: LazyListState,
@@ -25,12 +31,7 @@ internal fun ScrollToBottomFab(
     modifier: Modifier = Modifier,
 ) {
     val isVisible by remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index
-            val lastItemIndex = layoutInfo.totalItemsCount - 1
-            lastVisibleIndex != null && lastVisibleIndex < lastItemIndex
-        }
+        derivedStateOf { !listState.isScrolledToBottom() }
     }
 
     AnimatedVisibility(

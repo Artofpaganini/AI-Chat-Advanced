@@ -12,6 +12,7 @@ import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
 import com.jarvis.chat.feature.chat.presentation.delegate.ChatExportImportDelegate
 import com.jarvis.chat.feature.chat.presentation.delegate.ChatHistoryDelegate
 import com.jarvis.chat.feature.chat.presentation.delegate.ChatReplyDelegate
+import com.jarvis.chat.feature.chat.presentation.delegate.ChatSpeechDelegate
 import com.jarvis.chat.feature.chat.presentation.mapper.ChatUiMapper
 import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
@@ -66,6 +67,11 @@ internal class ChatViewModel(
         dispatch = ::onAction,
     )
 
+    private val speechDelegate = ChatSpeechDelegate(
+        currentState = ::currentState,
+        updateState = ::updateState,
+    )
+
     init {
         historyDelegate.loadHistory()
     }
@@ -79,6 +85,8 @@ internal class ChatViewModel(
             is ChatAction.Ui.SuggestionClicked -> onSuggestionClicked(action.text)
             is ChatAction.Ui.RetryClicked -> replyDelegate.onRetryClicked()
             is ChatAction.Ui.FavoriteToggled -> onFavoriteToggled(action.messageId)
+            is ChatAction.Ui.SpeakToggled -> speechDelegate.onSpeakToggled(action.messageId)
+            is ChatAction.Ui.SpeechFinished -> speechDelegate.onSpeechFinished(action.messageId)
             is ChatAction.Ui.MessageCopied -> onMessageCopied()
             is ChatAction.Ui.FavoritesFilterToggled -> onFavoritesFilterToggled()
             is ChatAction.Ui.ExportClicked -> exportImportDelegate.onExportClicked()

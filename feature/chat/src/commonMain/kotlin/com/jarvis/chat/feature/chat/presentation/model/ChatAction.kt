@@ -21,6 +21,10 @@ internal sealed interface ChatAction {
 
         data class FavoriteToggled(val messageId: String) : Ui
 
+        data class SpeakToggled(val messageId: String) : Ui
+
+        data class SpeechFinished(val messageId: String) : Ui
+
         data object MessageCopied : Ui
 
         data object FavoritesFilterToggled : Ui

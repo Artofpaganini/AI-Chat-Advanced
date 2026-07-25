@@ -31,7 +31,7 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             state.messages
         }
         return ChatUiModel(
-            messages = visibleMessages.map { message -> message.toChatMessageUiModel() },
+            messages = visibleMessages.map { message -> message.toChatMessageUiModel(state.speakingMessageId) },
             inputText = state.inputText,
             isLoading = state.isLoading && !state.isFavoritesFilterActive,
             isSendEnabled = state.inputText.isNotBlank() && !state.isLoading,
@@ -50,13 +50,14 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
         )
     }
 
-    private fun HistoryMessageModel.toChatMessageUiModel(): ChatMessageUiModel {
+    private fun HistoryMessageModel.toChatMessageUiModel(speakingMessageId: String?): ChatMessageUiModel {
         val isFromUser = author == MessageAuthor.USER
         return ChatMessageUiModel(
             id = id,
             text = text,
             isFromUser = isFromUser,
             isSpeakable = !isFromUser,
+            isSpeaking = id == speakingMessageId,
             isFavorite = isFavorite,
             canFavorite = !isFromUser,
             timeLabel = timestamp.toTimeLabel(),

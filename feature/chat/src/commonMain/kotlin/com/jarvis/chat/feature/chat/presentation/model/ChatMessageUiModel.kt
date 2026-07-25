@@ -5,6 +5,7 @@ internal data class ChatMessageUiModel(
     val text: String,
     val isFromUser: Boolean,
     val isSpeakable: Boolean,
+    val isSpeaking: Boolean,
     val isFavorite: Boolean,
     val canFavorite: Boolean,
     val timeLabel: String,

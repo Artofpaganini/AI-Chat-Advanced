@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -35,6 +36,7 @@ import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
 import kotlinx.coroutines.launch
 
 private const val SPEAK_CONTENT_DESCRIPTION = "Speak message aloud"
+private const val STOP_SPEAKING_CONTENT_DESCRIPTION = "Stop speaking"
 private const val COPY_CONTENT_DESCRIPTION = "Copy message text"
 private const val FAVORITE_ACTIVE_TEXT = "Remove from favorites"
 private const val FAVORITE_INACTIVE_TEXT = "Add to favorites"
@@ -45,7 +47,7 @@ private const val DELETE_MENU_ITEM_TEXT = "Delete"
 internal fun MessageBubble(
     message: ChatMessageUiModel,
     isTtsAvailable: Boolean,
-    onSpeak: (String) -> Unit,
+    onSpeakToggle: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
     onCopy: () -> Unit,
     onDeleteRequest: (String) -> Unit,
@@ -107,7 +109,7 @@ internal fun MessageBubble(
                 MessageActions(
                     message = message,
                     isTtsAvailable = isTtsAvailable,
-                    onSpeak = onSpeak,
+                    onSpeakToggle = onSpeakToggle,
                     onToggleFavorite = onToggleFavorite,
                     onCopy = copyMessage,
                 )
@@ -174,19 +176,20 @@ private fun MessageContextMenu(
 private fun MessageActions(
     message: ChatMessageUiModel,
     isTtsAvailable: Boolean,
-    onSpeak: (String) -> Unit,
+    onSpeakToggle: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
     onCopy: () -> Unit,
 ) {
     Row(horizontalArrangement = Arrangement.Start) {
-        if (message.isSpeakable) {
-            IconButton(
-                onClick = { onSpeak(message.text) },
-                enabled = isTtsAvailable,
-            ) {
+        if (message.isSpeakable && isTtsAvailable) {
+            IconButton(onClick = { onSpeakToggle(message.id) }) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                    contentDescription = SPEAK_CONTENT_DESCRIPTION,
+                    imageVector = if (message.isSpeaking) Icons.Filled.Stop else Icons.AutoMirrored.Filled.VolumeUp,
+                    contentDescription = if (message.isSpeaking) {
+                        STOP_SPEAKING_CONTENT_DESCRIPTION
+                    } else {
+                        SPEAK_CONTENT_DESCRIPTION
+                    },
                 )
             }
         }

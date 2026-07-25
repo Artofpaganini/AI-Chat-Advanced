@@ -30,7 +30,7 @@ internal fun ChatMessages(
     uiState: ChatUiModel,
     listState: LazyListState,
     isTtsAvailable: Boolean,
-    onSpeak: (String) -> Unit,
+    onSpeakToggle: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
     onCopy: () -> Unit,
     onDeleteRequest: (String) -> Unit,
@@ -62,7 +62,7 @@ internal fun ChatMessages(
                     MessageBubble(
                         message = message,
                         isTtsAvailable = isTtsAvailable,
-                        onSpeak = onSpeak,
+                        onSpeakToggle = onSpeakToggle,
                         onToggleFavorite = onToggleFavorite,
                         onCopy = onCopy,
                         onDeleteRequest = onDeleteRequest,

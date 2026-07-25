@@ -252,6 +252,31 @@ class ChatUiMapperTest {
         assertEquals(TEST_BAD_REQUEST_MESSAGE, uiModel.errorMessage)
     }
 
+    @Test
+    fun map_speakingMessageId_marksMatchingMessageAsSpeakingOnly() {
+        val state = ChatState(
+            messages = listOf(
+                assistantMessage(id = "a1", text = "one", isFavorite = false),
+                assistantMessage(id = "a2", text = "two", isFavorite = false),
+            ),
+            speakingMessageId = "a2",
+        )
+
+        val uiModel = mapper.map(state)
+
+        assertFalse(uiModel.messages.first { message -> message.id == "a1" }.isSpeaking)
+        assertTrue(uiModel.messages.first { message -> message.id == "a2" }.isSpeaking)
+    }
+
+    @Test
+    fun map_noSpeakingMessageId_marksAllMessagesAsNotSpeaking() {
+        val state = ChatState(messages = listOf(assistantMessage(id = "a1", text = "one", isFavorite = false)))
+
+        val uiModel = mapper.map(state)
+
+        assertFalse(uiModel.messages.single().isSpeaking)
+    }
+
     private fun userMessage(id: String, text: String, timestamp: Long = TEST_TIMESTAMP): HistoryMessageModel =
         HistoryMessageModel(
             id = id,

@@ -444,6 +444,71 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun speakToggled_setsSpeakingFlagOnTargetMessageOnly() = runTest {
+        val stored = listOf(
+            historyMessage(id = "1", text = "one"),
+            historyMessage(id = "2", text = "two"),
+        )
+        val viewModel = createViewModel(storedMessages = stored)
+
+        viewModel.onAction(ChatAction.Ui.SpeakToggled("2"))
+
+        val speaking = viewModel.uiState.value.messages.filter { message -> message.isSpeaking }
+        assertEquals(listOf("2"), speaking.map { message -> message.id })
+    }
+
+    @Test
+    fun speakToggled_calledTwiceForSameMessage_clearsSpeakingFlag() = runTest {
+        val viewModel = createViewModel(storedMessages = listOf(historyMessage(id = "1", text = "one")))
+
+        viewModel.onAction(ChatAction.Ui.SpeakToggled("1"))
+        viewModel.onAction(ChatAction.Ui.SpeakToggled("1"))
+
+        assertTrue(viewModel.uiState.value.messages.none { message -> message.isSpeaking })
+    }
+
+    @Test
+    fun speakToggled_forDifferentMessage_switchesSpeakingMessage() = runTest {
+        val stored = listOf(
+            historyMessage(id = "1", text = "one"),
+            historyMessage(id = "2", text = "two"),
+        )
+        val viewModel = createViewModel(storedMessages = stored)
+
+        viewModel.onAction(ChatAction.Ui.SpeakToggled("1"))
+        viewModel.onAction(ChatAction.Ui.SpeakToggled("2"))
+
+        val speaking = viewModel.uiState.value.messages.filter { message -> message.isSpeaking }
+        assertEquals(listOf("2"), speaking.map { message -> message.id })
+    }
+
+    @Test
+    fun speechFinished_forActiveSpeakingMessage_clearsSpeakingFlag() = runTest {
+        val viewModel = createViewModel(storedMessages = listOf(historyMessage(id = "1", text = "one")))
+        viewModel.onAction(ChatAction.Ui.SpeakToggled("1"))
+
+        viewModel.onAction(ChatAction.Ui.SpeechFinished("1"))
+
+        assertTrue(viewModel.uiState.value.messages.none { message -> message.isSpeaking })
+    }
+
+    @Test
+    fun speechFinished_forStaleMessageId_doesNotClearNewerSpeakingMessage() = runTest {
+        val stored = listOf(
+            historyMessage(id = "1", text = "one"),
+            historyMessage(id = "2", text = "two"),
+        )
+        val viewModel = createViewModel(storedMessages = stored)
+        viewModel.onAction(ChatAction.Ui.SpeakToggled("1"))
+        viewModel.onAction(ChatAction.Ui.SpeakToggled("2"))
+
+        viewModel.onAction(ChatAction.Ui.SpeechFinished("1"))
+
+        val speaking = viewModel.uiState.value.messages.filter { message -> message.isSpeaking }
+        assertEquals(listOf("2"), speaking.map { message -> message.id })
+    }
+
+    @Test
     fun deleteMessageCancelled_keepsAllMessagesAndHidesDialog() = runTest {
         val repository = FakeChatHistoryRepository()
         val stored = listOf(

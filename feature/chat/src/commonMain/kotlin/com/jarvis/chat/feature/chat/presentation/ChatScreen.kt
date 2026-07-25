@@ -26,15 +26,21 @@ import com.jarvis.chat.feature.chat.presentation.ui.ChatTopBarActions
 import com.jarvis.chat.feature.chat.presentation.ui.ClearHistoryConfirmationDialog
 import com.jarvis.chat.feature.chat.presentation.ui.DeleteMessageConfirmationDialog
 import com.jarvis.chat.feature.chat.presentation.ui.MessageInputBar
+import com.jarvis.chat.feature.chat.presentation.ui.buildSpeechText
+import com.jarvis.chat.feature.chat.presentation.ui.isScrolledToBottom
 import com.jarvis.chat.feature.chat.presentation.ui.rememberJsonFilePicker
 import com.jarvis.chat.feature.voice.model.SpeechRecognitionStateModel
 import com.jarvis.chat.feature.voice.rememberSpeechRecognitionController
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import nl.marc_apps.tts.TextToSpeechInstance
 import nl.marc_apps.tts.rememberTextToSpeechOrNull
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TITLE = "Jarvis"
 private const val IMPORT_READ_FAILED_MESSAGE = "Failed to read file. Please try again."
+private const val SPEECH_PLAYBACK_FAILED_MESSAGE = "Speech playback failed."
+private const val SCROLL_TO_BOTTOM_TARGET_INDEX = Int.MAX_VALUE
 
 @Composable
 fun ChatScreen(onSettingsClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -66,8 +72,7 @@ internal fun ChatContent(
         },
     )
     val scrollToBottom: suspend () -> Unit = {
-        val lastIndex = (listState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
-        listState.animateScrollToItem(lastIndex)
+        listState.animateScrollToItem(index = SCROLL_TO_BOTTOM_TARGET_INDEX)
     }
 
     LaunchedEffect(viewModel) {
@@ -77,6 +82,22 @@ internal fun ChatContent(
                 is ChatEvent.ShowMessage -> snackbarHostState.showSnackbar(event.text)
             }
         }
+    }
+
+    val lastMessageTextLength = uiState.messages.lastOrNull()?.text?.length ?: 0
+    LaunchedEffect(uiState.messages.size, lastMessageTextLength) {
+        if (listState.isScrolledToBottom()) {
+            scrollToBottom()
+        }
+    }
+
+    val speakingMessage = uiState.messages.find { message -> message.isSpeaking }
+    LaunchedEffect(speakingMessage?.id, textToSpeech) {
+        val message = speakingMessage ?: return@LaunchedEffect
+        val ttsEngine = textToSpeech ?: return@LaunchedEffect
+        ttsEngine.speakOrStop(buildSpeechText(message.text))
+            .onFailure { snackbarHostState.showSnackbar(SPEECH_PLAYBACK_FAILED_MESSAGE) }
+        viewModel.onAction(ChatAction.Ui.SpeechFinished(message.id))
     }
 
     if (uiState.showClearConfirmation) {
@@ -131,7 +152,7 @@ internal fun ChatContent(
             uiState = uiState,
             listState = listState,
             isTtsAvailable = isTtsAvailable,
-            onSpeak = { text -> coroutineScope.launch { textToSpeech?.say(text) } },
+            onSpeakToggle = { messageId -> viewModel.onAction(ChatAction.Ui.SpeakToggled(messageId)) },
             onToggleFavorite = { messageId -> viewModel.onAction(ChatAction.Ui.FavoriteToggled(messageId)) },
             onCopy = { viewModel.onAction(ChatAction.Ui.MessageCopied) },
             onDeleteRequest = { messageId -> viewModel.onAction(ChatAction.Ui.DeleteMessageClicked(messageId)) },
@@ -141,4 +162,19 @@ internal fun ChatContent(
             modifier = Modifier.padding(innerPadding),
         )
     }
+}
+
+@Suppress("TooGenericExceptionCaught")
+private suspend fun TextToSpeechInstance.speakOrStop(text: String): Result<Unit> {
+    val result = try {
+        say(text = text, clearQueue = true)
+        Result.success(Unit)
+    } catch (cancellation: CancellationException) {
+        throw cancellation
+    } catch (throwable: Throwable) {
+        Result.failure(throwable)
+    } finally {
+        stop()
+    }
+    return result
 }

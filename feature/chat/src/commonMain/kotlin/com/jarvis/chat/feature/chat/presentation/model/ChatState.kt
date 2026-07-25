@@ -12,4 +12,5 @@ internal data class ChatState(
     val lastSentText: String = "",
     val showClearConfirmation: Boolean = false,
     val pendingDeleteMessageId: String? = null,
+    val speakingMessageId: String? = null,
 )
