@@ -137,6 +137,7 @@ internal fun ChatContent(
             isTtsAvailable = isTtsAvailable,
             onSpeak = { text -> coroutineScope.launch { textToSpeech?.say(text) } },
             onToggleFavorite = { messageId -> viewModel.onAction(ChatAction.Ui.FavoriteToggled(messageId)) },
+            onCopy = { viewModel.onAction(ChatAction.Ui.MessageCopied) },
             modifier = Modifier.padding(innerPadding),
         )
     }
@@ -181,6 +182,7 @@ private fun ChatMessages(
     isTtsAvailable: Boolean,
     onSpeak: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
+    onCopy: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isEmpty = uiState.messages.isEmpty() && !uiState.isLoading && !uiState.isErrorVisible
@@ -207,6 +209,7 @@ private fun ChatMessages(
                         isTtsAvailable = isTtsAvailable,
                         onSpeak = onSpeak,
                         onToggleFavorite = onToggleFavorite,
+                        onCopy = onCopy,
                     )
                 }
                 if (uiState.isLoading) {

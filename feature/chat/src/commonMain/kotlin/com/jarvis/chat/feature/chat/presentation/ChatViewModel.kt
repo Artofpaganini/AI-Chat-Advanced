@@ -26,6 +26,7 @@ private const val EXPORT_FAILED_MESSAGE = "Export failed. Please try again."
 private const val IMPORT_FAILED_MESSAGE = "Import failed. Invalid file."
 private const val IMPORT_MESSAGE_PREFIX = "Imported history: "
 private const val IMPORT_MESSAGE_SUFFIX = " messages."
+private const val COPIED_MESSAGE = "Скопировано"
 
 internal class ChatViewModel(
     private val sendMessageUseCase: SendMessageUseCase,
@@ -49,6 +50,7 @@ internal class ChatViewModel(
             is ChatAction.Ui.VoiceTranscribed -> onInputChanged(action.text)
             is ChatAction.Ui.SendClicked -> onSendClicked()
             is ChatAction.Ui.FavoriteToggled -> onFavoriteToggled(action.messageId)
+            is ChatAction.Ui.MessageCopied -> onMessageCopied()
             is ChatAction.Ui.FavoritesFilterToggled -> onFavoritesFilterToggled()
             is ChatAction.Ui.ExportClicked -> onExportClicked()
             is ChatAction.Ui.ImportRequested -> onImportRequested(action.json)
@@ -123,6 +125,10 @@ internal class ChatViewModel(
         }
         updateState { copy(messages = history) }
         persist(history)
+    }
+
+    private fun onMessageCopied() {
+        postEvent(ChatEvent.ShowMessage(COPIED_MESSAGE))
     }
 
     private fun onFavoritesFilterToggled() {

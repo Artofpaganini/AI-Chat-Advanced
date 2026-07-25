@@ -15,6 +15,8 @@ internal sealed interface ChatAction {
 
         data class FavoriteToggled(val messageId: String) : Ui
 
+        data object MessageCopied : Ui
+
         data object FavoritesFilterToggled : Ui
 
         data object ExportClicked : Ui

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Icon
@@ -19,9 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
 
 private const val SPEAK_CONTENT_DESCRIPTION = "Speak message aloud"
+private const val COPY_CONTENT_DESCRIPTION = "Copy message text"
 private const val FAVORITE_ACTIVE_CONTENT_DESCRIPTION = "Remove from favorites"
 private const val FAVORITE_INACTIVE_CONTENT_DESCRIPTION = "Add to favorites"
 
@@ -31,6 +35,7 @@ internal fun MessageBubble(
     isTtsAvailable: Boolean,
     onSpeak: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
+    onCopy: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isFromUser = message.isFromUser
@@ -68,6 +73,7 @@ internal fun MessageBubble(
                     isTtsAvailable = isTtsAvailable,
                     onSpeak = onSpeak,
                     onToggleFavorite = onToggleFavorite,
+                    onCopy = onCopy,
                 )
             }
         }
@@ -80,10 +86,9 @@ private fun MessageActions(
     isTtsAvailable: Boolean,
     onSpeak: (String) -> Unit,
     onToggleFavorite: (String) -> Unit,
+    onCopy: () -> Unit,
 ) {
-    if (!message.isSpeakable && !message.canFavorite) {
-        return
-    }
+    val clipboardManager = LocalClipboardManager.current
     Row(horizontalArrangement = Arrangement.Start) {
         if (message.isSpeakable) {
             IconButton(
@@ -95,6 +100,17 @@ private fun MessageActions(
                     contentDescription = SPEAK_CONTENT_DESCRIPTION,
                 )
             }
+        }
+        IconButton(
+            onClick = {
+                clipboardManager.setText(AnnotatedString(message.text))
+                onCopy()
+            },
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ContentCopy,
+                contentDescription = COPY_CONTENT_DESCRIPTION,
+            )
         }
         if (message.canFavorite) {
             IconButton(onClick = { onToggleFavorite(message.id) }) {
