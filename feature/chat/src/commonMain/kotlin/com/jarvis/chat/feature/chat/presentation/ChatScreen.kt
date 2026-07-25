@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -72,6 +73,7 @@ private const val FAVORITES_CONTENT_DESCRIPTION = "Toggle favorites filter"
 private const val EXPORT_CONTENT_DESCRIPTION = "Export chat history"
 private const val IMPORT_CONTENT_DESCRIPTION = "Import chat history"
 private const val CLEAR_HISTORY_CONTENT_DESCRIPTION = "Clear chat history"
+private const val SETTINGS_CONTENT_DESCRIPTION = "Open settings"
 private const val CLEAR_HISTORY_DIALOG_TITLE = "Clear chat history?"
 private const val CLEAR_HISTORY_DIALOG_TEXT = "This will permanently delete all messages. This action cannot be undone."
 private const val CLEAR_HISTORY_CONFIRM_BUTTON = "Clear"
@@ -80,13 +82,14 @@ private const val MOCK_HISTORY_PATH = "files/mock_chat_history.json"
 private const val SCROLL_TO_BOTTOM_CONTENT_DESCRIPTION = "Scroll to bottom"
 
 @Composable
-fun ChatScreen(modifier: Modifier = Modifier) {
-    ChatContent(modifier = modifier)
+fun ChatScreen(onSettingsClick: () -> Unit, modifier: Modifier = Modifier) {
+    ChatContent(onSettingsClick = onSettingsClick, modifier = modifier)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ChatContent(
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ChatViewModel = koinViewModel(),
 ) {
@@ -139,6 +142,7 @@ internal fun ChatContent(
                             }
                         },
                         onClearHistoryClick = { viewModel.onAction(ChatAction.Ui.ClearHistoryClicked) },
+                        onSettingsClick = onSettingsClick,
                     )
                 },
             )
@@ -180,6 +184,7 @@ private fun ChatTopBarActions(
     onExportClick: () -> Unit,
     onImportClick: () -> Unit,
     onClearHistoryClick: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     IconButton(onClick = onFavoritesClick) {
         Icon(
@@ -208,6 +213,12 @@ private fun ChatTopBarActions(
         Icon(
             imageVector = Icons.Filled.Delete,
             contentDescription = CLEAR_HISTORY_CONTENT_DESCRIPTION,
+        )
+    }
+    IconButton(onClick = onSettingsClick) {
+        Icon(
+            imageVector = Icons.Filled.Settings,
+            contentDescription = SETTINGS_CONTENT_DESCRIPTION,
         )
     }
 }

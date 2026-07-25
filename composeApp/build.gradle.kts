@@ -74,6 +74,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.feature.chat)
+            implementation(projects.feature.settings)
             implementation(libs.compose.material3)
             implementation(libs.koin.core)
         }

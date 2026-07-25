@@ -1,12 +1,26 @@
 package com.jarvis.chat
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import com.jarvis.chat.feature.chat.presentation.ChatScreen
+import com.jarvis.chat.feature.settings.presentation.SettingsBottomSheet
+import com.jarvis.chat.feature.settings.presentation.model.ThemeModeUiModel
+import com.jarvis.chat.feature.settings.presentation.rememberOpenSettingsAction
+import com.jarvis.chat.feature.settings.presentation.rememberSelectedThemeMode
 import com.jarvis.chat.ui.theme.JarvisTheme
 
 @Composable
 fun App() {
-    JarvisTheme {
-        ChatScreen()
+    val selectedThemeMode = rememberSelectedThemeMode()
+    val onSettingsClick = rememberOpenSettingsAction()
+    val isDarkTheme = when (selectedThemeMode) {
+        ThemeModeUiModel.SYSTEM -> isSystemInDarkTheme()
+        ThemeModeUiModel.LIGHT -> false
+        ThemeModeUiModel.DARK -> true
+    }
+
+    JarvisTheme(darkTheme = isDarkTheme) {
+        ChatScreen(onSettingsClick = onSettingsClick)
+        SettingsBottomSheet()
     }
 }

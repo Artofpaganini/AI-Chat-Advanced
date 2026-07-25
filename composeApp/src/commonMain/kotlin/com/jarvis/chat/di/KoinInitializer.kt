@@ -3,6 +3,7 @@ package com.jarvis.chat.di
 import com.jarvis.chat.AppConfig
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
 import com.jarvis.chat.feature.chat.di.chatModule
+import com.jarvis.chat.feature.settings.di.settingsModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
@@ -23,6 +24,7 @@ fun initKoin(appConfig: AppConfig) {
                 }
             },
             chatModule(storageDirectoryPath = appConfig.filesDirectoryPath),
+            settingsModule,
         )
     }
 }

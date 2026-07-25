@@ -1,0 +1,14 @@
+package com.jarvis.chat.feature.settings.presentation.mapper
+
+import com.jarvis.chat.core.viewmodel.UiMapper
+import com.jarvis.chat.feature.settings.presentation.model.SettingsState
+import com.jarvis.chat.feature.settings.presentation.model.SettingsUiModel
+
+internal class SettingsUiMapper : UiMapper<SettingsState, SettingsUiModel> {
+
+    override fun map(state: SettingsState): SettingsUiModel =
+        SettingsUiModel(
+            selectedThemeMode = state.themeMode.toThemeModeUiModel(),
+            isSheetVisible = state.isSheetVisible,
+        )
+}
