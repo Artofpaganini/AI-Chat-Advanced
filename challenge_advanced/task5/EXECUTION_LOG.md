@@ -54,7 +54,7 @@
 | 8 | Typing indicator | done | да | 0 | 1.2 | 7137afc | зелёная; **самопауза №1** после: сбой формата tool-call (громоздкий Bash), само-восстановился |
 | 9 | Clear history | done | да | 0 | 4.5 | 3ae3b87 | topbar + confirm-диалог, зелёная |
 | 10 | Empty state | done | да | 0 | 8.0 | 52fdc61 | сборка 2s; флаг в UiMapper, Action.SuggestionClicked; **инцидент №2**: агент нарушил контракт - `git stash -u` для A/B pre-existing (дерево вернул); **инцидент №3**: отфильтрованный `git status` дал пустоту при 9 правках -> git-proof только `rtk proxy git status --porcelain` |
-| 11 | Scroll-to-bottom FAB | todo | - | - | - | - | - |
+| 11 | Scroll-to-bottom FAB | done | да | 0 | 3.5 | fad60b4 | 1 файл; `derivedStateOf` по `visibleItemsInfo`, FAB внутри Box (не слот Scaffold - иначе прыжок над imePadding); разведка сняла все риски, автофиксов 0 |
 | 12 | Settings + theme pick | todo | - | - | - | - | - |
 | 13 | Extract prompt/model | todo | - | - | - | - | - |
 | 14 | ChatUiMapper tests | todo | - | - | - | - | - |
