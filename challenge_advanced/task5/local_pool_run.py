@@ -103,11 +103,23 @@ def changed_files(sandbox):
     return [name for name in names if name.endswith((".kt", ".kts"))]
 
 
-def main(model, sandbox):
-    results = []
+def load_previous():
+    """Докат: подхватываем уже сделанные задачи, чтобы не переделывать их после обрыва."""
+    if not os.path.exists(RESULTS_PATH):
+        return [], 0.0
+    with open(RESULTS_PATH, encoding="utf-8") as file:
+        data = json.load(file)
+    return data.get("results", []), data.get("total_minutes", 0.0)
+
+
+def main(model, sandbox, start_index=1):
+    results, spent_minutes = load_previous() if start_index > 1 else ([], 0.0)
+    results = [entry for entry in results if entry["index"] < start_index]
     pool_started = time.time()
 
     for index, (title, body) in enumerate(TASKS, start=1):
+        if index < start_index:
+            continue
         with open(PROMPT_PATH, "w", encoding="utf-8") as file:
             file.write(f"{COMMON_RULES}\n\nЗАДАЧА {index}: {title}\n\n{body}\n")
 
@@ -151,7 +163,7 @@ def main(model, sandbox):
 
         with open(RESULTS_PATH, "w", encoding="utf-8") as file:
             json.dump({"model": model, "results": results,
-                       "total_minutes": round((time.time() - pool_started) / 60, 1)},
+                       "total_minutes": round(spent_minutes + (time.time() - pool_started) / 60, 1)},
                       file, ensure_ascii=False, indent=2)
 
     solved = sum(1 for entry in results if entry["done"])
@@ -162,8 +174,8 @@ def main(model, sandbox):
         else:
             break
     print(f"\n===== ИТОГ: {solved}/10 сделано, подряд без провала {streak}, "
-          f"{round((time.time() - pool_started) / 60, 1)} минут =====")
+          f"{round(spent_minutes + (time.time() - pool_started) / 60, 1)} минут =====")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], int(sys.argv[3]) if len(sys.argv) > 3 else 1)
