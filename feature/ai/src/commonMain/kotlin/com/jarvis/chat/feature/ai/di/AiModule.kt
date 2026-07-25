@@ -25,12 +25,7 @@ import org.koin.dsl.module
 
 val aiModule: Module = module {
     single { provideDeepSeekHttpClient(config = get()) }
-    single {
-        DeepSeekPromptConfigModel(
-            model = DeepSeekDefaults.CHAT_MODEL,
-            systemPrompt = DeepSeekDefaults.SYSTEM_PROMPT,
-        )
-    }
+    single { DeepSeekPromptConfigModel(systemPrompt = DeepSeekDefaults.SYSTEM_PROMPT) }
     singleOf(::DeepSeekRemoteDataSourceImpl) bind DeepSeekRemoteDataSource::class
     singleOf(::AiRepositoryImpl) bind AiRepository::class
     factoryOf(::SendMessageUseCase)

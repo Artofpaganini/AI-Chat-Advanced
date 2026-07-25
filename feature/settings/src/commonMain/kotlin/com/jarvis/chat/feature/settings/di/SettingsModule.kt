@@ -1,10 +1,16 @@
 package com.jarvis.chat.feature.settings.di
 
+import com.jarvis.chat.feature.settings.data.datasource.AiModelSettingsLocalDataSource
+import com.jarvis.chat.feature.settings.data.datasource.AiModelSettingsLocalDataSourceImpl
 import com.jarvis.chat.feature.settings.data.datasource.ThemeSettingsLocalDataSource
 import com.jarvis.chat.feature.settings.data.datasource.ThemeSettingsLocalDataSourceImpl
+import com.jarvis.chat.feature.settings.data.repository.AiModelSettingsRepositoryImpl
 import com.jarvis.chat.feature.settings.data.repository.ThemeSettingsRepositoryImpl
+import com.jarvis.chat.feature.settings.domain.repository.AiModelSettingsRepository
 import com.jarvis.chat.feature.settings.domain.repository.ThemeSettingsRepository
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveThemeModeUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.SaveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveThemeModeUseCase
 import com.jarvis.chat.feature.settings.presentation.SettingsViewModel
 import com.jarvis.chat.feature.settings.presentation.mapper.SettingsUiMapper
@@ -22,6 +28,10 @@ val settingsModule: Module = module {
     singleOf(::ThemeSettingsRepositoryImpl) bind ThemeSettingsRepository::class
     factoryOf(::ObserveThemeModeUseCase)
     factoryOf(::SaveThemeModeUseCase)
+    singleOf(::AiModelSettingsLocalDataSourceImpl) bind AiModelSettingsLocalDataSource::class
+    singleOf(::AiModelSettingsRepositoryImpl) bind AiModelSettingsRepository::class
+    factoryOf(::ObserveAiModelUseCase)
+    factoryOf(::SaveAiModelUseCase)
     factoryOf(::SettingsUiMapper)
     viewModelOf(::SettingsViewModel)
 }

@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.ai.data.datasource
 
 import com.jarvis.chat.feature.ai.data.model.ChatMessageRequestModel
+import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekPromptConfigModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -62,14 +63,36 @@ class DeepSeekRemoteDataSourceImplTest {
     }
 
     @Test
-    fun requestCompletion_sendsChatModel() = runTest {
+    fun requestCompletion_sendsModelFromProvider() = runTest {
         val captured = mutableListOf<HttpRequestData>()
         val dataSource = dataSourceReturning(body = successBody("hi"), captured = captured)
 
         dataSource.requestCompletion(listOf(userMessage("hello")))
 
         val sentBody = (captured.single().body as TextContent).text
-        assertTrue(sentBody.contains("\"model\":\"${testPromptConfig.model}\""), "model missing in: $sentBody")
+        assertTrue(
+            sentBody.contains("\"model\":\"${testModelProvider.currentModel()}\""),
+            "model missing in: $sentBody",
+        )
+    }
+
+    @Test
+    fun requestCompletion_readsModelFromProviderOnEveryCall() = runTest {
+        val captured = mutableListOf<HttpRequestData>()
+        var currentModel = "model-a"
+        val dataSource = dataSourceReturning(
+            body = successBody("hi"),
+            captured = captured,
+            modelProvider = DeepSeekModelProvider { currentModel },
+        )
+
+        dataSource.requestCompletion(listOf(userMessage("hello")))
+        currentModel = "model-b"
+        dataSource.requestCompletion(listOf(userMessage("hello again")))
+
+        val sentBodies = captured.map { request -> (request.body as TextContent).text }
+        assertTrue(sentBodies[0].contains("\"model\":\"model-a\""), "first request missing model-a in: ${sentBodies[0]}")
+        assertTrue(sentBodies[1].contains("\"model\":\"model-b\""), "second request missing model-b in: ${sentBodies[1]}")
     }
 
     @Test
@@ -104,7 +127,11 @@ class DeepSeekRemoteDataSourceImplTest {
             expectSuccess = true
             install(ContentNegotiation) { json(lenientJson) }
         }
-        val dataSource = DeepSeekRemoteDataSourceImpl(httpClient = client, promptConfig = testPromptConfig)
+        val dataSource = DeepSeekRemoteDataSourceImpl(
+            httpClient = client,
+            promptConfig = testPromptConfig,
+            modelProvider = testModelProvider,
+        )
 
         val exception = assertFailsWith<ClientRequestException> {
             dataSource.requestCompletion(listOf(userMessage("hello")))
@@ -118,14 +145,16 @@ class DeepSeekRemoteDataSourceImplTest {
     }
 
     private val testPromptConfig = DeepSeekPromptConfigModel(
-        model = "test-model",
         systemPrompt = "You are a test system prompt.",
     )
+
+    private val testModelProvider = DeepSeekModelProvider { "test-model" }
 
     private fun dataSourceReturning(
         body: String,
         captured: MutableList<HttpRequestData> = mutableListOf(),
         promptConfig: DeepSeekPromptConfigModel = testPromptConfig,
+        modelProvider: DeepSeekModelProvider = testModelProvider,
     ): DeepSeekRemoteDataSourceImpl {
         val client = HttpClient(
             MockEngine { request ->
@@ -139,7 +168,7 @@ class DeepSeekRemoteDataSourceImplTest {
         ) {
             install(ContentNegotiation) { json(lenientJson) }
         }
-        return DeepSeekRemoteDataSourceImpl(httpClient = client, promptConfig = promptConfig)
+        return DeepSeekRemoteDataSourceImpl(httpClient = client, promptConfig = promptConfig, modelProvider = modelProvider)
     }
 
     private fun successBody(content: String): String =

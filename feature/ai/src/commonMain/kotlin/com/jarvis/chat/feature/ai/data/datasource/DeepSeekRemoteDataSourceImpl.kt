@@ -3,6 +3,7 @@ package com.jarvis.chat.feature.ai.data.datasource
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionRequestModel
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatMessageRequestModel
+import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekPromptConfigModel
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -17,6 +18,7 @@ private const val ROLE_SYSTEM = "system"
 internal class DeepSeekRemoteDataSourceImpl(
     private val httpClient: HttpClient,
     private val promptConfig: DeepSeekPromptConfigModel,
+    private val modelProvider: DeepSeekModelProvider,
 ) : DeepSeekRemoteDataSource {
 
     override suspend fun requestCompletion(
@@ -24,7 +26,7 @@ internal class DeepSeekRemoteDataSourceImpl(
     ): ChatCompletionResponseModel {
         val systemMessage = ChatMessageRequestModel(role = ROLE_SYSTEM, content = promptConfig.systemPrompt)
         val requestBody = ChatCompletionRequestModel(
-            model = promptConfig.model,
+            model = modelProvider.currentModel(),
             messages = listOf(systemMessage) + messages,
             stream = false,
         )

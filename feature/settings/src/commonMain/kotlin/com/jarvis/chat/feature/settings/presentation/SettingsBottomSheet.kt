@@ -3,7 +3,9 @@ package com.jarvis.chat.feature.settings.presentation
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,15 +19,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.jarvis.chat.feature.settings.presentation.model.AiModelUiModel
 import com.jarvis.chat.feature.settings.presentation.model.SettingsAction
 import com.jarvis.chat.feature.settings.presentation.model.ThemeModeUiModel
 import com.jarvis.chat.feature.settings.presentation.ui.SettingsDimens
 import org.koin.compose.viewmodel.koinViewModel
 
-private const val SETTINGS_TITLE = "Theme"
+private const val THEME_TITLE = "Theme"
 private const val THEME_LABEL_SYSTEM = "System default"
 private const val THEME_LABEL_LIGHT = "Light"
 private const val THEME_LABEL_DARK = "Dark"
+private const val AI_MODEL_TITLE = "AI Model"
+private const val AI_MODEL_LABEL_FLASH = "Flash (fast)"
+private const val AI_MODEL_LABEL_PRO = "Pro (advanced)"
 
 @Composable
 fun rememberSelectedThemeMode(): ThemeModeUiModel {
@@ -48,14 +54,22 @@ fun SettingsBottomSheet() {
 
     if (uiState.isSheetVisible) {
         ModalBottomSheet(onDismissRequest = { viewModel.onAction(SettingsAction.Ui.DismissRequested) }) {
-            ThemeModeOptions(
-                selectedThemeMode = uiState.selectedThemeMode,
-                onThemeModeSelected = { themeMode -> viewModel.onAction(SettingsAction.Ui.ThemeModeSelected(themeMode)) },
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(SettingsDimens.spacingMd)
                     .navigationBarsPadding(),
-            )
+            ) {
+                ThemeModeOptions(
+                    selectedThemeMode = uiState.selectedThemeMode,
+                    onThemeModeSelected = { themeMode -> viewModel.onAction(SettingsAction.Ui.ThemeModeSelected(themeMode)) },
+                )
+                Spacer(modifier = Modifier.height(SettingsDimens.spacingMd))
+                AiModelOptions(
+                    selectedAiModel = uiState.selectedAiModel,
+                    onAiModelSelected = { aiModel -> viewModel.onAction(SettingsAction.Ui.AiModelSelected(aiModel)) },
+                )
+            }
         }
     }
 }
@@ -67,7 +81,7 @@ private fun ThemeModeOptions(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        Text(text = SETTINGS_TITLE, style = MaterialTheme.typography.titleMedium)
+        Text(text = THEME_TITLE, style = MaterialTheme.typography.titleMedium)
         ThemeModeUiModel.entries.forEach { themeMode ->
             Row(
                 modifier = Modifier
@@ -86,9 +100,41 @@ private fun ThemeModeOptions(
     }
 }
 
+@Composable
+private fun AiModelOptions(
+    selectedAiModel: AiModelUiModel,
+    onAiModelSelected: (AiModelUiModel) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(text = AI_MODEL_TITLE, style = MaterialTheme.typography.titleMedium)
+        AiModelUiModel.entries.forEach { aiModel ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onAiModelSelected(aiModel) }
+                    .padding(vertical = SettingsDimens.spacingXs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(
+                    selected = aiModel == selectedAiModel,
+                    onClick = { onAiModelSelected(aiModel) },
+                )
+                Text(text = aiModel.toLabel())
+            }
+        }
+    }
+}
+
 private fun ThemeModeUiModel.toLabel(): String =
     when (this) {
         ThemeModeUiModel.SYSTEM -> THEME_LABEL_SYSTEM
         ThemeModeUiModel.LIGHT -> THEME_LABEL_LIGHT
         ThemeModeUiModel.DARK -> THEME_LABEL_DARK
+    }
+
+private fun AiModelUiModel.toLabel(): String =
+    when (this) {
+        AiModelUiModel.FLASH -> AI_MODEL_LABEL_FLASH
+        AiModelUiModel.PRO -> AI_MODEL_LABEL_PRO
     }

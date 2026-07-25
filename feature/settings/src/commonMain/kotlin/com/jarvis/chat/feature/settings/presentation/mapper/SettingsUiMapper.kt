@@ -9,6 +9,7 @@ internal class SettingsUiMapper : UiMapper<SettingsState, SettingsUiModel> {
     override fun map(state: SettingsState): SettingsUiModel =
         SettingsUiModel(
             selectedThemeMode = state.themeMode.toThemeModeUiModel(),
+            selectedAiModel = state.aiModel.toAiModelUiModel(),
             isSheetVisible = state.isSheetVisible,
         )
 }
