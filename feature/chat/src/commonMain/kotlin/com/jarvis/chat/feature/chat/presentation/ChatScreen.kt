@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.chat.presentation
 
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -18,7 +19,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
 import com.jarvis.chat.feature.chat.presentation.ui.ChatMessages
@@ -88,6 +92,25 @@ internal fun ChatContent(
     LaunchedEffect(uiState.messages.size, lastMessageTextLength) {
         if (listState.isScrolledToBottom()) {
             scrollToBottom()
+        }
+    }
+
+    val imeBottomPxState = rememberUpdatedState(WindowInsets.ime.getBottom(LocalDensity.current))
+    LaunchedEffect(listState) {
+        var wasAtBottomBeforeImeOpened = false
+        var previousImeBottomPx = imeBottomPxState.value
+        snapshotFlow { imeBottomPxState.value }.collect { imeBottomPx ->
+            val imeStartedOpening = previousImeBottomPx <= 0 && imeBottomPx > 0
+            if (imeStartedOpening) {
+                wasAtBottomBeforeImeOpened = listState.isScrolledToBottom()
+            }
+            if (imeBottomPx > 0 && wasAtBottomBeforeImeOpened) {
+                listState.scrollToItem(index = SCROLL_TO_BOTTOM_TARGET_INDEX)
+            }
+            if (imeBottomPx <= 0) {
+                wasAtBottomBeforeImeOpened = false
+            }
+            previousImeBottomPx = imeBottomPx
         }
     }
 
