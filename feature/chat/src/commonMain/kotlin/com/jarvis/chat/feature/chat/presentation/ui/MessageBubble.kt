@@ -18,11 +18,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.LocalClipboard
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
+import kotlinx.coroutines.launch
 
 private const val SPEAK_CONTENT_DESCRIPTION = "Speak message aloud"
 private const val COPY_CONTENT_DESCRIPTION = "Copy message text"
@@ -93,7 +94,8 @@ private fun MessageActions(
     onToggleFavorite: (String) -> Unit,
     onCopy: () -> Unit,
 ) {
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
     Row(horizontalArrangement = Arrangement.Start) {
         if (message.isSpeakable) {
             IconButton(
@@ -108,8 +110,10 @@ private fun MessageActions(
         }
         IconButton(
             onClick = {
-                clipboardManager.setText(AnnotatedString(message.text))
-                onCopy()
+                coroutineScope.launch {
+                    clipboard.setClipEntry(createPlainTextClipEntry(message.text))
+                    onCopy()
+                }
             },
         ) {
             Icon(
