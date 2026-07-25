@@ -14,11 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 
-private val barPadding = 12.dp
-private val elementSpacing = 8.dp
-private val barElevation = 3.dp
 private const val INPUT_MAX_LINES = 5
 private const val INPUT_PLACEHOLDER = "Message Jarvis…"
 private const val SEND_LABEL = "Send"
@@ -36,13 +32,13 @@ internal fun MessageInputBar(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        tonalElevation = barElevation,
+        tonalElevation = ChatDimens.elevationHigh,
         modifier = modifier.fillMaxWidth(),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(barPadding),
+                .padding(ChatDimens.spacingSm),
             verticalAlignment = Alignment.Bottom,
         ) {
             FilledIconButton(
@@ -55,7 +51,7 @@ internal fun MessageInputBar(
             ) {
                 Text(text = if (isListening) MIC_ACTIVE_LABEL else MIC_IDLE_LABEL)
             }
-            Spacer(modifier = Modifier.width(elementSpacing))
+            Spacer(modifier = Modifier.width(ChatDimens.spacingXs))
             OutlinedTextField(
                 value = inputText,
                 onValueChange = onInputChange,
@@ -63,7 +59,7 @@ internal fun MessageInputBar(
                 placeholder = { Text(text = INPUT_PLACEHOLDER) },
                 maxLines = INPUT_MAX_LINES,
             )
-            Spacer(modifier = Modifier.width(elementSpacing))
+            Spacer(modifier = Modifier.width(ChatDimens.spacingXs))
             Button(
                 onClick = onSendClick,
                 enabled = isSendEnabled,

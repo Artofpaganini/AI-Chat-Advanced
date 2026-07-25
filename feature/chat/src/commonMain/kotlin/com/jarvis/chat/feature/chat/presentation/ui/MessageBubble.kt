@@ -14,12 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
 
-private val bubbleMaxWidth = 320.dp
-private val bubbleContentPadding = 12.dp
-private val bubbleElevation = 1.dp
 private const val SPEAKER_LABEL = "🔊"
 private const val FAVORITE_ACTIVE_LABEL = "★"
 private const val FAVORITE_INACTIVE_LABEL = "☆"
@@ -51,11 +47,11 @@ internal fun MessageBubble(
             color = bubbleColor,
             contentColor = contentColor,
             shape = MaterialTheme.shapes.large,
-            tonalElevation = bubbleElevation,
-            modifier = Modifier.widthIn(max = bubbleMaxWidth),
+            tonalElevation = ChatDimens.elevationLow,
+            modifier = Modifier.widthIn(max = ChatDimens.messageBubbleMaxWidth),
         ) {
             Column(
-                modifier = Modifier.padding(bubbleContentPadding),
+                modifier = Modifier.padding(ChatDimens.spacingSm),
                 horizontalAlignment = Alignment.Start,
             ) {
                 Text(

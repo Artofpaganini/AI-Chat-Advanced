@@ -33,10 +33,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
 import com.jarvis.chat.feature.chat.presentation.model.ChatUiModel
+import com.jarvis.chat.feature.chat.presentation.ui.ChatDimens
 import com.jarvis.chat.feature.chat.presentation.ui.MessageBubble
 import com.jarvis.chat.feature.chat.presentation.ui.MessageInputBar
 import com.jarvis.chat.feature.chat.resources.Res
@@ -46,9 +46,6 @@ import kotlinx.coroutines.launch
 import nl.marc_apps.tts.rememberTextToSpeechOrNull
 import org.koin.compose.viewmodel.koinViewModel
 
-private val screenContentPadding = 16.dp
-private val messageSpacing = 8.dp
-private val indicatorSize = 24.dp
 private const val TITLE = "Jarvis"
 private const val EMPTY_HINT = "Ask Jarvis anything to start the conversation."
 private const val EMPTY_FAVORITES_HINT = "No favorites yet. Tap ☆ on an answer to save it."
@@ -183,14 +180,14 @@ private fun ChatMessages(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(screenContentPadding),
+                    .padding(ChatDimens.spacingMd),
             )
         } else {
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(screenContentPadding),
-                verticalArrangement = Arrangement.spacedBy(messageSpacing),
+                contentPadding = PaddingValues(ChatDimens.spacingMd),
+                verticalArrangement = Arrangement.spacedBy(ChatDimens.spacingXs),
             ) {
                 items(items = uiState.messages, key = { message -> message.id }) { message ->
                     MessageBubble(
@@ -202,7 +199,7 @@ private fun ChatMessages(
                 }
                 if (uiState.isLoading) {
                     item {
-                        CircularProgressIndicator(modifier = Modifier.size(indicatorSize))
+                        CircularProgressIndicator(modifier = Modifier.size(ChatDimens.loadingIndicatorSize))
                     }
                 }
                 if (uiState.isErrorVisible) {
