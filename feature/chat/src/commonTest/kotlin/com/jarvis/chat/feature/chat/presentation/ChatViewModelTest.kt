@@ -1,5 +1,6 @@
 package com.jarvis.chat.feature.chat.presentation
 
+import app.cash.turbine.test
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
@@ -15,6 +16,7 @@ import com.jarvis.chat.feature.chat.domain.usecase.LoadChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
 import com.jarvis.chat.feature.chat.presentation.mapper.ChatUiMapper
 import com.jarvis.chat.feature.chat.presentation.model.ChatAction
+import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
@@ -50,6 +52,14 @@ class ChatViewModelTest {
         val viewModel = createViewModel(storedMessages = stored)
 
         assertEquals(listOf("stored"), viewModel.uiState.value.messages.map { message -> message.text })
+    }
+
+    @Test
+    fun init_withEmptyStoredHistory_doesNotCrashAndKeepsMessagesEmpty() = runTest {
+        val viewModel = createViewModel(storedMessages = emptyList())
+
+        assertTrue(viewModel.uiState.value.messages.isEmpty())
+        assertFalse(viewModel.uiState.value.isLoading)
     }
 
     @Test
@@ -124,6 +134,25 @@ class ChatViewModelTest {
         assertTrue(viewModel.uiState.value.isErrorVisible)
         assertFalse(viewModel.uiState.value.isLoading)
         assertEquals(listOf("ping"), viewModel.uiState.value.messages.map { message -> message.text })
+    }
+
+    @Test
+    fun retryClicked_afterFailure_resendsLastTextAndClearsError() = runTest {
+        val aiRepository = FailThenSucceedAiRepository(
+            failure = IllegalStateException("no network"),
+            successReply = "pong",
+        )
+        val viewModel = createViewModel(aiRepository = aiRepository)
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+        assertTrue(viewModel.uiState.value.isErrorVisible)
+
+        viewModel.onAction(ChatAction.Ui.RetryClicked)
+
+        val texts = viewModel.uiState.value.messages.map { message -> message.text }
+        assertEquals(listOf("ping", "pong"), texts)
+        assertFalse(viewModel.uiState.value.isErrorVisible)
+        assertFalse(viewModel.uiState.value.isLoading)
     }
 
     @Test
@@ -250,6 +279,50 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun importRequested_onFailure_showsErrorMessageAndKeepsHistoryIntact() = runTest {
+        val repository = FakeChatHistoryRepository(importError = IllegalArgumentException("bad json"))
+        val stored = listOf(historyMessage(id = "1", text = "one"))
+        val viewModel = createViewModel(storedMessages = stored, chatRepository = repository)
+
+        viewModel.onAction(ChatAction.Ui.ImportRequested("not-json"))
+
+        assertEquals(listOf("one"), viewModel.uiState.value.messages.map { message -> message.text })
+        viewModel.events.test {
+            assertEquals(ChatEvent.ScrollToBottom, awaitItem())
+            assertEquals(ChatEvent.ShowMessage("Import failed. Invalid file."), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun exportClicked_onSuccess_showsSnackbarWithFilePath() = runTest {
+        val repository = FakeChatHistoryRepository(exportResult = "/tmp/history-export.json")
+        val viewModel = createViewModel(chatRepository = repository)
+
+        viewModel.onAction(ChatAction.Ui.ExportClicked)
+
+        viewModel.events.test {
+            assertEquals(ChatEvent.ScrollToBottom, awaitItem())
+            assertEquals(ChatEvent.ShowMessage("History exported to /tmp/history-export.json"), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun exportClicked_onFailure_showsFailureSnackbar() = runTest {
+        val repository = FakeChatHistoryRepository(exportError = IllegalStateException("disk full"))
+        val viewModel = createViewModel(chatRepository = repository)
+
+        viewModel.onAction(ChatAction.Ui.ExportClicked)
+
+        viewModel.events.test {
+            assertEquals(ChatEvent.ScrollToBottom, awaitItem())
+            assertEquals(ChatEvent.ShowMessage("Export failed. Please try again."), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun suggestionClicked_sendsSuggestionTextAsUserMessage() = runTest {
         val viewModel = createViewModel(reply = "pong")
 
@@ -267,6 +340,19 @@ class ChatViewModelTest {
         viewModel.onAction(ChatAction.Ui.VoiceTranscribed("spoken text"))
 
         assertEquals("spoken text", viewModel.uiState.value.inputText)
+    }
+
+    @Test
+    fun messageCopied_postsShowMessageEvent() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.onAction(ChatAction.Ui.MessageCopied)
+
+        viewModel.events.test {
+            assertEquals(ChatEvent.ScrollToBottom, awaitItem())
+            assertEquals(ChatEvent.ShowMessage("Скопировано"), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test
@@ -405,8 +491,30 @@ class ChatViewModelTest {
         }
     }
 
+    private class FailThenSucceedAiRepository(
+        private val failure: Throwable,
+        private val successReply: String,
+    ) : AiRepository {
+
+        private var callCount = 0
+
+        override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel =
+            error("not used in streaming tests")
+
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+            callCount += 1
+            if (callCount == 1) {
+                throw failure
+            }
+            emit(successReply)
+        }
+    }
+
     private class FakeChatHistoryRepository(
         private val importResult: List<HistoryMessageModel> = emptyList(),
+        private val importError: Throwable? = null,
+        private val exportResult: String = "/tmp/export.json",
+        private val exportError: Throwable? = null,
     ) : ChatHistoryRepository {
 
         var stored: List<HistoryMessageModel> = emptyList()
@@ -424,13 +532,17 @@ class ChatViewModelTest {
             stored = emptyList()
         }
 
-        override suspend fun exportMessages(messages: List<HistoryMessageModel>): String = "/tmp/export.json"
+        override suspend fun exportMessages(messages: List<HistoryMessageModel>): String {
+            exportError?.let { failure -> throw failure }
+            return exportResult
+        }
 
         override suspend fun importMessages(
             json: String,
             strategy: ImportStrategy,
             current: List<HistoryMessageModel>,
         ): List<HistoryMessageModel> {
+            importError?.let { failure -> throw failure }
             lastImportStrategy = strategy
             return importResult
         }
