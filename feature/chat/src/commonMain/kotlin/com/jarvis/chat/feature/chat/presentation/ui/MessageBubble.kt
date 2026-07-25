@@ -65,7 +65,7 @@ internal fun MessageBubble(
                 modifier = Modifier.padding(ChatDimens.spacingSm),
                 horizontalAlignment = Alignment.Start,
             ) {
-                Text(
+                MarkdownText(
                     text = message.text,
                     style = MaterialTheme.typography.bodyLarge,
                 )
