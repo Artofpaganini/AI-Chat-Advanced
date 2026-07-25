@@ -12,4 +12,6 @@ internal object ChatDimens {
 
     val messageBubbleMaxWidth = 320.dp
     val typingIndicatorSize = 16.dp
+
+    val emptyStateContentMaxWidth = 480.dp
 }

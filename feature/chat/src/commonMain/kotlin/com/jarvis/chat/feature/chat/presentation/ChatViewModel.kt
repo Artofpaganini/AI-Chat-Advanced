@@ -54,6 +54,7 @@ internal class ChatViewModel(
             is ChatAction.Ui.InputChanged -> onInputChanged(action.text)
             is ChatAction.Ui.VoiceTranscribed -> onInputChanged(action.text)
             is ChatAction.Ui.SendClicked -> onSendClicked()
+            is ChatAction.Ui.SuggestionClicked -> onSuggestionClicked(action.text)
             is ChatAction.Ui.RetryClicked -> onRetryClicked()
             is ChatAction.Ui.FavoriteToggled -> onFavoriteToggled(action.messageId)
             is ChatAction.Ui.MessageCopied -> onMessageCopied()
@@ -98,6 +99,11 @@ internal class ChatViewModel(
         postEvent(ChatEvent.ScrollToBottom)
         persist(history)
         requestReply(history)
+    }
+
+    private fun onSuggestionClicked(text: String) {
+        onInputChanged(text)
+        onSendClicked()
     }
 
     private fun onRetryClicked() {

@@ -177,6 +177,17 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun suggestionClicked_sendsSuggestionTextAsUserMessage() = runTest {
+        val viewModel = createViewModel(reply = "pong")
+
+        viewModel.onAction(ChatAction.Ui.SuggestionClicked("ping"))
+
+        val texts = viewModel.uiState.value.messages.map { message -> message.text }
+        assertEquals(listOf("ping", "pong"), texts)
+        assertEquals("", viewModel.uiState.value.inputText)
+    }
+
+    @Test
     fun voiceTranscribed_fillsInputLikeTyping() = runTest {
         val viewModel = createViewModel()
 

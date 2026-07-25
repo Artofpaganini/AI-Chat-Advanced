@@ -9,4 +9,6 @@ internal data class ChatUiModel(
     val isFavoritesFilterActive: Boolean,
     val favoritesCount: Int,
     val showClearConfirmation: Boolean,
+    val isEmptyState: Boolean,
+    val isFavoritesEmptyState: Boolean,
 )

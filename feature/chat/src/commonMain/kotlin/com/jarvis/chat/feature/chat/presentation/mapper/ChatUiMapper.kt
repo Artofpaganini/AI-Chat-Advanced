@@ -31,6 +31,11 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             isFavoritesFilterActive = state.isFavoritesFilterActive,
             favoritesCount = state.messages.count { message -> message.isFavorite },
             showClearConfirmation = state.showClearConfirmation,
+            isEmptyState = state.messages.isEmpty() &&
+                !state.isLoading &&
+                !state.hasError &&
+                !state.isFavoritesFilterActive,
+            isFavoritesEmptyState = state.isFavoritesFilterActive && visibleMessages.isEmpty(),
         )
     }
 

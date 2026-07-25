@@ -23,6 +23,8 @@ class ChatUiMapperTest {
         assertFalse(uiModel.isErrorVisible)
         assertFalse(uiModel.isFavoritesFilterActive)
         assertEquals(0, uiModel.favoritesCount)
+        assertTrue(uiModel.isEmptyState)
+        assertFalse(uiModel.isFavoritesEmptyState)
     }
 
     @Test
@@ -105,6 +107,46 @@ class ChatUiMapperTest {
         assertFalse(activeUi.isErrorVisible)
         assertTrue(inactiveUi.isLoading)
         assertTrue(inactiveUi.isErrorVisible)
+    }
+
+    @Test
+    fun map_nonEmptyHistory_hidesEmptyState() {
+        val state = ChatState(messages = listOf(userMessage(id = "u1", text = "hello")))
+
+        val uiModel = mapper.map(state)
+
+        assertFalse(uiModel.isEmptyState)
+    }
+
+    @Test
+    fun map_loadingOrError_hidesEmptyState() {
+        val loading = ChatState(isLoading = true)
+        val errored = ChatState(hasError = true)
+
+        assertFalse(mapper.map(loading).isEmptyState)
+        assertFalse(mapper.map(errored).isEmptyState)
+    }
+
+    @Test
+    fun map_favoritesFilterActiveAndEmpty_showsFavoritesEmptyStateNotOnboarding() {
+        val state = ChatState(isFavoritesFilterActive = true)
+
+        val uiModel = mapper.map(state)
+
+        assertFalse(uiModel.isEmptyState)
+        assertTrue(uiModel.isFavoritesEmptyState)
+    }
+
+    @Test
+    fun map_favoritesFilterActiveWithFavorites_hidesFavoritesEmptyState() {
+        val state = ChatState(
+            messages = listOf(assistantMessage(id = "a1", text = "starred", isFavorite = true)),
+            isFavoritesFilterActive = true,
+        )
+
+        val uiModel = mapper.map(state)
+
+        assertFalse(uiModel.isFavoritesEmptyState)
     }
 
     private fun userMessage(id: String, text: String): HistoryMessageModel =

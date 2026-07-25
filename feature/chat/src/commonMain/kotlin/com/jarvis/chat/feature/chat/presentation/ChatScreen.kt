@@ -45,6 +45,7 @@ import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
 import com.jarvis.chat.feature.chat.presentation.model.ChatUiModel
 import com.jarvis.chat.feature.chat.presentation.ui.ChatDimens
+import com.jarvis.chat.feature.chat.presentation.ui.ChatEmptyState
 import com.jarvis.chat.feature.chat.presentation.ui.MessageBubble
 import com.jarvis.chat.feature.chat.presentation.ui.MessageInputBar
 import com.jarvis.chat.feature.chat.presentation.ui.TypingIndicator
@@ -56,7 +57,6 @@ import nl.marc_apps.tts.rememberTextToSpeechOrNull
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val TITLE = "Jarvis"
-private const val EMPTY_HINT = "Ask Jarvis anything to start the conversation."
 private const val EMPTY_FAVORITES_HINT = "No favorites yet. Tap the star icon on an answer to save it."
 private const val ERROR_MESSAGE = "Something went wrong. Please try again."
 private const val RETRY_BUTTON_TEXT = "Retry"
@@ -157,6 +157,7 @@ internal fun ChatContent(
             onToggleFavorite = { messageId -> viewModel.onAction(ChatAction.Ui.FavoriteToggled(messageId)) },
             onCopy = { viewModel.onAction(ChatAction.Ui.MessageCopied) },
             onRetryClick = { viewModel.onAction(ChatAction.Ui.RetryClicked) },
+            onSuggestionClick = { suggestion -> viewModel.onAction(ChatAction.Ui.SuggestionClicked(suggestion)) },
             modifier = Modifier.padding(innerPadding),
         )
     }
@@ -232,13 +233,15 @@ private fun ChatMessages(
     onToggleFavorite: (String) -> Unit,
     onCopy: () -> Unit,
     onRetryClick: () -> Unit,
+    onSuggestionClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isEmpty = uiState.messages.isEmpty() && !uiState.isLoading && !uiState.isErrorVisible
     Box(modifier = modifier.fillMaxSize()) {
-        if (isEmpty) {
+        if (uiState.isEmptyState) {
+            ChatEmptyState(onSuggestionClick = onSuggestionClick)
+        } else if (uiState.isFavoritesEmptyState) {
             Text(
-                text = if (uiState.isFavoritesFilterActive) EMPTY_FAVORITES_HINT else EMPTY_HINT,
+                text = EMPTY_FAVORITES_HINT,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
