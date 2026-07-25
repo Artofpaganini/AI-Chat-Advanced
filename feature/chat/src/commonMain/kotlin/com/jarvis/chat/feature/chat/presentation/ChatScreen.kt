@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -21,7 +20,6 @@ import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,6 +45,7 @@ import com.jarvis.chat.feature.chat.presentation.model.ChatUiModel
 import com.jarvis.chat.feature.chat.presentation.ui.ChatDimens
 import com.jarvis.chat.feature.chat.presentation.ui.MessageBubble
 import com.jarvis.chat.feature.chat.presentation.ui.MessageInputBar
+import com.jarvis.chat.feature.chat.presentation.ui.TypingIndicator
 import com.jarvis.chat.feature.chat.resources.Res
 import com.jarvis.chat.feature.voice.model.SpeechRecognitionStateModel
 import com.jarvis.chat.feature.voice.rememberSpeechRecognitionController
@@ -220,7 +219,7 @@ private fun ChatMessages(
                 }
                 if (uiState.isLoading) {
                     item {
-                        CircularProgressIndicator(modifier = Modifier.size(ChatDimens.loadingIndicatorSize))
+                        TypingIndicator(modifier = Modifier.fillMaxWidth())
                     }
                 }
                 if (uiState.isErrorVisible) {

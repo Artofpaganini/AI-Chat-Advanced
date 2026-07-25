@@ -11,5 +11,5 @@ internal object ChatDimens {
     val elevationHigh = 3.dp
 
     val messageBubbleMaxWidth = 320.dp
-    val loadingIndicatorSize = 24.dp
+    val typingIndicatorSize = 16.dp
 }
