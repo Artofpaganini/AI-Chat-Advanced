@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.ai.domain.usecase
 
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
+import com.jarvis.chat.feature.ai.domain.model.ChatStreamChunkModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +21,7 @@ class SendMessageStreamUseCaseTest {
 
         val chunks = SendMessageStreamUseCase(repository).invoke(history).toList()
 
-        assertEquals(listOf("Hel", "lo"), chunks)
+        assertEquals(listOf("Hel", "lo"), chunks.map { chunk -> chunk.text })
         assertEquals(history, repository.lastHistory)
     }
 
@@ -47,9 +48,9 @@ private class FakeStreamAiRepository(
     override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel =
         ChatMessageModel(author = MessageAuthor.ASSISTANT, text = chunks.joinToString(separator = ""))
 
-    override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+    override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
         lastHistory = history
         error?.let { failure -> throw failure }
-        chunks.forEach { chunk -> emit(chunk) }
+        chunks.forEach { chunk -> emit(ChatStreamChunkModel(text = chunk)) }
     }
 }

@@ -61,6 +61,24 @@ class ChatHistoryLocalDataSourceImplTest {
     }
 
     @Test
+    fun readHistory_onLegacyFileWithoutModelIdField_decodesWithNullModelId() = runTest {
+        val directory = uniqueDirectory()
+        val legacyJson = """
+            {"version":1,"messages":[
+                {"id":"a","author":"USER","text":"hi","isFavorite":false,"timestamp":1},
+                {"id":"b","author":"ASSISTANT","text":"hello","isFavorite":false,"timestamp":2}
+            ]}
+        """.trimIndent()
+        writeRawHistory(directory, legacyJson)
+        val dataSource = createDataSource(directory)
+
+        val history = dataSource.readHistory()
+
+        assertEquals(2, history.messages.size)
+        assertTrue(history.messages.all { message -> message.modelId == null })
+    }
+
+    @Test
     fun readHistory_whenFileIsCorrupted_returnsEmptyHistoryInsteadOfThrowing() = runTest {
         val directory = uniqueDirectory()
         writeRawHistory(directory, "{ this is not json ]")

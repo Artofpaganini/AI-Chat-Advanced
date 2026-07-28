@@ -3,7 +3,7 @@ package com.jarvis.chat.feature.ai.di
 import com.jarvis.chat.feature.ai.data.datasource.DeepSeekRemoteDataSource
 import com.jarvis.chat.feature.ai.data.datasource.DeepSeekRemoteDataSourceImpl
 import com.jarvis.chat.feature.ai.data.repository.AiRepositoryImpl
-import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
+import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekPromptConfigModel
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
@@ -12,9 +12,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.header
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -26,8 +24,11 @@ import org.koin.dsl.module
 
 val aiModule: Module = module {
     single { provideDeepSeekJson() }
-    single { provideDeepSeekHttpClient(config = get(), json = get()) }
-    single { DeepSeekPromptConfigModel(systemPrompt = DeepSeekDefaults.SYSTEM_PROMPT) }
+    single { provideDeepSeekHttpClient(json = get()) }
+    single {
+        val providerConfigProvider: AiProviderConfigProvider = get()
+        DeepSeekPromptConfigModel(systemPrompt = providerConfigProvider.currentConfig().systemPrompt)
+    }
     singleOf(::DeepSeekRemoteDataSourceImpl) bind DeepSeekRemoteDataSource::class
     singleOf(::AiRepositoryImpl) bind AiRepository::class
     factoryOf(::SendMessageUseCase)
@@ -44,7 +45,7 @@ private fun provideDeepSeekJson(): Json =
         isLenient = true
     }
 
-private fun provideDeepSeekHttpClient(config: DeepSeekConfigModel, json: Json): HttpClient =
+private fun provideDeepSeekHttpClient(json: Json): HttpClient =
     HttpClient {
         expectSuccess = true
         install(ContentNegotiation) {
@@ -56,8 +57,6 @@ private fun provideDeepSeekHttpClient(config: DeepSeekConfigModel, json: Json): 
             socketTimeoutMillis = DEEP_SEEK_SOCKET_TIMEOUT_MILLIS
         }
         defaultRequest {
-            url(config.baseUrl)
-            header(HttpHeaders.Authorization, "Bearer ${config.apiKey}")
             contentType(ContentType.Application.Json)
         }
     }

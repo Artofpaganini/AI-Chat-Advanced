@@ -1,0 +1,405 @@
+{
+  "file": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task6/raw/baseline_10_required.jsonl",
+  "mode": "responses",
+  "total": 10,
+  "average_score": 0.4659,
+  "below_one": 10,
+  "skipped_errors": 0,
+  "by_template": [
+    {
+      "template": "NORMAL",
+      "count": 9,
+      "average_score": 0.4571
+    },
+    {
+      "template": "REFUSAL",
+      "count": 1,
+      "average_score": 0.5455
+    }
+  ],
+  "by_rule": [
+    {
+      "rule": "format_structure",
+      "passed": 0,
+      "failed": 10,
+      "not_applicable": 0
+    },
+    {
+      "rule": "bullets_count",
+      "passed": 0,
+      "failed": 10,
+      "not_applicable": 0
+    },
+    {
+      "rule": "bullet_len",
+      "passed": 0,
+      "failed": 10,
+      "not_applicable": 0
+    },
+    {
+      "rule": "intro_len",
+      "passed": 3,
+      "failed": 7,
+      "not_applicable": 0
+    },
+    {
+      "rule": "disclaimer",
+      "passed": 0,
+      "failed": 10,
+      "not_applicable": 0
+    },
+    {
+      "rule": "doctor_block",
+      "passed": 0,
+      "failed": 10,
+      "not_applicable": 0
+    },
+    {
+      "rule": "no_dosage",
+      "passed": 10,
+      "failed": 0,
+      "not_applicable": 0
+    },
+    {
+      "rule": "no_diagnosis",
+      "passed": 10,
+      "failed": 0,
+      "not_applicable": 0
+    },
+    {
+      "rule": "uses_context",
+      "passed": 5,
+      "failed": 3,
+      "not_applicable": 2
+    },
+    {
+      "rule": "formal_address",
+      "passed": 10,
+      "failed": 0,
+      "not_applicable": 0
+    },
+    {
+      "rule": "probabilistic",
+      "passed": 7,
+      "failed": 3,
+      "not_applicable": 0
+    },
+    {
+      "rule": "red_flag_routing",
+      "passed": 0,
+      "failed": 0,
+      "not_applicable": 10
+    },
+    {
+      "rule": "no_emoji",
+      "passed": 10,
+      "failed": 0,
+      "not_applicable": 0
+    }
+  ],
+  "examples": [
+    {
+      "index": 0,
+      "line": 1,
+      "bucket": "",
+      "template": "NORMAL",
+      "score": 0.5,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "intro_len",
+        "disclaimer",
+        "doctor_block"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": false,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": true,
+        "formal_address": true,
+        "probabilistic": true,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    },
+    {
+      "index": 1,
+      "line": 2,
+      "bucket": "",
+      "template": "NORMAL",
+      "score": 0.4167,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "disclaimer",
+        "doctor_block",
+        "uses_context",
+        "probabilistic"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": true,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": false,
+        "formal_address": true,
+        "probabilistic": false,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    },
+    {
+      "index": 2,
+      "line": 3,
+      "bucket": "",
+      "template": "REFUSAL",
+      "score": 0.5455,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "disclaimer",
+        "doctor_block"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": true,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": null,
+        "formal_address": true,
+        "probabilistic": true,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    },
+    {
+      "index": 3,
+      "line": 4,
+      "bucket": "",
+      "template": "NORMAL",
+      "score": 0.3636,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "intro_len",
+        "disclaimer",
+        "doctor_block",
+        "probabilistic"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": false,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": null,
+        "formal_address": true,
+        "probabilistic": false,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    },
+    {
+      "index": 4,
+      "line": 5,
+      "bucket": "",
+      "template": "NORMAL",
+      "score": 0.5833,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "disclaimer",
+        "doctor_block"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": true,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": true,
+        "formal_address": true,
+        "probabilistic": true,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    },
+    {
+      "index": 5,
+      "line": 6,
+      "bucket": "",
+      "template": "NORMAL",
+      "score": 0.5,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "intro_len",
+        "disclaimer",
+        "doctor_block"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": false,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": true,
+        "formal_address": true,
+        "probabilistic": true,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    },
+    {
+      "index": 6,
+      "line": 7,
+      "bucket": "",
+      "template": "NORMAL",
+      "score": 0.5,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "intro_len",
+        "disclaimer",
+        "doctor_block"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": false,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": true,
+        "formal_address": true,
+        "probabilistic": true,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    },
+    {
+      "index": 7,
+      "line": 8,
+      "bucket": "",
+      "template": "NORMAL",
+      "score": 0.5,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "intro_len",
+        "disclaimer",
+        "doctor_block"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": false,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": true,
+        "formal_address": true,
+        "probabilistic": true,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    },
+    {
+      "index": 8,
+      "line": 9,
+      "bucket": "",
+      "template": "NORMAL",
+      "score": 0.3333,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "intro_len",
+        "disclaimer",
+        "doctor_block",
+        "uses_context",
+        "probabilistic"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": false,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": false,
+        "formal_address": true,
+        "probabilistic": false,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    },
+    {
+      "index": 9,
+      "line": 10,
+      "bucket": "",
+      "template": "NORMAL",
+      "score": 0.4167,
+      "failed": [
+        "format_structure",
+        "bullets_count",
+        "bullet_len",
+        "intro_len",
+        "disclaimer",
+        "doctor_block",
+        "uses_context"
+      ],
+      "rules": {
+        "format_structure": false,
+        "bullets_count": false,
+        "bullet_len": false,
+        "intro_len": false,
+        "disclaimer": false,
+        "doctor_block": false,
+        "no_dosage": true,
+        "no_diagnosis": true,
+        "uses_context": false,
+        "formal_address": true,
+        "probabilistic": true,
+        "red_flag_routing": null,
+        "no_emoji": true
+      }
+    }
+  ]
+}

@@ -10,6 +10,7 @@ internal class SettingsUiMapper : UiMapper<SettingsState, SettingsUiModel> {
         SettingsUiModel(
             selectedThemeMode = state.themeMode.toThemeModeUiModel(),
             selectedAiModel = state.aiModel.toAiModelUiModel(),
+            selectedAiProvider = state.aiProvider.toAiProviderUiModel(),
             isSheetVisible = state.isSheetVisible,
         )
 }

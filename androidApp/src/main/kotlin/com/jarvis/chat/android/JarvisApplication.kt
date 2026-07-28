@@ -12,6 +12,7 @@ class JarvisApplication : Application() {
             deepSeekApiKey = BuildConfig.DEEPSEEK_API_KEY,
             deepSeekBaseUrl = DEEPSEEK_BASE_URL,
             filesDirectoryPath = filesDir.absolutePath,
+            localModelBaseUrl = BuildConfig.LOCAL_MODEL_BASE_URL,
         )
         initKoin(appConfig)
     }

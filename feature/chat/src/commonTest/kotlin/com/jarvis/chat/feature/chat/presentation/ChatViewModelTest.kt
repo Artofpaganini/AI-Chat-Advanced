@@ -2,6 +2,7 @@ package com.jarvis.chat.feature.chat.presentation
 
 import app.cash.turbine.test
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
+import com.jarvis.chat.feature.ai.domain.model.ChatStreamChunkModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
@@ -201,6 +202,41 @@ class ChatViewModelTest {
         val texts = viewModel.uiState.value.messages.map { message -> message.text }
         assertEquals(listOf("ping", "pong"), texts)
         assertFalse(viewModel.uiState.value.isLoading)
+    }
+
+    @Test
+    fun sendClicked_whenReplyCarriesModelId_storesModelIdOnAssistantMessageUiModel() = runTest {
+        val viewModel = createViewModel(
+            aiRepository = FakeAiRepository(reply = "pong", modelId = "deepseek-chat"),
+        )
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        val assistantMessage = viewModel.uiState.value.messages.last()
+        assertEquals("deepseek-chat", assistantMessage.modelId)
+    }
+
+    @Test
+    fun sendClicked_whenReplyHasNoModelId_leavesModelIdNullOnAssistantMessageUiModel() = runTest {
+        val viewModel = createViewModel(aiRepository = FakeAiRepository(reply = "pong"))
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        val assistantMessage = viewModel.uiState.value.messages.last()
+        assertEquals(null, assistantMessage.modelId)
+    }
+
+    @Test
+    fun userMessageUiModel_neverCarriesModelIdEvenIfSetOnDomainModel() = runTest {
+        val viewModel = createViewModel(aiRepository = FakeAiRepository(reply = "pong", modelId = "deepseek-chat"))
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        val userMessage = viewModel.uiState.value.messages.first()
+        assertEquals(null, userMessage.modelId)
     }
 
     @Test
@@ -559,6 +595,7 @@ class ChatViewModelTest {
         private val reply: String = "reply",
         private val error: Throwable? = null,
         private val chunks: List<String> = listOf(reply),
+        private val modelId: String? = null,
     ) : AiRepository {
 
         override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel {
@@ -566,9 +603,9 @@ class ChatViewModelTest {
             return ChatMessageModel(author = MessageAuthor.ASSISTANT, text = reply)
         }
 
-        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
             error?.let { failure -> throw failure }
-            chunks.forEach { chunk -> emit(chunk) }
+            chunks.forEach { chunk -> emit(ChatStreamChunkModel(text = chunk, modelId = modelId)) }
         }
     }
 
@@ -586,7 +623,7 @@ class ChatViewModelTest {
             }
         }
 
-        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
             try {
                 awaitCancellation()
             } catch (cancellation: CancellationException) {
@@ -604,9 +641,9 @@ class ChatViewModelTest {
         override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel =
             error("not used in streaming tests")
 
-        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
-            emit("Hel")
-            emit("lo")
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
+            emit(ChatStreamChunkModel(text = "Hel"))
+            emit(ChatStreamChunkModel(text = "lo"))
             try {
                 awaitCancellation()
             } catch (cancellation: CancellationException) {
@@ -626,12 +663,12 @@ class ChatViewModelTest {
         override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel =
             error("not used in streaming tests")
 
-        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
             callCount += 1
             if (callCount == 1) {
                 throw failure
             }
-            emit(successReply)
+            emit(ChatStreamChunkModel(text = successReply))
         }
     }
 

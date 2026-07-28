@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.ai.domain.usecase
 
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
+import com.jarvis.chat.feature.ai.domain.model.ChatStreamChunkModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
 import kotlinx.coroutines.CancellationException
@@ -62,9 +63,9 @@ private class FakeAiRepository(
         return reply
     }
 
-    override fun sendMessageStream(history: List<ChatMessageModel>): Flow<String> = flow {
+    override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
         lastHistory = history
         error?.let { failure -> throw failure }
-        emit(reply.text)
+        emit(ChatStreamChunkModel(text = reply.text))
     }
 }

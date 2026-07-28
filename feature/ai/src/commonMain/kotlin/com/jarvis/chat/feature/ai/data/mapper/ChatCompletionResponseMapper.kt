@@ -8,4 +8,5 @@ internal fun ChatCompletionResponseModel.toChatMessageModel(): ChatMessageModel 
     ChatMessageModel(
         author = MessageAuthor.ASSISTANT,
         text = choices.firstOrNull()?.message?.content.orEmpty().trim(),
+        modelId = model,
     )

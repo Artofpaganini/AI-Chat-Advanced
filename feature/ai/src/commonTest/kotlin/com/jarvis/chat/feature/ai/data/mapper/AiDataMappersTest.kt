@@ -108,13 +108,41 @@ class AiDataMappersTest {
         assertNull(chunk.toDeltaTextOrNull())
     }
 
-    private fun chunkWith(content: String?): ChatCompletionChunkResponseModel =
+    @Test
+    fun toChatStreamChunkDataModelOrNull_withContentAndModel_carriesBoth() {
+        val chunk = chunkWith(content = "Hel", model = "deepseek-chat")
+
+        val result = chunk.toChatStreamChunkDataModelOrNull()
+
+        assertEquals("Hel", result?.text)
+        assertEquals("deepseek-chat", result?.modelId)
+    }
+
+    @Test
+    fun toChatStreamChunkDataModelOrNull_withOnlyModel_returnsEmptyTextWithModelId() {
+        val chunk = chunkWith(content = null, model = "deepseek-chat")
+
+        val result = chunk.toChatStreamChunkDataModelOrNull()
+
+        assertEquals("", result?.text)
+        assertEquals("deepseek-chat", result?.modelId)
+    }
+
+    @Test
+    fun toChatStreamChunkDataModelOrNull_withoutContentAndModel_returnsNull() {
+        val chunk = chunkWith(content = null, model = null)
+
+        assertNull(chunk.toChatStreamChunkDataModelOrNull())
+    }
+
+    private fun chunkWith(content: String?, model: String? = null): ChatCompletionChunkResponseModel =
         ChatCompletionChunkResponseModel(
             choices = listOf(
                 ChatChunkChoiceResponseModel(
                     delta = ChatChunkDeltaResponseModel(content = content),
                 ),
             ),
+            model = model,
         )
 
     private fun responseWith(vararg contents: String): ChatCompletionResponseModel =

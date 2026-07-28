@@ -2,15 +2,21 @@ package com.jarvis.chat.feature.settings.di
 
 import com.jarvis.chat.feature.settings.data.datasource.AiModelSettingsLocalDataSource
 import com.jarvis.chat.feature.settings.data.datasource.AiModelSettingsLocalDataSourceImpl
+import com.jarvis.chat.feature.settings.data.datasource.AiProviderSettingsLocalDataSource
+import com.jarvis.chat.feature.settings.data.datasource.AiProviderSettingsLocalDataSourceImpl
 import com.jarvis.chat.feature.settings.data.datasource.ThemeSettingsLocalDataSource
 import com.jarvis.chat.feature.settings.data.datasource.ThemeSettingsLocalDataSourceImpl
 import com.jarvis.chat.feature.settings.data.repository.AiModelSettingsRepositoryImpl
+import com.jarvis.chat.feature.settings.data.repository.AiProviderSettingsRepositoryImpl
 import com.jarvis.chat.feature.settings.data.repository.ThemeSettingsRepositoryImpl
 import com.jarvis.chat.feature.settings.domain.repository.AiModelSettingsRepository
+import com.jarvis.chat.feature.settings.domain.repository.AiProviderSettingsRepository
 import com.jarvis.chat.feature.settings.domain.repository.ThemeSettingsRepository
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiProviderUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveThemeModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiModelUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.SaveAiProviderUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveThemeModeUseCase
 import com.jarvis.chat.feature.settings.presentation.SettingsViewModel
 import com.jarvis.chat.feature.settings.presentation.mapper.SettingsUiMapper
@@ -32,6 +38,10 @@ val settingsModule: Module = module {
     singleOf(::AiModelSettingsRepositoryImpl) bind AiModelSettingsRepository::class
     factoryOf(::ObserveAiModelUseCase)
     factoryOf(::SaveAiModelUseCase)
+    singleOf(::AiProviderSettingsLocalDataSourceImpl) bind AiProviderSettingsLocalDataSource::class
+    singleOf(::AiProviderSettingsRepositoryImpl) bind AiProviderSettingsRepository::class
+    factoryOf(::ObserveAiProviderUseCase)
+    factoryOf(::SaveAiProviderUseCase)
     factoryOf(::SettingsUiMapper)
     viewModelOf(::SettingsViewModel)
 }

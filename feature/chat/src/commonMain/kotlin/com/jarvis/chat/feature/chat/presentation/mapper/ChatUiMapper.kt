@@ -61,6 +61,7 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             isFavorite = isFavorite,
             canFavorite = !isFromUser,
             timeLabel = timestamp.toTimeLabel(),
+            modelId = if (isFromUser) null else modelId?.takeIf { value -> value.isNotBlank() },
         )
     }
 }

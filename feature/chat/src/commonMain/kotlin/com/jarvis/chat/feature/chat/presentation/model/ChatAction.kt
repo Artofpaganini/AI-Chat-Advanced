@@ -50,7 +50,11 @@ internal sealed interface ChatAction {
 
         data class HistoryLoaded(val messages: List<HistoryMessageModel>) : Internal
 
-        data class ReplyChunkReceived(val messageId: String, val textChunk: String) : Internal
+        data class ReplyChunkReceived(
+            val messageId: String,
+            val textChunk: String,
+            val modelId: String? = null,
+        ) : Internal
 
         data object ReplyCompleted : Internal
 

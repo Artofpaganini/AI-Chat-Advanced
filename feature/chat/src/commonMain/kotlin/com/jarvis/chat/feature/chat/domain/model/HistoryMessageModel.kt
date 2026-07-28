@@ -8,4 +8,5 @@ internal data class HistoryMessageModel(
     val text: String,
     val isFavorite: Boolean,
     val timestamp: Long,
+    val modelId: String? = null,
 )

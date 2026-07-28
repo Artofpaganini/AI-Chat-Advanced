@@ -277,6 +277,50 @@ class ChatUiMapperTest {
         assertFalse(uiModel.messages.single().isSpeaking)
     }
 
+    @Test
+    fun map_assistantMessageWithModelId_exposesModelIdOnUiModel() {
+        val state = ChatState(
+            messages = listOf(
+                assistantMessage(id = "a1", text = "answer", isFavorite = false, modelId = "deepseek-chat"),
+            ),
+        )
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertEquals("deepseek-chat", uiMessage.modelId)
+    }
+
+    @Test
+    fun map_assistantMessageWithoutModelId_leavesModelIdNull() {
+        val state = ChatState(messages = listOf(assistantMessage(id = "a1", text = "answer", isFavorite = false)))
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertEquals(null, uiMessage.modelId)
+    }
+
+    @Test
+    fun map_assistantMessageWithBlankModelId_hidesModelId() {
+        val state = ChatState(
+            messages = listOf(assistantMessage(id = "a1", text = "answer", isFavorite = false, modelId = "   ")),
+        )
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertEquals(null, uiMessage.modelId)
+    }
+
+    @Test
+    fun map_userMessageWithModelId_neverExposesModelIdOnUiModel() {
+        val state = ChatState(
+            messages = listOf(userMessage(id = "u1", text = "question").copy(modelId = "deepseek-chat")),
+        )
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertEquals(null, uiMessage.modelId)
+    }
+
     private fun userMessage(id: String, text: String, timestamp: Long = TEST_TIMESTAMP): HistoryMessageModel =
         HistoryMessageModel(
             id = id,
@@ -291,6 +335,7 @@ class ChatUiMapperTest {
         text: String,
         isFavorite: Boolean,
         timestamp: Long = TEST_TIMESTAMP,
+        modelId: String? = null,
     ): HistoryMessageModel =
         HistoryMessageModel(
             id = id,
@@ -298,6 +343,7 @@ class ChatUiMapperTest {
             text = text,
             isFavorite = isFavorite,
             timestamp = timestamp,
+            modelId = modelId,
         )
 }
 

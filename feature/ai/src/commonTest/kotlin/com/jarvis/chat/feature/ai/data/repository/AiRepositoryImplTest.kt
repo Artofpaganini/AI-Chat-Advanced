@@ -5,6 +5,7 @@ import com.jarvis.chat.feature.ai.data.model.ChatChoiceResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatMessageRequestModel
 import com.jarvis.chat.feature.ai.data.model.ChatMessageResponseModel
+import com.jarvis.chat.feature.ai.data.model.ChatStreamChunkDataModel
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
@@ -117,7 +118,7 @@ class AiRepositoryImplTest {
 
     @Test
     fun sendMessageStream_forwardsHistoryAsRequestMessagesInSameOrder() = runTest {
-        val dataSource = FakeDeepSeekRemoteDataSource(chunks = listOf("ok"))
+        val dataSource = FakeDeepSeekRemoteDataSource(chunks = listOf(ChatStreamChunkDataModel(text = "ok")))
         val repository = AiRepositoryImpl(remoteDataSource = dataSource)
 
         repository.sendMessageStream(
@@ -135,14 +136,33 @@ class AiRepositoryImplTest {
 
     @Test
     fun sendMessageStream_emitsChunksFromDataSourceInOrder() = runTest {
-        val dataSource = FakeDeepSeekRemoteDataSource(chunks = listOf("Hel", "lo"))
+        val dataSource = FakeDeepSeekRemoteDataSource(
+            chunks = listOf(ChatStreamChunkDataModel(text = "Hel"), ChatStreamChunkDataModel(text = "lo")),
+        )
         val repository = AiRepositoryImpl(remoteDataSource = dataSource)
 
         val chunks = repository.sendMessageStream(
             listOf(ChatMessageModel(author = MessageAuthor.USER, text = "question")),
         ).toList()
 
-        assertEquals(listOf("Hel", "lo"), chunks)
+        assertEquals(listOf("Hel", "lo"), chunks.map { chunk -> chunk.text })
+    }
+
+    @Test
+    fun sendMessageStream_forwardsModelIdFromDataSource() = runTest {
+        val dataSource = FakeDeepSeekRemoteDataSource(
+            chunks = listOf(
+                ChatStreamChunkDataModel(text = "Hel", modelId = "deepseek-chat"),
+                ChatStreamChunkDataModel(text = "lo"),
+            ),
+        )
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+
+        val chunks = repository.sendMessageStream(
+            listOf(ChatMessageModel(author = MessageAuthor.USER, text = "question")),
+        ).toList()
+
+        assertEquals(listOf("deepseek-chat", null), chunks.map { chunk -> chunk.modelId })
     }
 
     @Test
@@ -169,7 +189,7 @@ class AiRepositoryImplTest {
 
     private class FakeDeepSeekRemoteDataSource(
         private val reply: String? = null,
-        private val chunks: List<String> = emptyList(),
+        private val chunks: List<ChatStreamChunkDataModel> = emptyList(),
         private val error: Throwable? = null,
     ) : DeepSeekRemoteDataSource {
 
@@ -192,7 +212,7 @@ class AiRepositoryImplTest {
 
         override fun requestCompletionStream(
             messages: List<ChatMessageRequestModel>,
-        ): Flow<String> = flow {
+        ): Flow<ChatStreamChunkDataModel> = flow {
             received += messages
             error?.let { failure -> throw failure }
             chunks.forEach { chunk -> emit(chunk) }

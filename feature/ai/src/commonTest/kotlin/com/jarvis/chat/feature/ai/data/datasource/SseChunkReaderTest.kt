@@ -53,7 +53,7 @@ class SseChunkReaderTest {
     }
 
     @Test
-    fun sseChunkTextFlow_onNormalChunks_emitsDeltaContentInOrder() = runTest {
+    fun sseChunkFlow_onNormalChunks_emitsDeltaContentInOrder() = runTest {
         val sse = """
             data: {"choices":[{"delta":{"content":"Hel"}}]}
 
@@ -63,13 +63,13 @@ class SseChunkReaderTest {
 
         """.trimIndent()
 
-        val chunks = sseChunkTextFlow(channel = ByteReadChannel(sse), json = testJson).toList()
+        val chunks = sseChunkFlow(channel = ByteReadChannel(sse), json = testJson).toList()
 
-        assertEquals(listOf("Hel", "lo"), chunks)
+        assertEquals(listOf("Hel", "lo"), chunks.map { chunk -> chunk.text })
     }
 
     @Test
-    fun sseChunkTextFlow_onDoneMarker_stopsEmittingFurtherChunks() = runTest {
+    fun sseChunkFlow_onDoneMarker_stopsEmittingFurtherChunks() = runTest {
         val sse = """
             data: {"choices":[{"delta":{"content":"Hel"}}]}
 
@@ -79,13 +79,13 @@ class SseChunkReaderTest {
 
         """.trimIndent()
 
-        val chunks = sseChunkTextFlow(channel = ByteReadChannel(sse), json = testJson).toList()
+        val chunks = sseChunkFlow(channel = ByteReadChannel(sse), json = testJson).toList()
 
-        assertEquals(listOf("Hel"), chunks)
+        assertEquals(listOf("Hel"), chunks.map { chunk -> chunk.text })
     }
 
     @Test
-    fun sseChunkTextFlow_onMalformedJson_skipsAndContinues() = runTest {
+    fun sseChunkFlow_onMalformedJson_skipsAndContinues() = runTest {
         val sse = """
             data: {"choices":[{"delta":{"content":"Hel"}}]}
 
@@ -97,13 +97,13 @@ class SseChunkReaderTest {
 
         """.trimIndent()
 
-        val chunks = sseChunkTextFlow(channel = ByteReadChannel(sse), json = testJson).toList()
+        val chunks = sseChunkFlow(channel = ByteReadChannel(sse), json = testJson).toList()
 
-        assertEquals(listOf("Hel", "lo"), chunks)
+        assertEquals(listOf("Hel", "lo"), chunks.map { chunk -> chunk.text })
     }
 
     @Test
-    fun sseChunkTextFlow_onEmptyDeltaContent_isSkipped() = runTest {
+    fun sseChunkFlow_onEmptyDeltaContentAndNoModel_isSkipped() = runTest {
         val sse = """
             data: {"choices":[{"delta":{}}]}
 
@@ -115,9 +115,41 @@ class SseChunkReaderTest {
 
         """.trimIndent()
 
-        val chunks = sseChunkTextFlow(channel = ByteReadChannel(sse), json = testJson).toList()
+        val chunks = sseChunkFlow(channel = ByteReadChannel(sse), json = testJson).toList()
 
-        assertEquals(listOf("Hel"), chunks)
+        assertEquals(listOf("Hel"), chunks.map { chunk -> chunk.text })
+    }
+
+    @Test
+    fun sseChunkFlow_onChunksCarryingModel_capturesModelIdAlongsideText() = runTest {
+        val sse = """
+            data: {"choices":[{"delta":{"content":"Hel"}}],"model":"deepseek-chat"}
+
+            data: {"choices":[{"delta":{"content":"lo"}}],"model":"deepseek-chat"}
+
+            data: [DONE]
+
+        """.trimIndent()
+
+        val chunks = sseChunkFlow(channel = ByteReadChannel(sse), json = testJson).toList()
+
+        assertEquals(listOf("deepseek-chat", "deepseek-chat"), chunks.map { chunk -> chunk.modelId })
+    }
+
+    @Test
+    fun sseChunkFlow_onModelOnlyChunkWithoutDeltaContent_stillEmitsModelId() = runTest {
+        val sse = """
+            data: {"choices":[{"delta":{"role":"assistant"}}],"model":"deepseek-chat"}
+
+            data: {"choices":[{"delta":{"content":"Hel"}}]}
+
+            data: [DONE]
+
+        """.trimIndent()
+
+        val chunks = sseChunkFlow(channel = ByteReadChannel(sse), json = testJson).toList()
+
+        assertEquals(listOf("" to "deepseek-chat", "Hel" to null), chunks.map { chunk -> chunk.text to chunk.modelId })
     }
 
     private val testJson: Json = Json {

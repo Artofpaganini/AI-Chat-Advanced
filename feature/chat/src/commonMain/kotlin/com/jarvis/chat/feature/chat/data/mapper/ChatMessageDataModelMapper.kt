@@ -13,4 +13,5 @@ internal fun ChatMessageDataModel.toHistoryMessageModel(): HistoryMessageModel =
         text = text,
         isFavorite = isFavorite,
         timestamp = timestamp,
+        modelId = modelId,
     )

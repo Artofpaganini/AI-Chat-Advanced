@@ -106,6 +106,13 @@ internal fun MessageBubble(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                message.modelId?.let { modelId ->
+                    Text(
+                        text = modelId,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 MessageActions(
                     message = message,
                     isTtsAvailable = isTtsAvailable,

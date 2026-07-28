@@ -1,6 +1,8 @@
 package com.jarvis.chat.feature.ai.data.datasource
 
 import com.jarvis.chat.feature.ai.data.model.ChatMessageRequestModel
+import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigModel
+import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekPromptConfigModel
 import io.ktor.client.HttpClient
@@ -23,6 +25,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+
+private const val TEST_MAX_TOKENS = 900
+private const val TEST_TEMPERATURE = 0.6
+private const val TEST_REPETITION_PENALTY = 1.1
 
 class DeepSeekRemoteDataSourceImplTest {
 
@@ -121,6 +127,48 @@ class DeepSeekRemoteDataSourceImplTest {
     }
 
     @Test
+    fun requestCompletion_omitsGenerationParamsWhenProviderDoesNotSetThem() = runTest {
+        val captured = mutableListOf<HttpRequestData>()
+        val dataSource = dataSourceReturning(body = successBody("hi"), captured = captured)
+
+        dataSource.requestCompletion(listOf(userMessage("hello")))
+
+        val sentBody = (captured.single().body as TextContent).text
+        assertTrue(!sentBody.contains("max_tokens"), "max_tokens must be absent in: $sentBody")
+        assertTrue(!sentBody.contains("temperature"), "temperature must be absent in: $sentBody")
+        assertTrue(!sentBody.contains("repetition_penalty"), "repetition_penalty must be absent in: $sentBody")
+    }
+
+    @Test
+    fun requestCompletion_includesGenerationParamsFromProviderConfig() = runTest {
+        val captured = mutableListOf<HttpRequestData>()
+        val localProviderConfig = AiProviderConfigModel(
+            baseUrl = "http://127.0.0.1:8080/v1/",
+            modelId = "default_model",
+            systemPrompt = "local system prompt",
+            isApiKeyRequired = false,
+            maxTokens = TEST_MAX_TOKENS,
+            temperature = TEST_TEMPERATURE,
+            repetitionPenalty = TEST_REPETITION_PENALTY,
+        )
+        val dataSource = dataSourceReturning(
+            body = successBody("hi"),
+            captured = captured,
+            providerConfigProvider = AiProviderConfigProvider { localProviderConfig },
+        )
+
+        dataSource.requestCompletion(listOf(userMessage("hello")))
+
+        val sentBody = (captured.single().body as TextContent).text
+        assertTrue(sentBody.contains("\"max_tokens\":$TEST_MAX_TOKENS"), "max_tokens missing in: $sentBody")
+        assertTrue(sentBody.contains("\"temperature\":$TEST_TEMPERATURE"), "temperature missing in: $sentBody")
+        assertTrue(
+            sentBody.contains("\"repetition_penalty\":$TEST_REPETITION_PENALTY"),
+            "repetition_penalty missing in: $sentBody",
+        )
+    }
+
+    @Test
     fun requestCompletion_onServerError_throwsClientRequestExceptionWithStatus() = runTest {
         val client = HttpClient(
             MockEngine { respondError(HttpStatusCode.Unauthorized) },
@@ -163,7 +211,21 @@ class DeepSeekRemoteDataSourceImplTest {
 
         val chunks = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList()
 
-        assertEquals(listOf("Hel", "lo"), chunks)
+        assertEquals(listOf("Hel", "lo"), chunks.map { chunk -> chunk.text })
+    }
+
+    @Test
+    fun requestCompletionStream_emitsModelIdFromChunks() = runTest {
+        val sseBody = buildString {
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"Hel\"}}],\"model\":\"deepseek-chat\"}\n\n")
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"lo\"}}],\"model\":\"deepseek-chat\"}\n\n")
+            append("data: [DONE]\n\n")
+        }
+        val dataSource = dataSourceReturning(body = sseBody)
+
+        val chunks = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList()
+
+        assertEquals(listOf("deepseek-chat", "deepseek-chat"), chunks.map { chunk -> chunk.modelId })
     }
 
     @Test
@@ -203,6 +265,7 @@ class DeepSeekRemoteDataSourceImplTest {
         captured: MutableList<HttpRequestData> = mutableListOf(),
         promptConfig: DeepSeekPromptConfigModel = testPromptConfig,
         modelProvider: DeepSeekModelProvider = testModelProvider,
+        providerConfigProvider: AiProviderConfigProvider? = null,
     ): DeepSeekRemoteDataSourceImpl {
         val client = HttpClient(
             MockEngine { request ->
@@ -216,12 +279,22 @@ class DeepSeekRemoteDataSourceImplTest {
         ) {
             install(ContentNegotiation) { json(lenientJson) }
         }
-        return DeepSeekRemoteDataSourceImpl(
-            httpClient = client,
-            promptConfig = promptConfig,
-            modelProvider = modelProvider,
-            json = lenientJson,
-        )
+        return if (providerConfigProvider != null) {
+            DeepSeekRemoteDataSourceImpl(
+                httpClient = client,
+                promptConfig = promptConfig,
+                modelProvider = modelProvider,
+                json = lenientJson,
+                providerConfigProvider = providerConfigProvider,
+            )
+        } else {
+            DeepSeekRemoteDataSourceImpl(
+                httpClient = client,
+                promptConfig = promptConfig,
+                modelProvider = modelProvider,
+                json = lenientJson,
+            )
+        }
     }
 
     private fun successBody(content: String): String =

@@ -1,0 +1,65 @@
+{
+  "raw_total": 94,
+  "rejected_total": 0,
+  "rejected": {
+    "bad_json": 0,
+    "empty": 0,
+    "too_short": 0,
+    "too_long": 0,
+    "dup_exact": 0,
+    "dup_near": 0,
+    "bad_bucket": 0,
+    "template_mismatch": 0,
+    "low_score": 0
+  },
+  "dropped": [],
+  "total_final": 94,
+  "real_count": 43,
+  "real_share_pct": 45.74,
+  "train_size": 74,
+  "eval_size": 20,
+  "buckets": {
+    "total": {
+      "red_flags": 28,
+      "feeding": 8,
+      "milestones": 10,
+      "alva_product": 8,
+      "norms": 12,
+      "parents": 8,
+      "facts": 6,
+      "sleep": 8,
+      "boundaries": 6
+    },
+    "train": {
+      "alva_product": 6,
+      "boundaries": 5,
+      "facts": 5,
+      "feeding": 6,
+      "milestones": 8,
+      "norms": 10,
+      "parents": 6,
+      "red_flags": 22,
+      "sleep": 6
+    },
+    "eval": {
+      "alva_product": 2,
+      "boundaries": 1,
+      "facts": 1,
+      "feeding": 2,
+      "milestones": 2,
+      "norms": 2,
+      "parents": 2,
+      "red_flags": 6,
+      "sleep": 2
+    }
+  },
+  "assistant_avg_chars": 819.7,
+  "assistant_avg_words": 126.4,
+  "seed": 1337,
+  "eval_ratio": 0.2,
+  "files": {
+    "dataset_full": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task6/artifacts/dataset_full.jsonl",
+    "train": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task6/artifacts/train.jsonl",
+    "eval": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task6/artifacts/eval.jsonl"
+  }
+}

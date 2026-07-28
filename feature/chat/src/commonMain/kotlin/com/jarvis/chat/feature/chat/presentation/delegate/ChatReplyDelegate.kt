@@ -83,9 +83,16 @@ internal class ChatReplyDelegate(
         }
     }
 
-    fun onReplyChunkReceived(messageId: String, textChunk: String) {
+    fun onReplyChunkReceived(messageId: String, textChunk: String, modelId: String?) {
         val history = currentState().messages.map { message ->
-            if (message.id == messageId) message.copy(text = message.text + textChunk) else message
+            if (message.id == messageId) {
+                message.copy(
+                    text = message.text + textChunk,
+                    modelId = modelId ?: message.modelId,
+                )
+            } else {
+                message
+            }
         }
         updateState { copy(messages = history) }
     }
@@ -120,8 +127,14 @@ internal class ChatReplyDelegate(
         replyJob = viewModelScope.launch {
             try {
                 sendMessageStreamUseCase(history.map { message -> message.toChatMessageModel() })
-                    .collect { textChunk ->
-                        dispatch(ChatAction.Internal.ReplyChunkReceived(assistantMessage.id, textChunk))
+                    .collect { chunk ->
+                        dispatch(
+                            ChatAction.Internal.ReplyChunkReceived(
+                                messageId = assistantMessage.id,
+                                textChunk = chunk.text,
+                                modelId = chunk.modelId,
+                            ),
+                        )
                     }
                 dispatch(ChatAction.Internal.ReplyCompleted)
             } catch (cancellation: CancellationException) {

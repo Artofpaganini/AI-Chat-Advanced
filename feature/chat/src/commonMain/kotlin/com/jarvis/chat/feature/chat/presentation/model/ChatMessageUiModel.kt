@@ -9,4 +9,5 @@ internal data class ChatMessageUiModel(
     val isFavorite: Boolean,
     val canFavorite: Boolean,
     val timeLabel: String,
+    val modelId: String?,
 )

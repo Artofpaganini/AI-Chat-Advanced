@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.jarvis.chat.feature.settings.presentation.model.AiModelUiModel
+import com.jarvis.chat.feature.settings.presentation.model.AiProviderUiModel
 import com.jarvis.chat.feature.settings.presentation.model.SettingsAction
 import com.jarvis.chat.feature.settings.presentation.model.ThemeModeUiModel
 import com.jarvis.chat.feature.settings.presentation.ui.SettingsDimens
@@ -32,6 +33,9 @@ private const val THEME_LABEL_DARK = "Dark"
 private const val AI_MODEL_TITLE = "AI Model"
 private const val AI_MODEL_LABEL_FLASH = "Flash (fast)"
 private const val AI_MODEL_LABEL_PRO = "Pro (advanced)"
+private const val AI_PROVIDER_TITLE = "AI Provider"
+private const val AI_PROVIDER_LABEL_DEEP_SEEK_CLOUD = "DeepSeek Cloud"
+private const val AI_PROVIDER_LABEL_LOCAL_MLX = "Local model"
 
 @Composable
 fun rememberSelectedThemeMode(): ThemeModeUiModel {
@@ -68,6 +72,11 @@ fun SettingsBottomSheet() {
                 AiModelOptions(
                     selectedAiModel = uiState.selectedAiModel,
                     onAiModelSelected = { aiModel -> viewModel.onAction(SettingsAction.Ui.AiModelSelected(aiModel)) },
+                )
+                Spacer(modifier = Modifier.height(SettingsDimens.spacingMd))
+                AiProviderOptions(
+                    selectedAiProvider = uiState.selectedAiProvider,
+                    onAiProviderSelected = { aiProvider -> viewModel.onAction(SettingsAction.Ui.AiProviderSelected(aiProvider)) },
                 )
             }
         }
@@ -126,6 +135,32 @@ private fun AiModelOptions(
     }
 }
 
+@Composable
+private fun AiProviderOptions(
+    selectedAiProvider: AiProviderUiModel,
+    onAiProviderSelected: (AiProviderUiModel) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(text = AI_PROVIDER_TITLE, style = MaterialTheme.typography.titleMedium)
+        AiProviderUiModel.entries.forEach { aiProvider ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onAiProviderSelected(aiProvider) }
+                    .padding(vertical = SettingsDimens.spacingXs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(
+                    selected = aiProvider == selectedAiProvider,
+                    onClick = { onAiProviderSelected(aiProvider) },
+                )
+                Text(text = aiProvider.toLabel())
+            }
+        }
+    }
+}
+
 private fun ThemeModeUiModel.toLabel(): String =
     when (this) {
         ThemeModeUiModel.SYSTEM -> THEME_LABEL_SYSTEM
@@ -137,4 +172,10 @@ private fun AiModelUiModel.toLabel(): String =
     when (this) {
         AiModelUiModel.FLASH -> AI_MODEL_LABEL_FLASH
         AiModelUiModel.PRO -> AI_MODEL_LABEL_PRO
+    }
+
+private fun AiProviderUiModel.toLabel(): String =
+    when (this) {
+        AiProviderUiModel.DEEP_SEEK_CLOUD -> AI_PROVIDER_LABEL_DEEP_SEEK_CLOUD
+        AiProviderUiModel.LOCAL_MLX -> AI_PROVIDER_LABEL_LOCAL_MLX
     }

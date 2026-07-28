@@ -4,8 +4,10 @@ import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.chat.data.model.ChatMessageDataModel
 import com.jarvis.chat.feature.chat.domain.mapper.toChatMessageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 private const val EXPECTED_HISTORY_VERSION = 1
 
@@ -35,6 +37,43 @@ class ChatDataMappersTest {
         assertEquals("m1", dataModel.id)
         assertEquals("answer", dataModel.text)
         assertEquals(true, dataModel.isFavorite)
+    }
+
+    @Test
+    fun toChatMessageDataModel_preservesModelId() {
+        val model = HistoryMessageModel(
+            id = "m1",
+            author = MessageAuthor.ASSISTANT,
+            text = "answer",
+            isFavorite = true,
+            timestamp = TEST_TIMESTAMP,
+            modelId = "deepseek-chat",
+        )
+
+        val dataModel = model.toChatMessageDataModel()
+
+        assertEquals("deepseek-chat", dataModel.modelId)
+    }
+
+    @Test
+    fun toHistoryMessageModel_preservesModelId() {
+        val dataModel = dataModel(author = "ASSISTANT").copy(modelId = "deepseek-chat")
+
+        val result = dataModel.toHistoryMessageModel()
+
+        assertEquals("deepseek-chat", result.modelId)
+    }
+
+    @Test
+    fun chatMessageDataModel_decodedFromLegacyJsonWithoutModelId_defaultsToNull() {
+        val legacyJson = """{"id":"m1","author":"ASSISTANT","text":"answer","isFavorite":false,"timestamp":1}"""
+
+        val decoded = Json { ignoreUnknownKeys = true }.decodeFromString(
+            ChatMessageDataModel.serializer(),
+            legacyJson,
+        )
+
+        assertNull(decoded.modelId)
     }
 
     @Test
