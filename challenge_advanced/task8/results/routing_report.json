@@ -1,0 +1,793 @@
+{
+  "cases_path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task7/data/cases.jsonl",
+  "cases_total": 50,
+  "confidence_thresholds": [
+    0.5,
+    0.65,
+    0.75,
+    0.85,
+    0.95
+  ],
+  "answer_length_bounds": [
+    40,
+    1500
+  ],
+  "reference_cost_usd": 0.001339,
+  "strategies": {
+    "only_cheap": {
+      "strategy": "only_cheap",
+      "title": "всё на дешёвой модели, нижняя граница",
+      "runs": 1,
+      "files": [
+        "router_only_cheap.jsonl"
+      ],
+      "total": 50,
+      "escalated_share": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "stayed_share": {
+        "median": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "accuracy": {
+        "median": 0.8261,
+        "min": 0.8261,
+        "max": 0.8261
+      },
+      "missed_emergency": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "missed_emergency_worst": 1,
+      "false_emergency": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "false_emergency_worst": 4,
+      "cost_usd": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "calls_cheap": {
+        "median": 50,
+        "min": 50,
+        "max": 50
+      },
+      "calls_strong": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "latency_p50_ms": {
+        "median": 1242,
+        "min": 1242,
+        "max": 1242
+      },
+      "latency_p95_ms": {
+        "median": 1955,
+        "min": 1955,
+        "max": 1955
+      },
+      "errors": 0,
+      "noisy_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "escalation_reasons": {},
+      "benefit": {
+        "escalated": 0,
+        "comparable": 0,
+        "from_pair": 0,
+        "from_counterfactual": 0,
+        "not_comparable": 0,
+        "changed_route": 0,
+        "unchanged_route": 0,
+        "improved": 0,
+        "worsened": 0,
+        "neutral_change": 0,
+        "emergency_rescued": 0,
+        "emergency_lost": 0,
+        "wasted_calls": 0
+      },
+      "saved_vs_strong_usd": 0.001339,
+      "saved_vs_strong_share": 1.0
+    },
+    "only_strong": {
+      "strategy": "only_strong",
+      "title": "всё на сильной модели, верхняя граница",
+      "runs": 1,
+      "files": [
+        "router_only_strong.jsonl"
+      ],
+      "total": 50,
+      "escalated_share": {
+        "median": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "stayed_share": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "accuracy": {
+        "median": 0.8696,
+        "min": 0.8696,
+        "max": 0.8696
+      },
+      "missed_emergency": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "missed_emergency_worst": 0,
+      "false_emergency": {
+        "median": 3,
+        "min": 3,
+        "max": 3
+      },
+      "false_emergency_worst": 3,
+      "cost_usd": {
+        "median": 0.001339,
+        "min": 0.001339,
+        "max": 0.001339
+      },
+      "calls_cheap": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "calls_strong": {
+        "median": 50,
+        "min": 50,
+        "max": 50
+      },
+      "latency_p50_ms": {
+        "median": 1441,
+        "min": 1441,
+        "max": 1441
+      },
+      "latency_p95_ms": {
+        "median": 1684,
+        "min": 1684,
+        "max": 1684
+      },
+      "errors": 0,
+      "noisy_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "escalation_reasons": {},
+      "benefit": {
+        "escalated": 50,
+        "comparable": 46,
+        "from_pair": 0,
+        "from_counterfactual": 50,
+        "not_comparable": 4,
+        "changed_route": 6,
+        "unchanged_route": 40,
+        "improved": 3,
+        "worsened": 1,
+        "neutral_change": 2,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 40
+      },
+      "saved_vs_strong_usd": 0.0,
+      "saved_vs_strong_share": 0.0
+    },
+    "route_conf": {
+      "strategy": "route_conf",
+      "title": "эскалация по уверенности",
+      "runs": 1,
+      "files": [
+        "router_route_conf.jsonl"
+      ],
+      "total": 50,
+      "escalated_share": {
+        "median": 0.4,
+        "min": 0.4,
+        "max": 0.4
+      },
+      "stayed_share": {
+        "median": 0.6,
+        "min": 0.6,
+        "max": 0.6
+      },
+      "accuracy": {
+        "median": 0.8478,
+        "min": 0.8478,
+        "max": 0.8478
+      },
+      "missed_emergency": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "missed_emergency_worst": 0,
+      "false_emergency": {
+        "median": 5,
+        "min": 5,
+        "max": 5
+      },
+      "false_emergency_worst": 5,
+      "cost_usd": {
+        "median": 0.000542,
+        "min": 0.000542,
+        "max": 0.000542
+      },
+      "calls_cheap": {
+        "median": 50,
+        "min": 50,
+        "max": 50
+      },
+      "calls_strong": {
+        "median": 20,
+        "min": 20,
+        "max": 20
+      },
+      "latency_p50_ms": {
+        "median": 1561,
+        "min": 1561,
+        "max": 1561
+      },
+      "latency_p95_ms": {
+        "median": 3105,
+        "min": 3105,
+        "max": 3105
+      },
+      "errors": 0,
+      "noisy_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "escalation_reasons": {
+        "E_CONF": 20
+      },
+      "benefit": {
+        "escalated": 20,
+        "comparable": 19,
+        "from_pair": 20,
+        "from_counterfactual": 0,
+        "not_comparable": 1,
+        "changed_route": 4,
+        "unchanged_route": 15,
+        "improved": 2,
+        "worsened": 1,
+        "neutral_change": 1,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 15
+      },
+      "saved_vs_strong_usd": 0.000797,
+      "saved_vs_strong_share": 0.5952
+    },
+    "route_status": {
+      "strategy": "route_status",
+      "title": "эскалация по статусу",
+      "runs": 1,
+      "files": [
+        "router_route_status.jsonl"
+      ],
+      "total": 50,
+      "escalated_share": {
+        "median": 0.06,
+        "min": 0.06,
+        "max": 0.06
+      },
+      "stayed_share": {
+        "median": 0.94,
+        "min": 0.94,
+        "max": 0.94
+      },
+      "accuracy": {
+        "median": 0.8043,
+        "min": 0.8043,
+        "max": 0.8043
+      },
+      "missed_emergency": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "missed_emergency_worst": 1,
+      "false_emergency": {
+        "median": 5,
+        "min": 5,
+        "max": 5
+      },
+      "false_emergency_worst": 5,
+      "cost_usd": {
+        "median": 9.5e-05,
+        "min": 9.5e-05,
+        "max": 9.5e-05
+      },
+      "calls_cheap": {
+        "median": 50,
+        "min": 50,
+        "max": 50
+      },
+      "calls_strong": {
+        "median": 3,
+        "min": 3,
+        "max": 3
+      },
+      "latency_p50_ms": {
+        "median": 1338,
+        "min": 1338,
+        "max": 1338
+      },
+      "latency_p95_ms": {
+        "median": 2285,
+        "min": 2285,
+        "max": 2285
+      },
+      "errors": 0,
+      "noisy_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "escalation_reasons": {
+        "E_STATUS": 3
+      },
+      "benefit": {
+        "escalated": 3,
+        "comparable": 0,
+        "from_pair": 3,
+        "from_counterfactual": 0,
+        "not_comparable": 3,
+        "changed_route": 0,
+        "unchanged_route": 0,
+        "improved": 0,
+        "worsened": 0,
+        "neutral_change": 0,
+        "emergency_rescued": 0,
+        "emergency_lost": 0,
+        "wasted_calls": 0
+      },
+      "saved_vs_strong_usd": 0.001244,
+      "saved_vs_strong_share": 0.9291
+    },
+    "route_risk": {
+      "strategy": "route_risk",
+      "title": "эскалация по признаку риска в тексте",
+      "runs": 1,
+      "files": [
+        "router_route_risk.jsonl"
+      ],
+      "total": 50,
+      "escalated_share": {
+        "median": 0.62,
+        "min": 0.62,
+        "max": 0.62
+      },
+      "stayed_share": {
+        "median": 0.38,
+        "min": 0.38,
+        "max": 0.38
+      },
+      "accuracy": {
+        "median": 0.8478,
+        "min": 0.8478,
+        "max": 0.8478
+      },
+      "missed_emergency": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "missed_emergency_worst": 0,
+      "false_emergency": {
+        "median": 3,
+        "min": 3,
+        "max": 3
+      },
+      "false_emergency_worst": 3,
+      "cost_usd": {
+        "median": 0.000873,
+        "min": 0.000873,
+        "max": 0.000873
+      },
+      "calls_cheap": {
+        "median": 19,
+        "min": 19,
+        "max": 19
+      },
+      "calls_strong": {
+        "median": 31,
+        "min": 31,
+        "max": 31
+      },
+      "latency_p50_ms": {
+        "median": 1418,
+        "min": 1418,
+        "max": 1418
+      },
+      "latency_p95_ms": {
+        "median": 1645,
+        "min": 1645,
+        "max": 1645
+      },
+      "errors": 0,
+      "noisy_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "escalation_reasons": {
+        "E_RISK": 31
+      },
+      "benefit": {
+        "escalated": 31,
+        "comparable": 31,
+        "from_pair": 0,
+        "from_counterfactual": 31,
+        "not_comparable": 0,
+        "changed_route": 6,
+        "unchanged_route": 25,
+        "improved": 3,
+        "worsened": 1,
+        "neutral_change": 2,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 25
+      },
+      "saved_vs_strong_usd": 0.000466,
+      "saved_vs_strong_share": 0.348
+    },
+    "route_all": {
+      "strategy": "route_all",
+      "title": "все пять эвристик вместе",
+      "runs": 1,
+      "files": [
+        "router_route_all.jsonl"
+      ],
+      "total": 50,
+      "escalated_share": {
+        "median": 0.68,
+        "min": 0.68,
+        "max": 0.68
+      },
+      "stayed_share": {
+        "median": 0.32,
+        "min": 0.32,
+        "max": 0.32
+      },
+      "accuracy": {
+        "median": 0.8696,
+        "min": 0.8696,
+        "max": 0.8696
+      },
+      "missed_emergency": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "missed_emergency_worst": 0,
+      "false_emergency": {
+        "median": 3,
+        "min": 3,
+        "max": 3
+      },
+      "false_emergency_worst": 3,
+      "cost_usd": {
+        "median": 0.000968,
+        "min": 0.000968,
+        "max": 0.000968
+      },
+      "calls_cheap": {
+        "median": 19,
+        "min": 19,
+        "max": 19
+      },
+      "calls_strong": {
+        "median": 34,
+        "min": 34,
+        "max": 34
+      },
+      "latency_p50_ms": {
+        "median": 1400,
+        "min": 1400,
+        "max": 1400
+      },
+      "latency_p95_ms": {
+        "median": 1970,
+        "min": 1970,
+        "max": 1970
+      },
+      "errors": 0,
+      "noisy_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "escalation_reasons": {
+        "E_STATUS": 3,
+        "E_GUARD": 3,
+        "E_RISK": 31
+      },
+      "benefit": {
+        "escalated": 34,
+        "comparable": 31,
+        "from_pair": 3,
+        "from_counterfactual": 31,
+        "not_comparable": 3,
+        "changed_route": 6,
+        "unchanged_route": 25,
+        "improved": 3,
+        "worsened": 1,
+        "neutral_change": 2,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 25
+      },
+      "saved_vs_strong_usd": 0.000371,
+      "saved_vs_strong_share": 0.2771
+    }
+  },
+  "runs": [
+    {
+      "strategy": "only_cheap",
+      "path": "raw/router_only_cheap.jsonl",
+      "file": "router_only_cheap.jsonl",
+      "total": 50,
+      "escalated": 0,
+      "stayed": 50,
+      "escalated_share": 0.0,
+      "stayed_share": 1.0,
+      "route_graded": 46,
+      "correct": 38,
+      "accuracy": 0.8261,
+      "missed_emergency": 1,
+      "false_emergency": 4,
+      "noisy_expected_fail": 4,
+      "noisy_handled": 0,
+      "calls_cheap": 50,
+      "calls_strong": 0,
+      "cost_usd": 0.0,
+      "latency_p50_ms": 1242,
+      "latency_p95_ms": 1955,
+      "errors": 0,
+      "unknown_cases": 0,
+      "escalation_reasons": {},
+      "benefit": {
+        "escalated": 0,
+        "comparable": 0,
+        "from_pair": 0,
+        "from_counterfactual": 0,
+        "not_comparable": 0,
+        "changed_route": 0,
+        "unchanged_route": 0,
+        "improved": 0,
+        "worsened": 0,
+        "neutral_change": 0,
+        "emergency_rescued": 0,
+        "emergency_lost": 0,
+        "wasted_calls": 0
+      }
+    },
+    {
+      "strategy": "only_strong",
+      "path": "raw/router_only_strong.jsonl",
+      "file": "router_only_strong.jsonl",
+      "total": 50,
+      "escalated": 50,
+      "stayed": 0,
+      "escalated_share": 1.0,
+      "stayed_share": 0.0,
+      "route_graded": 46,
+      "correct": 40,
+      "accuracy": 0.8696,
+      "missed_emergency": 0,
+      "false_emergency": 3,
+      "noisy_expected_fail": 4,
+      "noisy_handled": 0,
+      "calls_cheap": 0,
+      "calls_strong": 50,
+      "cost_usd": 0.001339,
+      "latency_p50_ms": 1441,
+      "latency_p95_ms": 1684,
+      "errors": 0,
+      "unknown_cases": 0,
+      "escalation_reasons": {},
+      "benefit": {
+        "escalated": 50,
+        "comparable": 46,
+        "from_pair": 0,
+        "from_counterfactual": 50,
+        "not_comparable": 4,
+        "changed_route": 6,
+        "unchanged_route": 40,
+        "improved": 3,
+        "worsened": 1,
+        "neutral_change": 2,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 40
+      }
+    },
+    {
+      "strategy": "route_all",
+      "path": "raw/router_route_all.jsonl",
+      "file": "router_route_all.jsonl",
+      "total": 50,
+      "escalated": 34,
+      "stayed": 16,
+      "escalated_share": 0.68,
+      "stayed_share": 0.32,
+      "route_graded": 46,
+      "correct": 40,
+      "accuracy": 0.8696,
+      "missed_emergency": 0,
+      "false_emergency": 3,
+      "noisy_expected_fail": 4,
+      "noisy_handled": 0,
+      "calls_cheap": 19,
+      "calls_strong": 34,
+      "cost_usd": 0.000968,
+      "latency_p50_ms": 1400,
+      "latency_p95_ms": 1970,
+      "errors": 0,
+      "unknown_cases": 0,
+      "escalation_reasons": {
+        "E_STATUS": 3,
+        "E_GUARD": 3,
+        "E_RISK": 31
+      },
+      "benefit": {
+        "escalated": 34,
+        "comparable": 31,
+        "from_pair": 3,
+        "from_counterfactual": 31,
+        "not_comparable": 3,
+        "changed_route": 6,
+        "unchanged_route": 25,
+        "improved": 3,
+        "worsened": 1,
+        "neutral_change": 2,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 25
+      }
+    },
+    {
+      "strategy": "route_conf",
+      "path": "raw/router_route_conf.jsonl",
+      "file": "router_route_conf.jsonl",
+      "total": 50,
+      "escalated": 20,
+      "stayed": 30,
+      "escalated_share": 0.4,
+      "stayed_share": 0.6,
+      "route_graded": 46,
+      "correct": 39,
+      "accuracy": 0.8478,
+      "missed_emergency": 0,
+      "false_emergency": 5,
+      "noisy_expected_fail": 4,
+      "noisy_handled": 0,
+      "calls_cheap": 50,
+      "calls_strong": 20,
+      "cost_usd": 0.000542,
+      "latency_p50_ms": 1561,
+      "latency_p95_ms": 3105,
+      "errors": 0,
+      "unknown_cases": 0,
+      "escalation_reasons": {
+        "E_CONF": 20
+      },
+      "benefit": {
+        "escalated": 20,
+        "comparable": 19,
+        "from_pair": 20,
+        "from_counterfactual": 0,
+        "not_comparable": 1,
+        "changed_route": 4,
+        "unchanged_route": 15,
+        "improved": 2,
+        "worsened": 1,
+        "neutral_change": 1,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 15
+      }
+    },
+    {
+      "strategy": "route_risk",
+      "path": "raw/router_route_risk.jsonl",
+      "file": "router_route_risk.jsonl",
+      "total": 50,
+      "escalated": 31,
+      "stayed": 19,
+      "escalated_share": 0.62,
+      "stayed_share": 0.38,
+      "route_graded": 46,
+      "correct": 39,
+      "accuracy": 0.8478,
+      "missed_emergency": 0,
+      "false_emergency": 3,
+      "noisy_expected_fail": 4,
+      "noisy_handled": 0,
+      "calls_cheap": 19,
+      "calls_strong": 31,
+      "cost_usd": 0.000873,
+      "latency_p50_ms": 1418,
+      "latency_p95_ms": 1645,
+      "errors": 0,
+      "unknown_cases": 0,
+      "escalation_reasons": {
+        "E_RISK": 31
+      },
+      "benefit": {
+        "escalated": 31,
+        "comparable": 31,
+        "from_pair": 0,
+        "from_counterfactual": 31,
+        "not_comparable": 0,
+        "changed_route": 6,
+        "unchanged_route": 25,
+        "improved": 3,
+        "worsened": 1,
+        "neutral_change": 2,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 25
+      }
+    },
+    {
+      "strategy": "route_status",
+      "path": "raw/router_route_status.jsonl",
+      "file": "router_route_status.jsonl",
+      "total": 50,
+      "escalated": 3,
+      "stayed": 47,
+      "escalated_share": 0.06,
+      "stayed_share": 0.94,
+      "route_graded": 46,
+      "correct": 37,
+      "accuracy": 0.8043,
+      "missed_emergency": 1,
+      "false_emergency": 5,
+      "noisy_expected_fail": 4,
+      "noisy_handled": 0,
+      "calls_cheap": 50,
+      "calls_strong": 3,
+      "cost_usd": 9.5e-05,
+      "latency_p50_ms": 1338,
+      "latency_p95_ms": 2285,
+      "errors": 0,
+      "unknown_cases": 0,
+      "escalation_reasons": {
+        "E_STATUS": 3
+      },
+      "benefit": {
+        "escalated": 3,
+        "comparable": 0,
+        "from_pair": 3,
+        "from_counterfactual": 0,
+        "not_comparable": 3,
+        "changed_route": 0,
+        "unchanged_route": 0,
+        "improved": 0,
+        "worsened": 0,
+        "neutral_change": 0,
+        "emergency_rescued": 0,
+        "emergency_lost": 0,
+        "wasted_calls": 0
+      }
+    }
+  ],
+  "gate_failures": [
+    "route_status: пропущено экстренных 1 против 0 у only_strong"
+  ]
+}
