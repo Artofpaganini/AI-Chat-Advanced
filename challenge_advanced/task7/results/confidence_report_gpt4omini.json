@@ -1,0 +1,289 @@
+{
+  "cases_path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task7/data/cases.jsonl",
+  "cases_total": 50,
+  "inference_location": "cloud",
+  "price": {
+    "baseline": {
+      "model": "gpt-4o-mini",
+      "price_source": "confirmed",
+      "resolved_as": "gpt-4o-mini-2024-07-18",
+      "input_per_mtok": 0.15,
+      "cached_input_per_mtok": 0.075,
+      "output_per_mtok": 0.6,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "note": "Цена снята 2026-07-28 со страницы цен OpenAI: вход 0.15, кэшированный вход 0.075, выход 0.60 USD за 1M токенов. Кэш дешевле обычного входа вдвое, а не в 50 раз, как у DeepSeek.",
+      "cost_usd": 0.007093,
+      "cost_confirmed": true,
+      "cost_usd_total": 0.007093,
+      "critic": {
+        "model": "критик не участвовал",
+        "cost_usd": 0.0
+      }
+    },
+    "pipeline": {
+      "model": "gpt-4o-mini",
+      "price_source": "confirmed",
+      "resolved_as": "gpt-4o-mini-2024-07-18",
+      "input_per_mtok": 0.15,
+      "cached_input_per_mtok": 0.075,
+      "output_per_mtok": 0.6,
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "note": "Цена снята 2026-07-28 со страницы цен OpenAI: вход 0.15, кэшированный вход 0.075, выход 0.60 USD за 1M токенов. Кэш дешевле обычного входа вдвое, а не в 50 раз, как у DeepSeek.",
+      "cost_usd": 0.021076,
+      "cost_confirmed": true,
+      "cost_usd_total": 0.021076,
+      "critic": {
+        "model": "критик не участвовал",
+        "cost_usd": 0.0
+      }
+    }
+  },
+  "thresholds": {
+    "ok": 0.75,
+    "unsure": 0.4,
+    "weights": {
+      "vote": 0.5,
+      "self_check": 0.3,
+      "self_report": 0.2
+    }
+  },
+  "modes": {
+    "baseline": {
+      "mode": "baseline",
+      "total": 50,
+      "route_graded": 46,
+      "correct": 38,
+      "accuracy": 0.8261,
+      "missed_emergency": 3,
+      "false_emergency": 1,
+      "rejected": 0,
+      "unsure": 0,
+      "ok": 50,
+      "noisy_handled": 0,
+      "noisy_expected_fail": 4,
+      "noisy_handled_share": 0.0,
+      "input_rejected": 0,
+      "input_violations": 3,
+      "saved_calls": 0,
+      "retried": 0,
+      "extra_calls": 0,
+      "total_calls": 50,
+      "escalated_by_safety": 0,
+      "self_check_ran": 0,
+      "self_check_trigger": "не записан в артефакте",
+      "risk_cases": 31,
+      "risk_markers": {
+        "age_lt_3m": 6,
+        "breathing": 6,
+        "neuro": 6,
+        "fever": 19,
+        "dehydration": 6,
+        "skin": 7,
+        "trauma": 3
+      },
+      "risk_missed": 0,
+      "errors": 0,
+      "unknown_cases": 0,
+      "latency_p50_ms": 1371,
+      "latency_p95_ms": 2655,
+      "latency_median_ms": 1382,
+      "confidence_mean": 0.764,
+      "prompt_tokens": 36276,
+      "completion_tokens": 2753,
+      "critic_prompt_tokens": 0,
+      "critic_completion_tokens": 0,
+      "cost_usd": 0.007093,
+      "critic_cost_usd": 0,
+      "main_cost_usd": 0.007093,
+      "inference_location": "cloud",
+      "inference_location_counts": {
+        "cloud": 50
+      },
+      "model": "gpt-4o-mini",
+      "price_source": "confirmed",
+      "critic_model": "критик не участвовал",
+      "critic_inference_location": "",
+      "critic_price_source": "",
+      "violations": {
+        "C_IN_EMPTY": 2,
+        "C_IN_NO_LETTERS": 1,
+        "C_INV_OFFTOPIC_CLEAN": 1
+      },
+      "groups": {
+        "clean": {
+          "total": 20,
+          "route_graded": 20,
+          "correct": 20,
+          "accuracy": 1.0,
+          "missed_emergency": 0,
+          "false_emergency": 0,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        },
+        "borderline": {
+          "total": 15,
+          "route_graded": 15,
+          "correct": 9,
+          "accuracy": 0.6,
+          "missed_emergency": 3,
+          "false_emergency": 1,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        },
+        "noisy": {
+          "total": 15,
+          "route_graded": 11,
+          "correct": 9,
+          "accuracy": 0.8182,
+          "missed_emergency": 0,
+          "false_emergency": 0,
+          "status_graded": 4,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        }
+      },
+      "confusion": {
+        "EMERGENCY": {
+          "EMERGENCY": 10,
+          "DOCTOR_SOON": 3
+        },
+        "DOCTOR_SOON": {
+          "DOCTOR_SOON": 11,
+          "EMERGENCY": 1
+        },
+        "SELF_CARE": {
+          "SELF_CARE": 12,
+          "DOCTOR_SOON": 3,
+          "OFF_TOPIC": 1
+        },
+        "OFF_TOPIC": {
+          "OFF_TOPIC": 5
+        }
+      }
+    },
+    "pipeline": {
+      "mode": "pipeline",
+      "total": 50,
+      "route_graded": 46,
+      "correct": 36,
+      "accuracy": 0.7826,
+      "missed_emergency": 3,
+      "false_emergency": 2,
+      "rejected": 3,
+      "unsure": 2,
+      "ok": 45,
+      "noisy_handled": 3,
+      "noisy_expected_fail": 4,
+      "noisy_handled_share": 0.75,
+      "input_rejected": 3,
+      "input_violations": 3,
+      "saved_calls": 9,
+      "retried": 2,
+      "extra_calls": 102,
+      "total_calls": 149,
+      "escalated_by_safety": 2,
+      "self_check_ran": 3,
+      "self_check_trigger": "не записан в артефакте",
+      "risk_cases": 31,
+      "risk_markers": {
+        "age_lt_3m": 6,
+        "breathing": 6,
+        "neuro": 6,
+        "fever": 19,
+        "dehydration": 6,
+        "skin": 7,
+        "trauma": 3
+      },
+      "risk_missed": 0,
+      "errors": 0,
+      "unknown_cases": 0,
+      "latency_p50_ms": 4268,
+      "latency_p95_ms": 5893,
+      "latency_median_ms": 4282,
+      "confidence_mean": 0.8845,
+      "prompt_tokens": 108517,
+      "completion_tokens": 8126,
+      "critic_prompt_tokens": 0,
+      "critic_completion_tokens": 0,
+      "cost_usd": 0.021076,
+      "critic_cost_usd": 0,
+      "main_cost_usd": 0.021076,
+      "inference_location": "cloud",
+      "inference_location_counts": {
+        "cloud": 50
+      },
+      "model": "gpt-4o-mini",
+      "price_source": "confirmed",
+      "critic_model": "критик не участвовал",
+      "critic_inference_location": "",
+      "critic_price_source": "",
+      "violations": {
+        "C_IN_EMPTY": 2,
+        "C_IN_NO_LETTERS": 1,
+        "C_INV_OFFTOPIC_CLEAN": 5
+      },
+      "groups": {
+        "clean": {
+          "total": 20,
+          "route_graded": 20,
+          "correct": 19,
+          "accuracy": 0.95,
+          "missed_emergency": 0,
+          "false_emergency": 1,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 2
+        },
+        "borderline": {
+          "total": 15,
+          "route_graded": 15,
+          "correct": 8,
+          "accuracy": 0.5333,
+          "missed_emergency": 3,
+          "false_emergency": 1,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        },
+        "noisy": {
+          "total": 15,
+          "route_graded": 11,
+          "correct": 9,
+          "accuracy": 0.8182,
+          "missed_emergency": 0,
+          "false_emergency": 0,
+          "status_graded": 4,
+          "status_correct": 3,
+          "rejected": 3,
+          "unsure": 0
+        }
+      },
+      "confusion": {
+        "EMERGENCY": {
+          "EMERGENCY": 10,
+          "DOCTOR_SOON": 3
+        },
+        "DOCTOR_SOON": {
+          "DOCTOR_SOON": 10,
+          "EMERGENCY": 2
+        },
+        "SELF_CARE": {
+          "SELF_CARE": 11,
+          "DOCTOR_SOON": 4,
+          "OFF_TOPIC": 1
+        },
+        "OFF_TOPIC": {
+          "OFF_TOPIC": 5
+        }
+      }
+    }
+  },
+  "problems": []
+}

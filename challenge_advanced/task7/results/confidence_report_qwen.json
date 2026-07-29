@@ -1,0 +1,250 @@
+{
+  "cases_path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task7/data/cases.jsonl",
+  "cases_total": 50,
+  "inference_location": "local",
+  "price": {
+    "baseline": {
+      "model": "не записано в артефакте",
+      "price_source": "",
+      "resolved_as": "",
+      "input_per_mtok": 0.0,
+      "cached_input_per_mtok": 0.0,
+      "output_per_mtok": 0.0,
+      "source_url": "",
+      "note": "Модель не найдена в таблице цен, стоимость не считается.",
+      "cost_usd": 0.0,
+      "cost_confirmed": true
+    },
+    "pipeline": {
+      "model": "не записано в артефакте",
+      "price_source": "",
+      "resolved_as": "",
+      "input_per_mtok": 0.0,
+      "cached_input_per_mtok": 0.0,
+      "output_per_mtok": 0.0,
+      "source_url": "",
+      "note": "Модель не найдена в таблице цен, стоимость не считается.",
+      "cost_usd": 0.0,
+      "cost_confirmed": true
+    }
+  },
+  "thresholds": {
+    "ok": 0.75,
+    "unsure": 0.4,
+    "weights": {
+      "vote": 0.5,
+      "self_check": 0.3,
+      "self_report": 0.2
+    }
+  },
+  "modes": {
+    "baseline": {
+      "mode": "baseline",
+      "total": 50,
+      "route_graded": 46,
+      "correct": 28,
+      "accuracy": 0.6087,
+      "missed_emergency": 4,
+      "false_emergency": 6,
+      "rejected": 0,
+      "unsure": 0,
+      "ok": 50,
+      "noisy_handled": 0,
+      "noisy_expected_fail": 4,
+      "noisy_handled_share": 0.0,
+      "input_rejected": 0,
+      "input_violations": 3,
+      "saved_calls": 0,
+      "retried": 0,
+      "extra_calls": 0,
+      "total_calls": 50,
+      "escalated_by_safety": 0,
+      "self_check_ran": 0,
+      "risk_missed": 0,
+      "errors": 0,
+      "unknown_cases": 0,
+      "latency_p50_ms": 1617,
+      "latency_p95_ms": 2246,
+      "latency_median_ms": 1622,
+      "confidence_mean": 0.702,
+      "prompt_tokens": 43088,
+      "completion_tokens": 3761,
+      "cost_usd": 0.0,
+      "inference_location": "local",
+      "inference_location_counts": {
+        "local": 50
+      },
+      "model": "не записано в артефакте",
+      "price_source": "",
+      "violations": {
+        "C_IN_EMPTY": 2,
+        "C_IN_NO_LETTERS": 1,
+        "C_REASON_LEN": 1,
+        "C_INV_SELFCARE_FLAGS": 1
+      },
+      "groups": {
+        "clean": {
+          "total": 20,
+          "route_graded": 20,
+          "correct": 16,
+          "accuracy": 0.8,
+          "missed_emergency": 0,
+          "false_emergency": 3,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        },
+        "borderline": {
+          "total": 15,
+          "route_graded": 15,
+          "correct": 5,
+          "accuracy": 0.3333,
+          "missed_emergency": 2,
+          "false_emergency": 3,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        },
+        "noisy": {
+          "total": 15,
+          "route_graded": 11,
+          "correct": 7,
+          "accuracy": 0.6364,
+          "missed_emergency": 2,
+          "false_emergency": 0,
+          "status_graded": 4,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        }
+      },
+      "confusion": {
+        "EMERGENCY": {
+          "EMERGENCY": 9,
+          "SELF_CARE": 3,
+          "DOCTOR_SOON": 1
+        },
+        "DOCTOR_SOON": {
+          "DOCTOR_SOON": 4,
+          "EMERGENCY": 5,
+          "SELF_CARE": 3
+        },
+        "SELF_CARE": {
+          "SELF_CARE": 11,
+          "DOCTOR_SOON": 4,
+          "EMERGENCY": 1
+        },
+        "OFF_TOPIC": {
+          "OFF_TOPIC": 4,
+          "SELF_CARE": 1
+        }
+      }
+    },
+    "pipeline": {
+      "mode": "pipeline",
+      "total": 50,
+      "route_graded": 46,
+      "correct": 28,
+      "accuracy": 0.6087,
+      "missed_emergency": 4,
+      "false_emergency": 5,
+      "rejected": 3,
+      "unsure": 5,
+      "ok": 42,
+      "noisy_handled": 3,
+      "noisy_expected_fail": 4,
+      "noisy_handled_share": 0.75,
+      "input_rejected": 3,
+      "input_violations": 3,
+      "saved_calls": 9,
+      "retried": 4,
+      "extra_calls": 101,
+      "total_calls": 148,
+      "escalated_by_safety": 1,
+      "self_check_ran": 1,
+      "risk_missed": 0,
+      "errors": 0,
+      "unknown_cases": 0,
+      "latency_p50_ms": 9298,
+      "latency_p95_ms": 63863,
+      "latency_median_ms": 9298,
+      "confidence_mean": 0.8812,
+      "prompt_tokens": 132799,
+      "completion_tokens": 18743,
+      "cost_usd": 0.0,
+      "inference_location": "local",
+      "inference_location_counts": {
+        "local": 50
+      },
+      "model": "не записано в артефакте",
+      "price_source": "",
+      "violations": {
+        "C_IN_EMPTY": 2,
+        "C_IN_NO_LETTERS": 1,
+        "C_JSON": 12,
+        "C_CRITIC_NOTE_LEN": 1
+      },
+      "groups": {
+        "clean": {
+          "total": 20,
+          "route_graded": 20,
+          "correct": 15,
+          "accuracy": 0.75,
+          "missed_emergency": 0,
+          "false_emergency": 3,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 1
+        },
+        "borderline": {
+          "total": 15,
+          "route_graded": 15,
+          "correct": 6,
+          "accuracy": 0.4,
+          "missed_emergency": 2,
+          "false_emergency": 2,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 4
+        },
+        "noisy": {
+          "total": 15,
+          "route_graded": 11,
+          "correct": 7,
+          "accuracy": 0.6364,
+          "missed_emergency": 2,
+          "false_emergency": 0,
+          "status_graded": 4,
+          "status_correct": 3,
+          "rejected": 3,
+          "unsure": 0
+        }
+      },
+      "confusion": {
+        "EMERGENCY": {
+          "EMERGENCY": 9,
+          "SELF_CARE": 3,
+          "DOCTOR_SOON": 1
+        },
+        "DOCTOR_SOON": {
+          "DOCTOR_SOON": 4,
+          "EMERGENCY": 5,
+          "SELF_CARE": 3
+        },
+        "SELF_CARE": {
+          "SELF_CARE": 12,
+          "DOCTOR_SOON": 4
+        },
+        "OFF_TOPIC": {
+          "OFF_TOPIC": 3,
+          "SELF_CARE": 2
+        }
+      }
+    }
+  },
+  "problems": []
+}

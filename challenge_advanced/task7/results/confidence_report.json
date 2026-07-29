@@ -1,0 +1,300 @@
+{
+  "cases_path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task7/data/cases.jsonl",
+  "cases_total": 50,
+  "inference_location": "cloud",
+  "price": {
+    "baseline": {
+      "model": "не записано в артефакте",
+      "price_source": "",
+      "resolved_as": "",
+      "input_per_mtok": 0.0,
+      "cached_input_per_mtok": 0.0,
+      "output_per_mtok": 0.0,
+      "source_url": "",
+      "note": "Модель не найдена в таблице цен, стоимость не считается.",
+      "cost_usd": 0.001359,
+      "cost_confirmed": true,
+      "cost_usd_total": 0.001359,
+      "critic": {
+        "model": "критик не участвовал",
+        "cost_usd": 0.0
+      }
+    },
+    "pipeline": {
+      "model": "deepseek-chat",
+      "price_source": "confirmed",
+      "resolved_as": "deepseek-v4-flash",
+      "input_per_mtok": 0.14,
+      "cached_input_per_mtok": 0.0028,
+      "output_per_mtok": 0.28,
+      "source_url": "https://api-docs.deepseek.com/quick_start/pricing",
+      "note": "Имя deepseek-chat в прайсе отсутствует, это алиас. Проверено живым запросом 2026-07-28: поле model в ответе API равно deepseek-v4-flash, по нему и берётся цена.",
+      "cost_usd": 0.004074,
+      "cost_confirmed": true,
+      "cost_usd_total": 0.00431,
+      "critic": {
+        "model": "deepseek-chat",
+        "price_source": "confirmed",
+        "resolved_as": "deepseek-v4-flash",
+        "input_per_mtok": 0.14,
+        "cached_input_per_mtok": 0.0028,
+        "output_per_mtok": 0.28,
+        "source_url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "note": "Имя deepseek-chat в прайсе отсутствует, это алиас. Проверено живым запросом 2026-07-28: поле model в ответе API равно deepseek-v4-flash, по нему и берётся цена.",
+        "cost_usd": 0.000236,
+        "cost_confirmed": true
+      }
+    }
+  },
+  "thresholds": {
+    "ok": 0.75,
+    "unsure": 0.4,
+    "weights": {
+      "vote": 0.5,
+      "self_check": 0.3,
+      "self_report": 0.2
+    }
+  },
+  "modes": {
+    "baseline": {
+      "mode": "baseline",
+      "total": 50,
+      "route_graded": 46,
+      "correct": 40,
+      "accuracy": 0.8696,
+      "missed_emergency": 0,
+      "false_emergency": 3,
+      "rejected": 0,
+      "unsure": 0,
+      "ok": 50,
+      "noisy_handled": 0,
+      "noisy_expected_fail": 4,
+      "noisy_handled_share": 0.0,
+      "input_rejected": 0,
+      "input_violations": 3,
+      "saved_calls": 0,
+      "retried": 0,
+      "extra_calls": 0,
+      "total_calls": 50,
+      "escalated_by_safety": 0,
+      "self_check_ran": 0,
+      "self_check_trigger": "не записан в артефакте",
+      "risk_cases": 31,
+      "risk_markers": {
+        "age_lt_3m": 6,
+        "breathing": 6,
+        "neuro": 6,
+        "fever": 19,
+        "dehydration": 6,
+        "skin": 7,
+        "trauma": 3
+      },
+      "risk_missed": 0,
+      "errors": 0,
+      "unknown_cases": 0,
+      "latency_p50_ms": 1573,
+      "latency_p95_ms": 1904,
+      "latency_median_ms": 1576,
+      "confidence_mean": 0.8806,
+      "prompt_tokens": 40066,
+      "completion_tokens": 3447,
+      "critic_prompt_tokens": 0,
+      "critic_completion_tokens": 0,
+      "cost_usd": 0.001359,
+      "critic_cost_usd": 0,
+      "main_cost_usd": 0.001359,
+      "inference_location": "cloud",
+      "inference_location_counts": {
+        "cloud": 50
+      },
+      "model": "не записано в артефакте",
+      "price_source": "",
+      "critic_model": "критик не участвовал",
+      "critic_inference_location": "",
+      "critic_price_source": "",
+      "violations": {
+        "C_IN_EMPTY": 2,
+        "C_IN_NO_LETTERS": 1,
+        "C_TYPES": 1,
+        "C_AGE_RANGE": 1,
+        "C_INV_OFFTOPIC_CLEAN": 1
+      },
+      "groups": {
+        "clean": {
+          "total": 20,
+          "route_graded": 20,
+          "correct": 20,
+          "accuracy": 1.0,
+          "missed_emergency": 0,
+          "false_emergency": 0,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        },
+        "borderline": {
+          "total": 15,
+          "route_graded": 15,
+          "correct": 11,
+          "accuracy": 0.7333,
+          "missed_emergency": 0,
+          "false_emergency": 3,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        },
+        "noisy": {
+          "total": 15,
+          "route_graded": 11,
+          "correct": 9,
+          "accuracy": 0.8182,
+          "missed_emergency": 0,
+          "false_emergency": 0,
+          "status_graded": 4,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        }
+      },
+      "confusion": {
+        "EMERGENCY": {
+          "EMERGENCY": 13
+        },
+        "DOCTOR_SOON": {
+          "DOCTOR_SOON": 9,
+          "EMERGENCY": 3
+        },
+        "SELF_CARE": {
+          "SELF_CARE": 13,
+          "DOCTOR_SOON": 2,
+          "OFF_TOPIC": 1
+        },
+        "OFF_TOPIC": {
+          "OFF_TOPIC": 5
+        }
+      }
+    },
+    "pipeline": {
+      "mode": "pipeline",
+      "total": 50,
+      "route_graded": 46,
+      "correct": 37,
+      "accuracy": 0.8043,
+      "missed_emergency": 0,
+      "false_emergency": 5,
+      "rejected": 3,
+      "unsure": 4,
+      "ok": 43,
+      "noisy_handled": 3,
+      "noisy_expected_fail": 4,
+      "noisy_handled_share": 0.75,
+      "input_rejected": 3,
+      "input_violations": 3,
+      "saved_calls": 9,
+      "retried": 2,
+      "extra_calls": 105,
+      "total_calls": 152,
+      "escalated_by_safety": 4,
+      "self_check_ran": 6,
+      "self_check_trigger": "agreement",
+      "risk_cases": 31,
+      "risk_markers": {
+        "age_lt_3m": 6,
+        "breathing": 6,
+        "neuro": 6,
+        "fever": 19,
+        "dehydration": 6,
+        "skin": 7,
+        "trauma": 3
+      },
+      "risk_missed": 0,
+      "errors": 0,
+      "unknown_cases": 0,
+      "latency_p50_ms": 4732,
+      "latency_p95_ms": 7900,
+      "latency_median_ms": 4753,
+      "confidence_mean": 0.8769,
+      "prompt_tokens": 121685,
+      "completion_tokens": 10811,
+      "critic_prompt_tokens": 3204,
+      "critic_completion_tokens": 434,
+      "cost_usd": 0.00431,
+      "critic_cost_usd": 0.000236,
+      "main_cost_usd": 0.004074,
+      "inference_location": "cloud",
+      "inference_location_counts": {
+        "cloud": 50
+      },
+      "model": "deepseek-chat",
+      "price_source": "confirmed",
+      "critic_model": "deepseek-chat",
+      "critic_inference_location": "cloud",
+      "critic_price_source": "confirmed",
+      "violations": {
+        "C_IN_EMPTY": 2,
+        "C_IN_NO_LETTERS": 1,
+        "C_TYPES": 2,
+        "C_AGE_RANGE": 2,
+        "C_INV_OFFTOPIC_CLEAN": 3
+      },
+      "groups": {
+        "clean": {
+          "total": 20,
+          "route_graded": 20,
+          "correct": 20,
+          "accuracy": 1.0,
+          "missed_emergency": 0,
+          "false_emergency": 0,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 0
+        },
+        "borderline": {
+          "total": 15,
+          "route_graded": 15,
+          "correct": 8,
+          "accuracy": 0.5333,
+          "missed_emergency": 0,
+          "false_emergency": 4,
+          "status_graded": 0,
+          "status_correct": 0,
+          "rejected": 0,
+          "unsure": 3
+        },
+        "noisy": {
+          "total": 15,
+          "route_graded": 11,
+          "correct": 9,
+          "accuracy": 0.8182,
+          "missed_emergency": 0,
+          "false_emergency": 1,
+          "status_graded": 4,
+          "status_correct": 3,
+          "rejected": 3,
+          "unsure": 1
+        }
+      },
+      "confusion": {
+        "EMERGENCY": {
+          "EMERGENCY": 13
+        },
+        "DOCTOR_SOON": {
+          "DOCTOR_SOON": 8,
+          "EMERGENCY": 4
+        },
+        "SELF_CARE": {
+          "SELF_CARE": 11,
+          "DOCTOR_SOON": 3,
+          "EMERGENCY": 1,
+          "OFF_TOPIC": 1
+        },
+        "OFF_TOPIC": {
+          "OFF_TOPIC": 5
+        }
+      }
+    }
+  },
+  "problems": []
+}
