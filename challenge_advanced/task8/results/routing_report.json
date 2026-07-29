@@ -538,7 +538,7 @@
   "runs": [
     {
       "strategy": "only_cheap",
-      "path": "raw/router_only_cheap.jsonl",
+      "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_only_cheap.jsonl",
       "file": "router_only_cheap.jsonl",
       "total": 50,
       "escalated": 0,
@@ -578,7 +578,7 @@
     },
     {
       "strategy": "only_strong",
-      "path": "raw/router_only_strong.jsonl",
+      "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_only_strong.jsonl",
       "file": "router_only_strong.jsonl",
       "total": 50,
       "escalated": 50,
@@ -618,7 +618,7 @@
     },
     {
       "strategy": "route_all",
-      "path": "raw/router_route_all.jsonl",
+      "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_route_all.jsonl",
       "file": "router_route_all.jsonl",
       "total": 50,
       "escalated": 34,
@@ -662,7 +662,7 @@
     },
     {
       "strategy": "route_conf",
-      "path": "raw/router_route_conf.jsonl",
+      "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_route_conf.jsonl",
       "file": "router_route_conf.jsonl",
       "total": 50,
       "escalated": 20,
@@ -704,7 +704,7 @@
     },
     {
       "strategy": "route_risk",
-      "path": "raw/router_route_risk.jsonl",
+      "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_route_risk.jsonl",
       "file": "router_route_risk.jsonl",
       "total": 50,
       "escalated": 31,
@@ -746,7 +746,7 @@
     },
     {
       "strategy": "route_status",
-      "path": "raw/router_route_status.jsonl",
+      "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_route_status.jsonl",
       "file": "router_route_status.jsonl",
       "total": 50,
       "escalated": 3,

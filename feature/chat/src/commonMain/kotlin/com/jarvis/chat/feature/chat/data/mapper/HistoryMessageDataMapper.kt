@@ -20,6 +20,7 @@ internal fun HistoryMessageModel.toChatMessageDataModel(): ChatMessageDataModel 
         isFavorite = isFavorite,
         timestamp = timestamp,
         modelId = modelId,
+        triage = triage?.toTriageDataModel(),
     )
 
 internal fun List<HistoryMessageModel>.toChatHistoryDataModel(): ChatHistoryDataModel =

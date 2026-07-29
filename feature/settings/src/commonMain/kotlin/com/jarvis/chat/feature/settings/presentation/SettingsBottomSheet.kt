@@ -36,6 +36,7 @@ private const val AI_MODEL_LABEL_PRO = "Pro (advanced)"
 private const val AI_PROVIDER_TITLE = "AI Provider"
 private const val AI_PROVIDER_LABEL_DEEP_SEEK_CLOUD = "DeepSeek Cloud"
 private const val AI_PROVIDER_LABEL_LOCAL_MLX = "Local model"
+private const val AI_PROVIDER_LABEL_LOCAL_TRIAGE = "Local model (verified)"
 
 @Composable
 fun rememberSelectedThemeMode(): ThemeModeUiModel {
@@ -178,4 +179,5 @@ private fun AiProviderUiModel.toLabel(): String =
     when (this) {
         AiProviderUiModel.DEEP_SEEK_CLOUD -> AI_PROVIDER_LABEL_DEEP_SEEK_CLOUD
         AiProviderUiModel.LOCAL_MLX -> AI_PROVIDER_LABEL_LOCAL_MLX
+        AiProviderUiModel.LOCAL_TRIAGE -> AI_PROVIDER_LABEL_LOCAL_TRIAGE
     }

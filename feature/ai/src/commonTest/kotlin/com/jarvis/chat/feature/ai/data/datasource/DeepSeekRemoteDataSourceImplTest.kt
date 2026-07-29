@@ -229,6 +229,68 @@ class DeepSeekRemoteDataSourceImplTest {
     }
 
     @Test
+    fun requestCompletionStream_onPlainJsonResponse_emitsFullTextAsSingleChunk() = runTest {
+        val body = """{"choices":[{"message":{"role":"assistant","content":"Full reply"}}]}"""
+        val dataSource = dataSourceReturning(body = body)
+
+        val chunks = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList()
+
+        assertEquals(listOf("Full reply"), chunks.map { chunk -> chunk.text })
+    }
+
+    @Test
+    fun requestCompletionStream_onPlainJsonResponse_carriesTriageThrough() = runTest {
+        val body = """
+            {"choices":[{"message":{"role":"assistant","content":"answer"}}],
+             "triage":{"route":"EMERGENCY","status":"OK","confidence":0.98,"explain":"why"}}
+        """.trimIndent()
+        val dataSource = dataSourceReturning(body = body)
+
+        val chunk = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList().single()
+
+        assertEquals("EMERGENCY", chunk.triage?.route)
+        assertEquals("OK", chunk.triage?.status)
+        assertEquals(0.98, chunk.triage?.confidence)
+        assertEquals("why", chunk.triage?.explain)
+    }
+
+    @Test
+    fun requestCompletionStream_onSseFinalChunkWithTriageAndNoDelta_carriesTriageThrough() = runTest {
+        val sseBody = buildString {
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"Hi\"}}]}\n\n")
+            append(
+                "data: {\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]," +
+                    "\"triage\":{\"route\":\"EMERGENCY\",\"route_label\":\"Экстренно\",\"status\":\"OK\"," +
+                    "\"status_label\":\"Ответ проверен\",\"confidence\":0.996,\"crisis\":true," +
+                    "\"spec_version\":\"v2\",\"cost_usd\":0.0001,\"self_check_verdict\":\"AGREE\"}}\n\n",
+            )
+            append("data: [DONE]\n\n")
+        }
+        val dataSource = dataSourceReturning(body = sseBody)
+
+        val chunks = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList()
+
+        assertEquals(listOf("Hi", ""), chunks.map { chunk -> chunk.text })
+        val triageChunk = chunks.last()
+        assertEquals("EMERGENCY", triageChunk.triage?.route)
+        assertEquals("Экстренно", triageChunk.triage?.routeLabel)
+        assertEquals(true, triageChunk.triage?.crisis)
+    }
+
+    @Test
+    fun requestCompletionStream_onSseResponse_leavesTriageNull() = runTest {
+        val sseBody = buildString {
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"Hel\"}}]}\n\n")
+            append("data: [DONE]\n\n")
+        }
+        val dataSource = dataSourceReturning(body = sseBody)
+
+        val chunks = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList()
+
+        assertTrue(chunks.all { chunk -> chunk.triage == null })
+    }
+
+    @Test
     fun requestCompletionStream_on4xxError_throwsClientRequestException() = runTest {
         val client = HttpClient(
             MockEngine { respondError(HttpStatusCode.Unauthorized) },

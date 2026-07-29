@@ -70,7 +70,7 @@ internal class DeepSeekRemoteDataSourceImpl(
             setBody(requestBody)
             timeout { socketTimeoutMillis = STREAM_SOCKET_TIMEOUT_INFINITE_MILLIS }
         }.execute { response ->
-            emitAll(sseChunkFlow(channel = response.bodyAsChannel(), json = json))
+            emitAll(completionStreamChunkFlow(channel = response.bodyAsChannel(), json = json))
         }
     }
 

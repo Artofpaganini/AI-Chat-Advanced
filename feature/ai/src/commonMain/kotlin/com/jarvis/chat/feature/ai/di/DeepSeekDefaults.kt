@@ -12,6 +12,9 @@ object DeepSeekDefaults {
     const val LOCAL_MAX_TOKENS = 900
     const val LOCAL_TEMPERATURE = 0.6
     const val LOCAL_REPETITION_PENALTY = 1.1
+
+    const val TRIAGE_MODEL_ID = "triage-pipeline"
+    const val TRIAGE_BASE_URL = "http://127.0.0.1:8090/v1/"
     const val LOCAL_SYSTEM_PROMPT =
         "Вы — ассистент приложения ALVA для родителей детей от 0 до 3 лет. " +
             "Вы помогаете разобраться в развитии, сне, кормлении и поведении ребёнка, " +

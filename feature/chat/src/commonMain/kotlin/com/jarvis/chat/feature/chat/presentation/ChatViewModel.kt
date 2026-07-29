@@ -99,7 +99,7 @@ internal class ChatViewModel(
             is ChatAction.Ui.DeleteMessageCancelled -> historyDelegate.onDeleteMessageCancelled()
             is ChatAction.Internal.HistoryLoaded -> historyDelegate.onHistoryLoaded(action.messages)
             is ChatAction.Internal.ReplyChunkReceived ->
-                replyDelegate.onReplyChunkReceived(action.messageId, action.textChunk, action.modelId)
+                replyDelegate.onReplyChunkReceived(action.messageId, action.textChunk, action.modelId, action.triage)
             is ChatAction.Internal.ReplyCompleted -> replyDelegate.onReplyCompleted()
             is ChatAction.Internal.ReplyFailed -> replyDelegate.onReplyFailed(action.messageId, action.error)
             is ChatAction.Internal.Exported -> exportImportDelegate.onExported(action.filePath)

@@ -6,8 +6,11 @@ import com.jarvis.chat.feature.ai.data.model.ChatChunkDeltaResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionChunkResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatMessageResponseModel
+import com.jarvis.chat.feature.ai.data.model.TriageResponseModel
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import com.jarvis.chat.feature.ai.domain.model.TriageRouteModel
+import com.jarvis.chat.feature.ai.domain.model.TriageStatusModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -133,6 +136,95 @@ class AiDataMappersTest {
         val chunk = chunkWith(content = null, model = null)
 
         assertNull(chunk.toChatStreamChunkDataModelOrNull())
+    }
+
+    @Test
+    fun toChatStreamChunkDataModelOrNull_withOnlyTriageNoContentNoModel_stillEmitsTriage() {
+        val chunk = ChatCompletionChunkResponseModel(
+            choices = listOf(ChatChunkChoiceResponseModel(delta = ChatChunkDeltaResponseModel(content = null))),
+            triage = TriageResponseModel(route = "EMERGENCY", status = "OK"),
+        )
+
+        val result = chunk.toChatStreamChunkDataModelOrNull()
+
+        assertEquals("", result?.text)
+        assertEquals("EMERGENCY", result?.triage?.route)
+    }
+
+    @Test
+    fun toChatStreamChunkDataModel_carriesTriageFromResponse() {
+        val response = responseWith("answer").copy(
+            triage = TriageResponseModel(route = "EMERGENCY", status = "OK"),
+        )
+
+        val result = response.toChatStreamChunkDataModel()
+
+        assertEquals("answer", result.text)
+        assertEquals("EMERGENCY", result.triage?.route)
+    }
+
+    @Test
+    fun toChatStreamChunkDataModel_withoutTriage_leavesTriageNull() {
+        val response = responseWith("answer")
+
+        val result = response.toChatStreamChunkDataModel()
+
+        assertNull(result.triage)
+    }
+
+    @Test
+    fun toTriageModel_mapsKnownRouteAndStatus() {
+        val response = TriageResponseModel(
+            route = "DOCTOR_SOON",
+            routeLabel = "To the doctor",
+            status = "UNSURE",
+            statusLabel = "Not fully checked",
+            confidence = 0.42,
+            explain = "borderline case",
+        )
+
+        val result = response.toTriageModel()
+
+        assertEquals(TriageRouteModel.DOCTOR_SOON, result.route)
+        assertEquals("To the doctor", result.routeLabel)
+        assertEquals(TriageStatusModel.UNSURE, result.status)
+        assertEquals("Not fully checked", result.statusLabel)
+        assertEquals(0.42, result.confidence)
+        assertEquals("borderline case", result.explain)
+    }
+
+    @Test
+    fun toTriageModel_onUnknownRouteAndStatus_fallsBackToUnknown() {
+        val response = TriageResponseModel(route = "NEW_ROUTE", status = "NEW_STATUS")
+
+        val result = response.toTriageModel()
+
+        assertEquals(TriageRouteModel.UNKNOWN, result.route)
+        assertEquals(TriageStatusModel.UNKNOWN, result.status)
+    }
+
+    @Test
+    fun toTriageModel_mapsParentSupportAndDataInsightRoutes() {
+        assertEquals(TriageRouteModel.PARENT_SUPPORT, TriageResponseModel(route = "PARENT_SUPPORT").toTriageModel().route)
+        assertEquals(TriageRouteModel.DATA_INSIGHT, TriageResponseModel(route = "DATA_INSIGHT").toTriageModel().route)
+    }
+
+    @Test
+    fun toTriageModel_mapsCrisisFlag() {
+        assertEquals(true, TriageResponseModel(crisis = true).toTriageModel().crisis)
+        assertEquals(false, TriageResponseModel(crisis = null).toTriageModel().crisis)
+    }
+
+    @Test
+    fun toTriageModel_onMissingFields_defaultsToEmptyValues() {
+        val response = TriageResponseModel()
+
+        val result = response.toTriageModel()
+
+        assertEquals("", result.routeLabel)
+        assertEquals("", result.statusLabel)
+        assertEquals(0.0, result.confidence)
+        assertEquals("", result.explain)
     }
 
     private fun chunkWith(content: String?, model: String? = null): ChatCompletionChunkResponseModel =

@@ -1,6 +1,9 @@
 package com.jarvis.chat.feature.chat.data.mapper
 
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import com.jarvis.chat.feature.ai.domain.model.TriageModel
+import com.jarvis.chat.feature.ai.domain.model.TriageRouteModel
+import com.jarvis.chat.feature.ai.domain.model.TriageStatusModel
 import com.jarvis.chat.feature.chat.data.model.ChatMessageDataModel
 import com.jarvis.chat.feature.chat.domain.mapper.toChatMessageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
@@ -62,6 +65,42 @@ class ChatDataMappersTest {
         val result = dataModel.toHistoryMessageModel()
 
         assertEquals("deepseek-chat", result.modelId)
+    }
+
+    @Test
+    fun modelToDataAndBack_roundTripsTriage() {
+        val original = HistoryMessageModel(
+            id = "m1",
+            author = MessageAuthor.ASSISTANT,
+            text = "answer",
+            isFavorite = false,
+            timestamp = TEST_TIMESTAMP,
+            triage = TriageModel(
+                route = TriageRouteModel.EMERGENCY,
+                routeLabel = "Emergency",
+                status = TriageStatusModel.OK,
+                statusLabel = "Checked",
+                confidence = 0.98,
+                explain = "why",
+                crisis = true,
+            ),
+        )
+
+        val roundTripped = original.toChatMessageDataModel().toHistoryMessageModel()
+
+        assertEquals(original, roundTripped)
+    }
+
+    @Test
+    fun chatMessageDataModel_decodedFromLegacyJsonWithoutTriage_defaultsToNull() {
+        val legacyJson = """{"id":"m1","author":"ASSISTANT","text":"answer","isFavorite":false,"timestamp":1}"""
+
+        val decoded = Json { ignoreUnknownKeys = true }.decodeFromString(
+            ChatMessageDataModel.serializer(),
+            legacyJson,
+        )
+
+        assertNull(decoded.triage)
     }
 
     @Test

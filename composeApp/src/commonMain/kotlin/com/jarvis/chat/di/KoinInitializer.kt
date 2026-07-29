@@ -52,6 +52,16 @@ fun initKoin(appConfig: AppConfig) {
                                 temperature = DeepSeekDefaults.LOCAL_TEMPERATURE,
                                 repetitionPenalty = DeepSeekDefaults.LOCAL_REPETITION_PENALTY,
                             )
+                            AiProviderTypeModel.LOCAL_TRIAGE -> AiProviderConfigModel(
+                                baseUrl = appConfig.triageBaseUrl,
+                                modelId = DeepSeekDefaults.TRIAGE_MODEL_ID,
+                                systemPrompt = DeepSeekDefaults.LOCAL_SYSTEM_PROMPT,
+                                isApiKeyRequired = false,
+                                adapterPath = null,
+                                maxTokens = null,
+                                temperature = null,
+                                repetitionPenalty = null,
+                            )
                         }
                     }
                 }
@@ -76,4 +86,5 @@ private fun AiProviderModel.toAiProviderType(): AiProviderTypeModel =
     when (this) {
         AiProviderModel.DEEP_SEEK_CLOUD -> AiProviderTypeModel.CLOUD_DEEP_SEEK
         AiProviderModel.LOCAL_MLX -> AiProviderTypeModel.LOCAL_MLX
+        AiProviderModel.LOCAL_TRIAGE -> AiProviderTypeModel.LOCAL_TRIAGE
     }

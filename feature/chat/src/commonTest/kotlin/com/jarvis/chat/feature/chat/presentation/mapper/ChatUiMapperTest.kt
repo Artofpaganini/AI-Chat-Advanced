@@ -2,11 +2,17 @@ package com.jarvis.chat.feature.chat.presentation.mapper
 
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import com.jarvis.chat.feature.ai.domain.model.TriageModel
+import com.jarvis.chat.feature.ai.domain.model.TriageRouteModel
+import com.jarvis.chat.feature.ai.domain.model.TriageStatusModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.presentation.model.ChatState
+import com.jarvis.chat.feature.chat.presentation.model.TriageRouteUiModel
+import com.jarvis.chat.feature.chat.presentation.model.TriageStatusUiModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ChatUiMapperTest {
@@ -320,6 +326,56 @@ class ChatUiMapperTest {
 
         assertEquals(null, uiMessage.modelId)
     }
+
+    @Test
+    fun map_assistantMessageWithTriage_exposesTriageUiModel() {
+        val triage = testTriage()
+        val state = ChatState(
+            messages = listOf(
+                assistantMessage(id = "a1", text = "answer", isFavorite = false).copy(triage = triage),
+            ),
+        )
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertEquals(TriageRouteUiModel.EMERGENCY, uiMessage.triage?.route)
+        assertEquals("Emergency", uiMessage.triage?.routeLabel)
+        assertEquals(TriageStatusUiModel.OK, uiMessage.triage?.status)
+        assertEquals("Checked", uiMessage.triage?.statusLabel)
+        assertEquals(98, uiMessage.triage?.confidencePercent)
+        assertEquals("why", uiMessage.triage?.explain)
+    }
+
+    @Test
+    fun map_assistantMessageWithoutTriage_leavesTriageNull() {
+        val state = ChatState(messages = listOf(assistantMessage(id = "a1", text = "answer", isFavorite = false)))
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertNull(uiMessage.triage)
+    }
+
+    @Test
+    fun map_userMessageWithTriage_neverExposesTriageOnUiModel() {
+        val state = ChatState(
+            messages = listOf(userMessage(id = "u1", text = "question").copy(triage = testTriage())),
+        )
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertNull(uiMessage.triage)
+    }
+
+    private fun testTriage(): TriageModel =
+        TriageModel(
+            route = TriageRouteModel.EMERGENCY,
+            routeLabel = "Emergency",
+            status = TriageStatusModel.OK,
+            statusLabel = "Checked",
+            confidence = 0.98,
+            explain = "why",
+            crisis = false,
+        )
 
     private fun userMessage(id: String, text: String, timestamp: Long = TEST_TIMESTAMP): HistoryMessageModel =
         HistoryMessageModel(

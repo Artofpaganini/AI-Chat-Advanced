@@ -10,4 +10,5 @@ internal data class ChatMessageUiModel(
     val canFavorite: Boolean,
     val timeLabel: String,
     val modelId: String?,
+    val triage: TriageUiModel?,
 )

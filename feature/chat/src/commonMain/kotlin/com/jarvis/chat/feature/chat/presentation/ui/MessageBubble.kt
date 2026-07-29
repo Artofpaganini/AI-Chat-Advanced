@@ -31,8 +31,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.text.font.FontWeight
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
+import com.jarvis.chat.feature.chat.presentation.model.TriageRouteUiModel
+import com.jarvis.chat.feature.chat.presentation.model.TriageStatusUiModel
+import com.jarvis.chat.feature.chat.presentation.model.TriageUiModel
 import kotlinx.coroutines.launch
 
 private const val SPEAK_CONTENT_DESCRIPTION = "Speak message aloud"
@@ -42,6 +47,12 @@ private const val FAVORITE_ACTIVE_TEXT = "Remove from favorites"
 private const val FAVORITE_INACTIVE_TEXT = "Add to favorites"
 private const val COPY_MENU_ITEM_TEXT = "Copy"
 private const val DELETE_MENU_ITEM_TEXT = "Delete"
+private const val TRIAGE_LABEL_SEPARATOR = " · "
+private const val TRIAGE_CONFIDENCE_PREFIX = "Уверенность: "
+private const val TRIAGE_CONFIDENCE_SUFFIX = "%"
+private const val TRIAGE_UNSURE_WARNING = "Не стоит полностью доверять этому ответу"
+private const val TRIAGE_FAIL_WARNING = "Ассистент отказался отвечать"
+private const val TRIAGE_CRISIS_WARNING = "Кризисная ситуация, нужно немедленное внимание"
 
 @Composable
 internal fun MessageBubble(
@@ -112,6 +123,9 @@ internal fun MessageBubble(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                }
+                message.triage?.let { triage ->
+                    TriageInfo(triage = triage)
                 }
                 MessageActions(
                     message = message,
@@ -216,3 +230,84 @@ private fun MessageActions(
         }
     }
 }
+
+@Composable
+private fun TriageInfo(triage: TriageUiModel, modifier: Modifier = Modifier) {
+    if (triage.crisis) {
+        Surface(
+            modifier = modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            shape = MaterialTheme.shapes.small,
+        ) {
+            Column(modifier = Modifier.padding(ChatDimens.spacingXs)) {
+                Text(
+                    text = TRIAGE_CRISIS_WARNING,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    fontWeight = FontWeight.Bold,
+                )
+                TriageInfoBody(
+                    triage = triage,
+                    routeColor = MaterialTheme.colorScheme.onErrorContainer,
+                    mutedColor = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+        }
+    } else {
+        Column(modifier = modifier) {
+            TriageInfoBody(
+                triage = triage,
+                routeColor = triage.route.toRouteColor(),
+                mutedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun TriageInfoBody(triage: TriageUiModel, routeColor: Color, mutedColor: Color) {
+    Text(
+        text = "${triage.routeLabel}$TRIAGE_LABEL_SEPARATOR${triage.statusLabel}",
+        style = MaterialTheme.typography.labelSmall,
+        color = routeColor,
+    )
+    Text(
+        text = "$TRIAGE_CONFIDENCE_PREFIX${triage.confidencePercent}$TRIAGE_CONFIDENCE_SUFFIX",
+        style = MaterialTheme.typography.labelSmall,
+        color = mutedColor,
+    )
+    when (triage.status) {
+        TriageStatusUiModel.UNSURE -> Text(
+            text = TRIAGE_UNSURE_WARNING,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (triage.crisis) mutedColor else MaterialTheme.colorScheme.error,
+            fontWeight = FontWeight.Bold,
+        )
+        TriageStatusUiModel.FAIL -> Text(
+            text = TRIAGE_FAIL_WARNING,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (triage.crisis) mutedColor else MaterialTheme.colorScheme.error,
+            fontWeight = FontWeight.Bold,
+        )
+        TriageStatusUiModel.OK, TriageStatusUiModel.UNKNOWN -> Unit
+    }
+    Text(
+        text = triage.explain,
+        style = MaterialTheme.typography.labelSmall,
+        color = mutedColor,
+    )
+}
+
+@Composable
+private fun TriageRouteUiModel.toRouteColor(): Color =
+    when (this) {
+        TriageRouteUiModel.EMERGENCY -> MaterialTheme.colorScheme.error
+        TriageRouteUiModel.DOCTOR_SOON -> MaterialTheme.colorScheme.tertiary
+        TriageRouteUiModel.PARENT_SUPPORT -> MaterialTheme.colorScheme.secondary
+        TriageRouteUiModel.SELF_CARE,
+        TriageRouteUiModel.OFF_TOPIC,
+        TriageRouteUiModel.DATA_INSIGHT,
+        TriageRouteUiModel.UNKNOWN,
+        -> MaterialTheme.colorScheme.onSurfaceVariant
+    }

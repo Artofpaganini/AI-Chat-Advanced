@@ -137,6 +137,22 @@ class SseChunkReaderTest {
     }
 
     @Test
+    fun sseChunkFlow_onFinalChunkCarryingOnlyTriage_stillEmitsTriage() = runTest {
+        val sse = """
+            data: {"choices":[{"delta":{"content":"Hel"}}]}
+
+            data: {"choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"triage":{"route":"EMERGENCY","status":"OK"}}
+
+            data: [DONE]
+
+        """.trimIndent()
+
+        val chunks = sseChunkFlow(channel = ByteReadChannel(sse), json = testJson).toList()
+
+        assertEquals(listOf(null, "EMERGENCY"), chunks.map { chunk -> chunk.triage?.route })
+    }
+
+    @Test
     fun sseChunkFlow_onModelOnlyChunkWithoutDeltaContent_stillEmitsModelId() = runTest {
         val sse = """
             data: {"choices":[{"delta":{"role":"assistant"}}],"model":"deepseek-chat"}

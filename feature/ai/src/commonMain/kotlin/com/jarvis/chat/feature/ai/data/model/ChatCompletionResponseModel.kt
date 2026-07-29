@@ -6,4 +6,5 @@ import kotlinx.serialization.Serializable
 internal data class ChatCompletionResponseModel(
     val choices: List<ChatChoiceResponseModel>,
     val model: String? = null,
+    val triage: TriageResponseModel? = null,
 )

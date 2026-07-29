@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.chat.presentation.model
 
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
+import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 
 internal sealed interface ChatAction {
@@ -54,6 +55,7 @@ internal sealed interface ChatAction {
             val messageId: String,
             val textChunk: String,
             val modelId: String? = null,
+            val triage: TriageModel? = null,
         ) : Internal
 
         data object ReplyCompleted : Internal

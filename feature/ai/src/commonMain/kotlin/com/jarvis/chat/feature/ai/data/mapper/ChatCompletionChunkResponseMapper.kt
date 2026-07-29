@@ -12,9 +12,9 @@ internal fun ChatCompletionChunkResponseModel.toModelIdOrNull(): String? =
 internal fun ChatCompletionChunkResponseModel.toChatStreamChunkDataModelOrNull(): ChatStreamChunkDataModel? {
     val text = toDeltaTextOrNull().orEmpty()
     val modelId = toModelIdOrNull()
-    return if (text.isEmpty() && modelId == null) {
+    return if (text.isEmpty() && modelId == null && triage == null) {
         null
     } else {
-        ChatStreamChunkDataModel(text = text, modelId = modelId)
+        ChatStreamChunkDataModel(text = text, modelId = modelId, triage = triage)
     }
 }

@@ -3,6 +3,7 @@ package com.jarvis.chat.feature.chat.presentation.delegate
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.chat.domain.mapper.toChatMessageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
@@ -83,12 +84,13 @@ internal class ChatReplyDelegate(
         }
     }
 
-    fun onReplyChunkReceived(messageId: String, textChunk: String, modelId: String?) {
+    fun onReplyChunkReceived(messageId: String, textChunk: String, modelId: String?, triage: TriageModel?) {
         val history = currentState().messages.map { message ->
             if (message.id == messageId) {
                 message.copy(
                     text = message.text + textChunk,
                     modelId = modelId ?: message.modelId,
+                    triage = triage ?: message.triage,
                 )
             } else {
                 message
@@ -133,6 +135,7 @@ internal class ChatReplyDelegate(
                                 messageId = assistantMessage.id,
                                 textChunk = chunk.text,
                                 modelId = chunk.modelId,
+                                triage = chunk.triage,
                             ),
                         )
                     }
