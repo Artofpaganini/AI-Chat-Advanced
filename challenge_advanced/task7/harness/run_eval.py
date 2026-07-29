@@ -7,8 +7,14 @@
 Если их не задать, критик работает на модели основного прохода - поведение не меняется.
 Деньги считаются раздельно: каждая модель по своей цене.
 
+Дообученную модель меряем через флаг --adapters: путь к каталогу LoRA уходит полем adapters
+в теле каждого запроса. Флаг --adapter-path у mlx_lm.server молча игнорируется, поэтому только так.
+У критика свой флаг --critic-adapters.
+
 Запуск: python3 harness/run_eval.py --dry-run
         python3 harness/run_eval.py --mode both --workers 4
+        python3 harness/run_eval.py --mode pipeline --base-url http://127.0.0.1:8080/v1 \\
+            --model mlx-community/Qwen3-1.7B-4bit --adapters ~/models/alva-triage-qwen-lora
         python3 harness/run_eval.py --mode pipeline --self-check-trigger risk
         python3 harness/run_eval.py --mode pipeline --model gpt-4o-mini \\
             --base-url https://api.openai.com/v1 --key-env OPENAI_API_KEY \\
@@ -66,9 +72,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model", default=spec7.DEFAULT_MODEL)
     parser.add_argument("--base-url", dest="base_url", default=spec7.DEFAULT_BASE_URL)
     parser.add_argument("--key-env", dest="key_env", default=spec7.DEFAULT_KEY_ENV)
+    parser.add_argument("--adapters", dest="adapters", default="")
     parser.add_argument("--critic-model", dest="critic_model", default="")
     parser.add_argument("--critic-base-url", dest="critic_base_url", default="")
     parser.add_argument("--critic-key-env", dest="critic_key_env", default="")
+    parser.add_argument("--critic-adapters", dest="critic_adapters", default="")
     parser.add_argument("--out-suffix", dest="out_suffix", default="")
     parser.add_argument("--timeout", type=int, default=spec7.REQUEST_TIMEOUT_SECONDS)
     parser.add_argument("--thinking", dest="thinking", action="store_true")
@@ -86,10 +94,18 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def critic_endpoint(args: argparse.Namespace) -> Dict[str, str]:
+    model = args.critic_model or args.model
+    base_url = args.critic_base_url or args.base_url
+    key_env = args.critic_key_env or args.key_env
+    same_target = model == args.model and base_url == args.base_url and key_env == args.key_env
+    adapters = args.critic_adapters
+    if not adapters and same_target:
+        adapters = args.adapters
     return {
-        "model": args.critic_model or args.model,
-        "base_url": args.critic_base_url or args.base_url,
-        "key_env": args.critic_key_env or args.key_env,
+        "model": model,
+        "base_url": base_url,
+        "key_env": key_env,
+        "adapters": adapters,
     }
 
 
@@ -99,7 +115,14 @@ def critic_is_separate(args: argparse.Namespace) -> bool:
         endpoint["model"] != args.model
         or endpoint["base_url"] != args.base_url
         or endpoint["key_env"] != args.key_env
+        or endpoint["adapters"] != args.adapters
     )
+
+
+def describe_adapter(path: str) -> str:
+    if not path:
+        return "не применяется, работает базовая модель"
+    return "%s - уходит полем %s в теле каждого запроса" % (path, spec7.ADAPTERS_PAYLOAD_KEY)
 
 
 def describe_critic_endpoint(args: argparse.Namespace) -> str:
@@ -117,6 +140,27 @@ def warn_shared_key_env(args: argparse.Namespace) -> None:
         "ВНИМАНИЕ: критик смотрит на другой адрес (%s), но ключ берётся из той же переменной %s, "
         "что и у основной модели. Если это разные провайдеры, укажите --critic-key-env.\n"
         % (endpoint["base_url"], endpoint["key_env"])
+    )
+
+
+def build_extra_payload(thinking_off: bool, adapters: str) -> Optional[Dict[str, Any]]:
+    payload: Dict[str, Any] = {}
+    if thinking_off:
+        payload.update(spec7.NO_THINKING_PAYLOAD)
+    if adapters:
+        payload[spec7.ADAPTERS_PAYLOAD_KEY] = adapters
+    if not payload:
+        return None
+    return payload
+
+
+def warn_missing_adapter(title: str, path: str) -> None:
+    if not path or os.path.isdir(path):
+        return
+    sys.stderr.write(
+        "ВНИМАНИЕ: каталог адаптера %s (%s) не найден на этой машине. "
+        "Если сервер запущен здесь же, запрос уйдёт с несуществующим путём и модель ответит без адаптера.\n"
+        % (title, path)
     )
 
 
@@ -140,7 +184,7 @@ def build_critic_config(
         base_url=endpoint["base_url"],
         api_key=api_key,
         timeout=args.timeout,
-        extra_payload=dict(spec7.NO_THINKING_PAYLOAD) if thinking_off else None,
+        extra_payload=build_extra_payload(thinking_off, endpoint["adapters"]),
     )
     return config, None
 
@@ -431,8 +475,10 @@ def print_dry_run(
     write_line("Инференс", location)
     write_line("Переменная ключа", args.key_env)
     write_line("Ключ", describe_key_for(location, args.key_env))
+    write_line("Адаптер", describe_adapter(args.adapters))
     print_price_lines("Цена модели", "Источник цены", main)
     write_line("Критик", describe_critic_endpoint(args))
+    write_line("Адаптер критика", describe_adapter(critic_endpoint(args)["adapters"]))
     write_line("URL критика", "POST %s" % llm_client.completions_url(critic["base_url"]))
     write_line("Инференс критика", critic["location"])
     write_line(
@@ -553,7 +599,9 @@ def run_one(
             return pipeline.run_baseline(case_text, client_cfg, case_id)
         return pipeline.run_pipeline(case_text, client_cfg, case_id, trigger, critic_cfg)
     except Exception as unexpected_error:
-        return pipeline.failed_decision(case_id, mode, "сбой прогона кейса: %s" % unexpected_error)
+        return pipeline.failed_decision(
+            case_id, mode, "сбой прогона кейса: %s" % unexpected_error, client_cfg, critic_cfg
+        )
 
 
 def describe_key_for(location: str, key_env: str) -> str:
@@ -674,12 +722,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         base_url=args.base_url,
         api_key=api_key,
         timeout=args.timeout,
-        extra_payload=dict(spec7.NO_THINKING_PAYLOAD) if thinking_off else None,
+        extra_payload=build_extra_payload(thinking_off, args.adapters),
     )
     sys.stdout.write(
         "Модель: %s, инференс: %s, ключ: %s, таймаут: %d с\n"
         % (args.model, location, describe_key_for(location, args.key_env), args.timeout)
     )
+    sys.stdout.write("Адаптер: %s\n" % describe_adapter(client_cfg.adapter))
+    warn_missing_adapter("основной модели", client_cfg.adapter)
     sys.stdout.write(
         "max_tokens: %d, размышление модели: %s\n"
         % (client_cfg.max_tokens, "выключено" if thinking_off else "как у модели по умолчанию")
@@ -689,6 +739,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         sys.stderr.write(critic_problem + "\n")
         return EXIT_CONFIG_ERROR
     sys.stdout.write("Критик: %s\n" % describe_critic_endpoint(args))
+    critic_adapter = critic_cfg.adapter if critic_cfg is not None else client_cfg.adapter
+    sys.stdout.write("Адаптер критика: %s\n" % describe_adapter(critic_adapter))
+    warn_missing_adapter("критика", critic_adapter)
     if critic_cfg is not None:
         sys.stdout.write(
             "Критик, инференс: %s, ключ: %s\n"

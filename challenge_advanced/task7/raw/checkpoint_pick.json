@@ -1,0 +1,3833 @@
+{
+  "model": "mlx-community/Qwen3-1.7B-4bit",
+  "valid": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task7/data/mlx_triage/valid.jsonl",
+  "n": 52,
+  "checkpoints": {
+    "base": {
+      "n": 52,
+      "accuracy": 0.0,
+      "missed_emergency": 18,
+      "over_escalated": 0,
+      "valid_json": 0,
+      "valid_json_rate": 0.0,
+      "hard_violations": 52,
+      "fenced": 0,
+      "think_blocks": 5,
+      "codes": {
+        "C_JSON": 52
+      },
+      "confusion": {
+        "OFF_TOPIC->None": 5,
+        "EMERGENCY->None": 18,
+        "DOCTOR_SOON->None": 13,
+        "SELF_CARE->None": 16
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": null,
+          "violations": [
+            "C_JSON"
+          ]
+        }
+      ],
+      "seconds": 145.5,
+      "adapter": null
+    },
+    "25": {
+      "n": 52,
+      "accuracy": 0.6154,
+      "missed_emergency": 10,
+      "over_escalated": 1,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 4,
+        "EMERGENCY->EMERGENCY": 8,
+        "DOCTOR_SOON->SELF_CARE": 3,
+        "EMERGENCY->DOCTOR_SOON": 10,
+        "SELF_CARE->SELF_CARE": 10,
+        "DOCTOR_SOON->DOCTOR_SOON": 10,
+        "SELF_CARE->DOCTOR_SOON": 5,
+        "OFF_TOPIC->SELF_CARE": 1,
+        "SELF_CARE->EMERGENCY": 1
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "EMERGENCY",
+          "violations": []
+        }
+      ],
+      "seconds": 62.9,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter25"
+    },
+    "50": {
+      "n": 52,
+      "accuracy": 0.75,
+      "missed_emergency": 0,
+      "over_escalated": 6,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 4,
+        "EMERGENCY->EMERGENCY": 18,
+        "DOCTOR_SOON->SELF_CARE": 4,
+        "SELF_CARE->SELF_CARE": 13,
+        "DOCTOR_SOON->DOCTOR_SOON": 4,
+        "DOCTOR_SOON->EMERGENCY": 5,
+        "SELF_CARE->DOCTOR_SOON": 2,
+        "OFF_TOPIC->SELF_CARE": 1,
+        "SELF_CARE->EMERGENCY": 1
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 64.2,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter50"
+    },
+    "75": {
+      "n": 52,
+      "accuracy": 0.6923,
+      "missed_emergency": 5,
+      "over_escalated": 4,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 4,
+        "EMERGENCY->EMERGENCY": 13,
+        "DOCTOR_SOON->SELF_CARE": 3,
+        "EMERGENCY->DOCTOR_SOON": 5,
+        "SELF_CARE->SELF_CARE": 13,
+        "DOCTOR_SOON->DOCTOR_SOON": 6,
+        "DOCTOR_SOON->EMERGENCY": 4,
+        "SELF_CARE->DOCTOR_SOON": 3,
+        "OFF_TOPIC->SELF_CARE": 1
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 66.6,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter75"
+    },
+    "100": {
+      "n": 52,
+      "accuracy": 0.7692,
+      "missed_emergency": 0,
+      "over_escalated": 6,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 4,
+        "EMERGENCY->EMERGENCY": 18,
+        "DOCTOR_SOON->SELF_CARE": 3,
+        "SELF_CARE->SELF_CARE": 13,
+        "DOCTOR_SOON->DOCTOR_SOON": 5,
+        "DOCTOR_SOON->EMERGENCY": 5,
+        "SELF_CARE->DOCTOR_SOON": 2,
+        "OFF_TOPIC->SELF_CARE": 1,
+        "SELF_CARE->EMERGENCY": 1
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 66.3,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter100"
+    },
+    "125": {
+      "n": 52,
+      "accuracy": 0.7692,
+      "missed_emergency": 1,
+      "over_escalated": 5,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 5,
+        "EMERGENCY->EMERGENCY": 17,
+        "DOCTOR_SOON->SELF_CARE": 5,
+        "SELF_CARE->SELF_CARE": 14,
+        "DOCTOR_SOON->DOCTOR_SOON": 4,
+        "DOCTOR_SOON->EMERGENCY": 4,
+        "EMERGENCY->DOCTOR_SOON": 1,
+        "SELF_CARE->DOCTOR_SOON": 1,
+        "SELF_CARE->EMERGENCY": 1
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 68.1,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter125"
+    },
+    "150": {
+      "n": 52,
+      "accuracy": 0.7692,
+      "missed_emergency": 1,
+      "over_escalated": 4,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 4,
+        "EMERGENCY->EMERGENCY": 17,
+        "DOCTOR_SOON->SELF_CARE": 3,
+        "SELF_CARE->SELF_CARE": 13,
+        "DOCTOR_SOON->DOCTOR_SOON": 6,
+        "DOCTOR_SOON->EMERGENCY": 4,
+        "EMERGENCY->DOCTOR_SOON": 1,
+        "SELF_CARE->DOCTOR_SOON": 3,
+        "OFF_TOPIC->SELF_CARE": 1
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 67.1,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter150"
+    },
+    "175": {
+      "n": 52,
+      "accuracy": 0.7692,
+      "missed_emergency": 0,
+      "over_escalated": 5,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 4,
+        "EMERGENCY->EMERGENCY": 18,
+        "DOCTOR_SOON->SELF_CARE": 4,
+        "SELF_CARE->SELF_CARE": 13,
+        "DOCTOR_SOON->DOCTOR_SOON": 5,
+        "DOCTOR_SOON->EMERGENCY": 4,
+        "SELF_CARE->DOCTOR_SOON": 2,
+        "OFF_TOPIC->SELF_CARE": 1,
+        "SELF_CARE->EMERGENCY": 1
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 65.8,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter175"
+    },
+    "200": {
+      "n": 52,
+      "accuracy": 0.7885,
+      "missed_emergency": 1,
+      "over_escalated": 4,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 5,
+        "EMERGENCY->EMERGENCY": 17,
+        "DOCTOR_SOON->SELF_CARE": 4,
+        "SELF_CARE->SELF_CARE": 14,
+        "DOCTOR_SOON->DOCTOR_SOON": 5,
+        "DOCTOR_SOON->EMERGENCY": 4,
+        "EMERGENCY->DOCTOR_SOON": 1,
+        "SELF_CARE->DOCTOR_SOON": 2
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 67.1,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter200"
+    },
+    "225": {
+      "n": 52,
+      "accuracy": 0.7692,
+      "missed_emergency": 1,
+      "over_escalated": 4,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 5,
+        "EMERGENCY->EMERGENCY": 17,
+        "DOCTOR_SOON->SELF_CARE": 4,
+        "SELF_CARE->SELF_CARE": 13,
+        "DOCTOR_SOON->DOCTOR_SOON": 5,
+        "DOCTOR_SOON->EMERGENCY": 4,
+        "EMERGENCY->DOCTOR_SOON": 1,
+        "SELF_CARE->DOCTOR_SOON": 3
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 68.4,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter225"
+    },
+    "250": {
+      "n": 52,
+      "accuracy": 0.7692,
+      "missed_emergency": 0,
+      "over_escalated": 4,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 4,
+        "EMERGENCY->EMERGENCY": 18,
+        "DOCTOR_SOON->SELF_CARE": 7,
+        "SELF_CARE->SELF_CARE": 16,
+        "DOCTOR_SOON->DOCTOR_SOON": 2,
+        "DOCTOR_SOON->EMERGENCY": 4,
+        "OFF_TOPIC->SELF_CARE": 1
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 67.3,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter250"
+    },
+    "275": {
+      "n": 52,
+      "accuracy": 0.8269,
+      "missed_emergency": 1,
+      "over_escalated": 4,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 5,
+        "EMERGENCY->EMERGENCY": 17,
+        "DOCTOR_SOON->SELF_CARE": 1,
+        "SELF_CARE->SELF_CARE": 13,
+        "DOCTOR_SOON->DOCTOR_SOON": 8,
+        "DOCTOR_SOON->EMERGENCY": 4,
+        "EMERGENCY->DOCTOR_SOON": 1,
+        "SELF_CARE->DOCTOR_SOON": 3
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 68.6,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter275"
+    },
+    "300": {
+      "n": 52,
+      "accuracy": 0.8269,
+      "missed_emergency": 1,
+      "over_escalated": 4,
+      "valid_json": 52,
+      "valid_json_rate": 1.0,
+      "hard_violations": 0,
+      "fenced": 0,
+      "think_blocks": 52,
+      "codes": {},
+      "confusion": {
+        "OFF_TOPIC->OFF_TOPIC": 5,
+        "EMERGENCY->EMERGENCY": 17,
+        "DOCTOR_SOON->SELF_CARE": 1,
+        "SELF_CARE->SELF_CARE": 13,
+        "DOCTOR_SOON->DOCTOR_SOON": 8,
+        "DOCTOR_SOON->EMERGENCY": 4,
+        "EMERGENCY->DOCTOR_SOON": 1,
+        "SELF_CARE->DOCTOR_SOON": 3
+      },
+      "per_case": [
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "OFF_TOPIC",
+          "predicted": "OFF_TOPIC",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "EMERGENCY",
+          "predicted": "EMERGENCY",
+          "violations": []
+        },
+        {
+          "gold": "DOCTOR_SOON",
+          "predicted": "DOCTOR_SOON",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        },
+        {
+          "gold": "SELF_CARE",
+          "predicted": "SELF_CARE",
+          "violations": []
+        }
+      ],
+      "seconds": 68.2,
+      "adapter": "/var/folders/nc/7p8c57151y5dpvcclc23540w0000gq/T/triage_ckpt/iter300"
+    }
+  }
+}

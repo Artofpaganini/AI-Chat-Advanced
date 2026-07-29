@@ -53,6 +53,15 @@ class ClientConfig:
         return self.location == spec7.LOCATION_LOCAL
 
     @property
+    def adapter(self) -> str:
+        if not self.extra_payload:
+            return ""
+        value = self.extra_payload.get(spec7.ADAPTERS_PAYLOAD_KEY)
+        if not isinstance(value, str):
+            return ""
+        return value
+
+    @property
     def max_tokens(self) -> int:
         if self.is_local:
             return spec7.LOCAL_MAX_TOKENS

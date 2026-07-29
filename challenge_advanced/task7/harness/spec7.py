@@ -111,6 +111,7 @@ LOCATION_LOCAL = "local"
 LOCAL_HOSTS = ("127.0.0.1", "localhost", "0.0.0.0", "::1")
 
 NO_THINKING_PAYLOAD = {"chat_template_kwargs": {"enable_thinking": False}}
+ADAPTERS_PAYLOAD_KEY = "adapters"
 LOCAL_MAX_TOKENS = 700
 
 OK_THRESHOLD = 0.75

@@ -78,6 +78,8 @@ class Decision:
     critic_price_source: str = ""
     critic_usage_total: Dict[str, int] = field(default_factory=llm_client.empty_usage)
     critic_cost_usd: float = 0.0
+    adapter: str = ""
+    critic_adapter: str = ""
 
 
 @dataclass
@@ -250,6 +252,7 @@ def run_baseline(case_text: str, client_cfg: llm_client.ClientConfig, case_id: s
         price_source=price_source_of(client_cfg),
         self_check_trigger=spec7.SELF_CHECK_TRIGGER_NONE,
         risk_markers=detect_risk_markers(case_text),
+        adapter=client_cfg.adapter,
     )
 
 
@@ -280,6 +283,8 @@ def rejected_by_input(
         critic_model=judge.model,
         critic_inference_location=judge.location,
         critic_price_source=price_source_of(judge),
+        adapter=client_cfg.adapter,
+        critic_adapter=judge.adapter,
     )
 
 
@@ -479,6 +484,8 @@ def run_pipeline(
             critic_model=judge.model,
             critic_inference_location=judge.location,
             critic_price_source=price_source_of(judge),
+            adapter=client_cfg.adapter,
+            critic_adapter=judge.adapter,
         )
 
     route_final = vote_route(votes)
@@ -564,14 +571,27 @@ def run_pipeline(
         critic_price_source=price_source_of(judge),
         critic_usage_total=critic_usage_total,
         critic_cost_usd=critic_cost,
+        adapter=client_cfg.adapter,
+        critic_adapter=judge.adapter,
     )
 
 
-def failed_decision(case_id: str, mode: str, error_text: str) -> Decision:
+def failed_decision(
+    case_id: str,
+    mode: str,
+    error_text: str,
+    client_cfg: Optional[llm_client.ClientConfig] = None,
+    critic_cfg: Optional[llm_client.ClientConfig] = None,
+) -> Decision:
+    judge = None
+    if client_cfg is not None and mode == spec7.MODE_PIPELINE:
+        judge = critic_config(client_cfg, critic_cfg)
     return Decision(
         case_id=case_id,
         mode=mode,
         route=None,
         status=spec7.STATUS_FAIL if mode == spec7.MODE_PIPELINE else spec7.STATUS_OK,
         error=error_text,
+        adapter=client_cfg.adapter if client_cfg is not None else "",
+        critic_adapter=judge.adapter if judge is not None else "",
     )

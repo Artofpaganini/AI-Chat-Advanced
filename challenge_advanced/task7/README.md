@@ -78,6 +78,24 @@
 | `pipeline_runs_qwen_samecritic.jsonl`, `2` | Qwen3-1.7B | Qwen3-1.7B | risk | Самопроверка слабой моделью |
 | `pipeline_runs_qwen_crosscritic.jsonl`, `2` | Qwen3-1.7B | deepseek | risk | Чужой критик на слабой модели — лучший результат |
 
+### Прогоны дообученной модели
+
+Работа сверх задания: задание требует решения без fine-tuning, и основная часть ему соответствует.
+Дообучение проверяет границу подхода — см. `REPORT.md` разд. 4Ж.
+
+| Файл | Что за прогон |
+|---|---|
+| `baseline_runs_tuned_0000025/50/150/300.jsonl` | Четыре чекпоинта, набор 260, ранг 16. Лучший — 300 |
+| `baseline_runs_tuned300_r2/r3.jsonl` | Повторы лучшего чекпоинта, проверка устойчивости |
+| `baseline_runs_long500.jsonl` | 500 итераций вместо 300 — стало хуже |
+| `baseline_runs_full400/0000500/0000600.jsonl` | Набор 1019, ранг 8. Прироста нет |
+| `pipeline_runs_tuned_pipe.jsonl`, `2`, `3` | Дообученная модель под полным контролем, три прогона |
+
+Обучающие наборы: `data/train_triage.jsonl` (260, на нём лучший результат) и
+`data/train_triage_full.jsonl` (1019, собран из `data/parts/`). Логи обучения — `raw/train_triage*.log`.
+Адаптеры лежат вне репозитория: `~/models/alva-triage-qwen-lora` (лучший чекпоинт 300) и
+`~/models/alva-triage-qwen-full`.
+
 Файл `results/confidence_report_deepseek_original.json` — агрегат самого первого замера. Его сырые
 данные затёрты последующим прогоном, перепроверить нельзя, приводится как исторический.
 
