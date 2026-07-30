@@ -4,6 +4,14 @@
 сообщение с ролью user и прогоняет его через pipeline.run_pipeline. Системные сообщения от клиента
 игнорируются: системный промпт триажа заморожен в spec7 и подменять его снаружи нельзя.
 
+Флаг --history включает работу с перепиской, по умолчанию on. Вся история из messages, кроме
+последней реплики, уходит в этап 1 из task9: он сжимает её в компактные факты, и в промпт едет
+блок фактов, а не простыня сообщений. Возраст, названный раньше, приезжает полем
+CONTEXT_AGE_MONTHS и попадает в профиль ребёнка, поэтому ассистент больше не просит его заново.
+Решение принимается по последней реплике: сама история в case_text не попадает, поэтому детекторы
+риска, кризиса и языка её не видят и старый тревожный признак маршрут не поднимает. Сколько
+сообщений истории учтено, видно в triage.history_messages. При --history off поведение прежнее.
+
 Ответ - стандартное тело chat.completion плюс поле triage верхнего уровня, где лежит вся кухня
 контроля: маршрут, статус, голоса, вердикт критика, число вызовов, деньги и короткое объяснение
 на русском. Текст в choices собирается детерминированно по маршруту и статусу, без лишнего вызова
@@ -54,6 +62,9 @@ CHALLENGE_DIR = os.path.dirname(TASK7_DIR)
 TASK8_HARNESS_DIR = os.path.join(CHALLENGE_DIR, "task8", "harness")
 if TASK8_HARNESS_DIR not in sys.path:
     sys.path.insert(0, TASK8_HARNESS_DIR)
+TASK9_HARNESS_DIR = os.path.join(CHALLENGE_DIR, "task9", "harness")
+if TASK9_HARNESS_DIR not in sys.path:
+    sys.path.insert(0, TASK9_HARNESS_DIR)
 
 import child_profile
 import guards
@@ -67,6 +78,9 @@ import cascade
 import router
 import router_spec
 
+import stages
+import stages_spec
+
 DEFAULT_PORT = 8090
 DEFAULT_HOST = "0.0.0.0"
 SERVED_MODEL = "triage-pipeline"
@@ -76,6 +90,13 @@ LOG_TEXT_CHARS = 40
 MAX_BODY_BYTES = 262144
 JSON_CONTENT_TYPE = "application/json; charset=utf-8"
 SSE_CONTENT_TYPE = "text/event-stream; charset=utf-8"
+HISTORY_ON = "on"
+HISTORY_OFF = "off"
+HISTORY_MODES = (HISTORY_OFF, HISTORY_ON)
+DEFAULT_HISTORY = HISTORY_ON
+HISTORY_EXPLAIN_OFF = "история выключена флагом --history off"
+HISTORY_EXPLAIN_EMPTY = "истории в запросе нет"
+HISTORY_EXPLAIN_BROKEN = "разбор переписки не дал фактов, история не учтена"
 CHAT_PATHS = ("/v1/chat/completions", "/chat/completions")
 MODELS_PATHS = ("/v1/models", "/models")
 HEALTH_PATHS = ("/health", "/")
@@ -128,6 +149,10 @@ SELF_CARE_TAIL = (
 OFF_TOPIC_ANSWER = (
     "Я отвечаю только на вопросы о здоровье и уходе за ребёнком до пяти лет, поэтому с этим "
     "вопросом помочь не смогу."
+)
+
+REFERENCE_LEAD = (
+    "Ориентиры для возраста %d %s: сон %s-%s часов в сутки, вес %s-%s кг, рост %s-%s см."
 )
 
 EXPLAIN_INPUT_REJECTED = "сообщение пустое или без слов, к модели не обращались"
@@ -368,6 +393,30 @@ def parent_support_lines(decision: pipeline.Decision) -> List[str]:
     return lines
 
 
+def reference_lines(profile: child_profile.ChildProfile) -> List[str]:
+    age_months = profile.age_months
+    if age_months is None:
+        return []
+    reference = spec_v2.GROWTH_REFERENCE.get(age_months)
+    if reference is None:
+        return []
+    sleep_low, sleep_high = child_profile.sleep_reference(age_months)
+    return [
+        REFERENCE_LEAD
+        % (
+            age_months,
+            spec_v2.DATA_INSIGHT_AGE_MONTHS_SUFFIX,
+            child_profile.number_text(sleep_low),
+            child_profile.number_text(sleep_high),
+            child_profile.number_text(reference[spec_v2.GROWTH_WEIGHT_LOW_INDEX]),
+            child_profile.number_text(reference[spec_v2.GROWTH_WEIGHT_HIGH_INDEX]),
+            child_profile.number_text(reference[spec_v2.GROWTH_HEIGHT_LOW_INDEX]),
+            child_profile.number_text(reference[spec_v2.GROWTH_HEIGHT_HIGH_INDEX]),
+        ),
+        spec_v2.DATA_INSIGHT_SOURCE_NOTE_SLEEP,
+    ]
+
+
 def missing_data_line(profile: child_profile.ChildProfile) -> str:
     if profile.age_months is not None:
         return spec_v2.DATA_INSIGHT_ASK_METRICS
@@ -382,6 +431,7 @@ def data_insight_lines(
     compared, deviated, has_metrics = child_profile.compare_lines(profile)
     if not compared or not has_metrics:
         lines = self_care_lines(decision)
+        lines.extend(reference_lines(profile))
         lines.append(missing_data_line(profile))
         return lines
     lines = [spec_v2.DATA_INSIGHT_LEAD]
@@ -584,6 +634,50 @@ def last_user_text(payload: Dict[str, Any]) -> str:
     return ""
 
 
+def conversation_messages(payload: Dict[str, Any]) -> List[Dict[str, str]]:
+    messages = payload.get("messages")
+    if not isinstance(messages, list):
+        return []
+    collected: List[Dict[str, str]] = []
+    for message in messages:
+        if not isinstance(message, dict):
+            continue
+        role = message.get("role")
+        if role not in stages_spec.HISTORY_ROLES:
+            continue
+        text = content_text(message.get("content"))
+        if not text.strip():
+            continue
+        collected.append({"role": str(role), "content": text})
+    return collected
+
+
+def history_before_last(conversation: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    for position in range(len(conversation) - 1, -1, -1):
+        if conversation[position]["role"] == "user":
+            return conversation[:position]
+    return []
+
+
+def context_age_of(facts: Dict[str, Any]) -> Optional[int]:
+    value = facts.get(stages_spec.F_CONTEXT_AGE)
+    if isinstance(value, int):
+        return value
+    return None
+
+
+def profile_with_context_age(
+    profile: child_profile.ChildProfile, context_age: Optional[int]
+) -> child_profile.ChildProfile:
+    if context_age is None or profile.age_months is not None:
+        return profile
+    values = {spec_v2.FIELD_AGE_MONTHS: context_age}
+    values.update(profile.values)
+    return child_profile.ChildProfile(
+        values=values, issues=list(profile.issues), supplied=True
+    )
+
+
 def normalized_path(raw_path: str) -> str:
     path = (raw_path or "").split("?")[0].split("#")[0]
     if len(path) > 1:
@@ -614,7 +708,7 @@ def log_line(
     profile_mark = (
         PROFILE_LOG_PRESENT if triage.get("child_profile_present") else PROFILE_LOG_ABSENT
     )
-    return "%s | %s | %s | %s | conf %.2f | calls %d | %d ms | %s | %s | %s" % (
+    return "%s | %s | %s | %s | conf %.2f | calls %d | %d ms | %s | ист %d | %s | %s" % (
         time.strftime("%Y-%m-%d %H:%M:%S"),
         transport,
         triage.get("route") or "-",
@@ -623,6 +717,7 @@ def log_line(
         int(triage.get("calls") or 0),
         int(triage.get("latency_ms") or 0),
         profile_mark,
+        int(triage.get("history_messages") or 0),
         routing_mark(triage),
         preview,
     )
@@ -654,6 +749,7 @@ class Settings:
         cheap_cfg: Optional[llm_client.ClientConfig] = None,
         strong_cfg: Optional[llm_client.ClientConfig] = None,
         policy: Optional[router.RoutePolicy] = None,
+        history: str = DEFAULT_HISTORY,
     ) -> None:
         self.client_cfg = client_cfg
         self.critic_cfg = critic_cfg
@@ -663,6 +759,14 @@ class Settings:
         self.cheap_cfg = cheap_cfg
         self.strong_cfg = strong_cfg
         self.policy = policy
+        self.history = history
+
+    @property
+    def history_on(self) -> bool:
+        return self.history == HISTORY_ON
+
+    def context_config(self) -> llm_client.ClientConfig:
+        return self.client_cfg
 
     @property
     def cascade_on(self) -> bool:
@@ -910,6 +1014,37 @@ class TriageHandler(BaseHTTPRequestHandler):
         outcome = cascade.run_cascade(case_text, settings.policy, run_level)
         return outcome.decision, outcome
 
+    def read_context(self, payload: Dict[str, Any], case_text: str) -> Dict[str, Any]:
+        settings = self.server.settings
+        summary: Dict[str, Any] = {
+            "history": settings.history,
+            "history_messages": 0,
+            "history_calls": 0,
+            "history_cost_usd": 0.0,
+            "block": "",
+            "context_age_months": None,
+            "explain": HISTORY_EXPLAIN_OFF,
+        }
+        if not settings.history_on:
+            return summary
+        history = stages.clip_history(history_before_last(conversation_messages(payload)))
+        summary["history_messages"] = len(history)
+        if not history:
+            summary["explain"] = HISTORY_EXPLAIN_EMPTY
+            return summary
+        stage, facts, error = stages.run_stage1(case_text, settings.context_config(), history)
+        summary["history_calls"] = 1
+        summary["history_cost_usd"] = stage.cost_usd
+        if error is not None or not stage.ok:
+            summary["explain"] = HISTORY_EXPLAIN_BROKEN
+            if error is not None:
+                summary["history_error"] = error
+            return summary
+        summary["block"] = stages.context_block(facts)
+        summary["context_age_months"] = context_age_of(facts)
+        summary["explain"] = ""
+        return summary
+
     def run_decision(self, payload: Dict[str, Any]) -> Tuple[str, Dict[str, Any], str]:
         settings = self.server.settings
         case_text = last_user_text(payload)
@@ -920,12 +1055,18 @@ class TriageHandler(BaseHTTPRequestHandler):
 
             decision, outcome = self.decide(case_text, run_level_v1)
             triage = apply_routing(triage_block(decision), settings.routing, outcome)
+            triage["history"] = HISTORY_OFF
+            triage["history_messages"] = 0
             return case_text, triage, answer_text(decision)
 
+        context = self.read_context(payload, case_text)
         stored = child_profile.sanitize(payload.get(spec_v2.CHILD_PROFILE_KEY))
         from_message = child_profile.parse_message(case_text)
         profile, data_source = child_profile.merge(from_message, stored)
+        profile = profile_with_context_age(profile, context["context_age_months"])
         profile_block = child_profile.prompt_block(profile)
+        if context["block"]:
+            profile_block = (profile_block + "\n\n" + context["block"]).strip()
 
         def run_level_v2(level: str) -> pipeline.Decision:
             return self.run_level_v2(
@@ -936,6 +1077,15 @@ class TriageHandler(BaseHTTPRequestHandler):
         triage = apply_routing(triage_block(decision), settings.routing, outcome)
         if stored.issues:
             triage["child_profile_issues"] = list(stored.issues)
+        triage["history"] = context["history"]
+        triage["history_messages"] = context["history_messages"]
+        triage["history_calls"] = context["history_calls"]
+        triage["history_cost_usd"] = context["history_cost_usd"]
+        triage["context_age_months"] = context["context_age_months"]
+        if context["explain"]:
+            triage["history_explain"] = context["explain"]
+        if context.get("history_error"):
+            triage["history_error"] = context["history_error"]
         return case_text, triage, answer_text(decision, profile)
 
 
@@ -966,6 +1116,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
         dest="spec_version",
         choices=list(spec_v2.SPEC_VERSIONS),
         default=spec_v2.SPEC_VERSION_V2,
+    )
+    parser.add_argument(
+        "--history",
+        dest="history",
+        choices=list(HISTORY_MODES),
+        default=DEFAULT_HISTORY,
+        help=(
+            "on - переписка сжимается этапом разбора task9 в факты и уходит в промпт, "
+            "off - учитывается только последнее сообщение"
+        ),
     )
     parser.add_argument(
         "--routing",
@@ -1097,6 +1257,7 @@ def build_cascade_settings(args: argparse.Namespace) -> Tuple[Optional[Settings]
         cheap_cfg,
         strong_cfg,
         policy,
+        args.history,
     )
     return settings, None
 
@@ -1122,7 +1283,16 @@ def build_settings(args: argparse.Namespace) -> Tuple[Optional[Settings], Option
         )
         if critic_error is not None:
             return None, critic_error
-    return Settings(client_cfg, critic_cfg, args.self_check_trigger, args.spec_version), None
+    return (
+        Settings(
+            client_cfg,
+            critic_cfg,
+            args.self_check_trigger,
+            args.spec_version,
+            history=args.history,
+        ),
+        None,
+    )
 
 
 def key_env_of(args: argparse.Namespace) -> str:
@@ -1178,6 +1348,20 @@ def describe_startup(args: argparse.Namespace, settings: Settings) -> List[str]:
         "Имя модели для клиента: %s" % SERVED_MODEL,
         "Версия набора маршрутов: %s - %s"
         % (settings.spec_version, SPEC_VERSION_TITLES[settings.spec_version]),
+        "История переписки: %s%s"
+        % (
+            settings.history,
+            (
+                " - до %d сообщений и %d символов, разбор этапом 1 task9 моделью %s"
+                % (
+                    stages_spec.HISTORY_MAX_MESSAGES,
+                    stages_spec.HISTORY_MAX_CHARS,
+                    settings.context_config().model,
+                )
+                if settings.history_on
+                else " - учитывается только последнее сообщение"
+            ),
+        ),
     ]
     lines.extend(describe_routing(settings))
     if not settings.cascade_on and settings.client_cfg.adapter:

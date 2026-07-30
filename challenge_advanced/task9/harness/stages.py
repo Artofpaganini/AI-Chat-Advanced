@@ -53,7 +53,9 @@ NONE_ALIASES = (
 )
 
 STAGE1_KEY_PATTERN = re.compile(
-    r"(?<![A-Za-z_])(%s)\s*[=:]" % "|".join(stages_spec.STAGE1_FIELDS), re.IGNORECASE
+    r"(?<![A-Za-z_])(%s)\s*[=:]"
+    % "|".join(sorted(stages_spec.STAGE1_ALL_FIELDS, key=len, reverse=True)),
+    re.IGNORECASE,
 )
 STAGE2_KEY_PATTERN = re.compile(
     r"(?<![A-Za-z_])(%s)\s*[=:]" % "|".join(stages_spec.STAGE2_FIELDS), re.IGNORECASE
@@ -96,8 +98,8 @@ class MultiStageDecision:
     error: Optional[str] = None
 
 
-def empty_facts() -> Dict[str, Any]:
-    return {
+def empty_facts(with_context: bool = False) -> Dict[str, Any]:
+    facts: Dict[str, Any] = {
         stages_spec.F_AGE: None,
         stages_spec.F_SYMPTOMS: [],
         stages_spec.F_METRICS: stages_spec.NONE_VALUE,
@@ -105,6 +107,49 @@ def empty_facts() -> Dict[str, Any]:
         stages_spec.F_PARENT_STATE: stages_spec.NONE_VALUE,
         stages_spec.F_QUESTION_TYPE: stages_spec.QT_OTHER,
     }
+    if with_context:
+        facts[stages_spec.F_CONTEXT_AGE] = None
+    return facts
+
+
+def known_age(facts: Dict[str, Any]) -> Optional[int]:
+    age = facts.get(stages_spec.F_AGE)
+    if isinstance(age, int):
+        return age
+    context_age = facts.get(stages_spec.F_CONTEXT_AGE)
+    if isinstance(context_age, int):
+        return context_age
+    return None
+
+
+def clip_history(messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    recent = [
+        message
+        for message in messages
+        if str(message.get("role")) in stages_spec.HISTORY_ROLES
+        and str(message.get("content") or "").strip()
+    ][-stages_spec.HISTORY_MAX_MESSAGES :]
+    total = 0
+    kept: List[Dict[str, str]] = []
+    for message in reversed(recent):
+        length = len(str(message.get("content") or ""))
+        if kept and total + length > stages_spec.HISTORY_MAX_CHARS:
+            break
+        total += length
+        kept.append(message)
+    kept.reverse()
+    return kept
+
+
+def format_conversation(messages: List[Dict[str, str]]) -> str:
+    lines: List[str] = []
+    for message in messages:
+        role = stages_spec.HISTORY_ROLE_TITLES.get(
+            str(message.get("role")), stages_spec.HISTORY_ROLE_USER
+        )
+        text = " ".join(str(message.get("content") or "").split())
+        lines.append(stages_spec.HISTORY_LINE % (role, text))
+    return "\n".join(lines)
 
 
 def is_none_value(value: str) -> bool:
@@ -181,17 +226,20 @@ def route_leaked(raw_text: str) -> bool:
     return LEAK_PATTERN.search(raw_text or "") is not None
 
 
-def parse_stage1(raw: str) -> Tuple[Dict[str, Any], List[str]]:
+def parse_stage1(raw: str, with_context: bool = False) -> Tuple[Dict[str, Any], List[str]]:
     violations: List[str] = []
     text, _fenced = guards.strip_code_fence(raw or "")
     if route_leaked(raw or ""):
         violations.append(stages_spec.S1_ROUTE_LEAKED)
     pairs = collect_pairs(text, STAGE1_KEY_PATTERN)
-    facts = empty_facts()
+    facts = empty_facts(with_context)
     if not pairs:
         violations.append(stages_spec.S1_PARSE)
         return facts, violations
-    broken = [name for name in stages_spec.STAGE1_FIELDS if name not in pairs]
+    required = (
+        stages_spec.STAGE1_CONVERSATION_FIELDS if with_context else stages_spec.STAGE1_FIELDS
+    )
+    broken = [name for name in required if name not in pairs]
     age, age_out_of_range = parse_age(pairs.get(stages_spec.F_AGE))
     question_type, question_type_broken = parse_question_type(
         pairs.get(stages_spec.F_QUESTION_TYPE)
@@ -208,7 +256,11 @@ def parse_stage1(raw: str) -> Tuple[Dict[str, Any], List[str]]:
         pairs.get(stages_spec.F_PARENT_STATE), stages_spec.MAX_PARENT_STATE_CHARS
     )
     facts[stages_spec.F_QUESTION_TYPE] = question_type
-    if broken or age_out_of_range or question_type_broken:
+    context_out_of_range = False
+    if with_context or stages_spec.F_CONTEXT_AGE in pairs:
+        context_age, context_out_of_range = parse_age(pairs.get(stages_spec.F_CONTEXT_AGE))
+        facts[stages_spec.F_CONTEXT_AGE] = context_age
+    if broken or age_out_of_range or question_type_broken or context_out_of_range:
         violations.append(stages_spec.S1_PARSE)
     return facts, violations
 
@@ -286,7 +338,21 @@ def format_facts(facts: Dict[str, Any]) -> str:
             facts.get(stages_spec.F_QUESTION_TYPE) or stages_spec.QT_OTHER,
         )
     )
+    if stages_spec.F_CONTEXT_AGE in facts:
+        context_age = facts.get(stages_spec.F_CONTEXT_AGE)
+        lines.append(
+            "%s%s%s"
+            % (
+                stages_spec.F_CONTEXT_AGE,
+                stages_spec.PAIR_SEPARATOR,
+                stages_spec.NONE_VALUE if context_age is None else context_age,
+            )
+        )
     return "\n".join(lines)
+
+
+def context_block(facts: Dict[str, Any]) -> str:
+    return stages_spec.HISTORY_CONTEXT_BLOCK.format(facts=format_facts(facts))
 
 
 def stage_messages(system_prompt: str, user_text: str) -> List[Dict[str, str]]:
@@ -397,18 +463,37 @@ def failed_decision(
     )
 
 
-def run_stage1(
-    case_text: str, client_cfg: llm_client.ClientConfig
-) -> Tuple[StageResult, Dict[str, Any], Optional[str]]:
-    result, stage = call_stage(
-        stages_spec.STAGE_PARSE,
+def stage1_messages(
+    case_text: str, history: Optional[List[Dict[str, str]]]
+) -> Tuple[List[Dict[str, str]], bool]:
+    kept = clip_history(history or [])
+    if not kept:
+        return (
+            stage_messages(
+                stages_spec.STAGE1_SYSTEM_PROMPT,
+                stages_spec.STAGE1_USER_TEMPLATE.format(case_text=case_text),
+            ),
+            False,
+        )
+    return (
         stage_messages(
-            stages_spec.STAGE1_SYSTEM_PROMPT,
-            stages_spec.STAGE1_USER_TEMPLATE.format(case_text=case_text),
+            stages_spec.STAGE1_CONVERSATION_SYSTEM_PROMPT,
+            stages_spec.STAGE1_CONVERSATION_USER_TEMPLATE.format(
+                conversation=format_conversation(kept), case_text=case_text
+            ),
         ),
-        client_cfg,
+        True,
     )
-    facts, violations = parse_stage1(result.content or "")
+
+
+def run_stage1(
+    case_text: str,
+    client_cfg: llm_client.ClientConfig,
+    history: Optional[List[Dict[str, str]]] = None,
+) -> Tuple[StageResult, Dict[str, Any], Optional[str]]:
+    messages, with_context = stage1_messages(case_text, history)
+    result, stage = call_stage(stages_spec.STAGE_PARSE, messages, client_cfg)
+    facts, violations = parse_stage1(result.content or "", with_context)
     stage.parsed = facts
     stage.violations = violations
     stage.ok = result.error is None and stages_spec.S1_PARSE not in violations
@@ -464,19 +549,20 @@ def run_multistage(
     cfg2: Optional[llm_client.ClientConfig] = None,
     cfg3: Optional[llm_client.ClientConfig] = None,
     case_id: str = "",
+    history: Optional[List[Dict[str, str]]] = None,
 ) -> MultiStageDecision:
     started = time.time()
     decide_cfg = cfg2 or cfg1
     answer_cfg = cfg3 or cfg1
     try:
-        stage1, facts, error1 = run_stage1(case_text, cfg1)
+        stage1, facts, error1 = run_stage1(case_text, cfg1, history)
         stages = [stage1]
         failed_stage: Optional[str] = None
         notes: List[Optional[str]] = [error1]
         facts_for_decision = facts
         if not stage1.ok:
             failed_stage = stages_spec.STAGE_PARSE
-            facts_for_decision = empty_facts()
+            facts_for_decision = empty_facts(stages_spec.F_CONTEXT_AGE in facts)
             notes.append("этап 1 не дал фактов, решение принимается на пустых фактах")
 
         stage2, decision, error2 = run_stage2(facts_for_decision, decide_cfg)
