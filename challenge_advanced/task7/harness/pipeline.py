@@ -319,17 +319,37 @@ def collect_sample(case_text: str, client_cfg: llm_client.ClientConfig) -> Sampl
     return SampleOutcome(None, violations, False, True, raw_texts, 2, usage, None)
 
 
-def majority_route(votes: List[str]) -> str:
+def vote_counts(votes: List[str]) -> Dict[str, int]:
     counts: Dict[str, int] = {}
     for vote in votes:
         counts[vote] = counts.get(vote, 0) + 1
+    return counts
+
+
+def severity_table(severity: Optional[Dict[str, int]]) -> Dict[str, int]:
+    if severity is None:
+        return spec7.SEVERITY
+    return severity
+
+
+def majority_route(votes: List[str], severity: Optional[Dict[str, int]] = None) -> str:
+    table = severity_table(severity)
+    counts = vote_counts(votes)
     top_count = max(counts.values())
     tied = [route for route, count in counts.items() if count == top_count]
-    return min(tied, key=lambda route: spec7.SEVERITY.get(route, 0))
+    return min(tied, key=lambda route: table.get(route, 0))
 
 
-def vote_route(votes: List[str]) -> str:
-    return max(votes, key=lambda vote: spec7.SEVERITY.get(vote, 0))
+def vote_route(votes: List[str], severity: Optional[Dict[str, int]] = None) -> str:
+    table = severity_table(severity)
+    counts = vote_counts(votes)
+    top_severity = max(table.get(vote, 0) for vote in votes)
+    tied = [route for route in counts if table.get(route, 0) == top_severity]
+    top_count = max(counts[route] for route in tied)
+    for vote in votes:
+        if vote in tied and counts[vote] == top_count:
+            return vote
+    return tied[0]
 
 
 def agreement_share(votes: List[str], route: str) -> float:

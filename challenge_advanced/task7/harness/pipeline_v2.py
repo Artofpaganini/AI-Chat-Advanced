@@ -215,29 +215,12 @@ def severity_of(route: str) -> int:
     return spec_v2.SEVERITY.get(route, 0)
 
 
-def vote_counts(votes: List[str]) -> Dict[str, int]:
-    counts: Dict[str, int] = {}
-    for vote in votes:
-        counts[vote] = counts.get(vote, 0) + 1
-    return counts
-
-
 def majority_route(votes: List[str]) -> str:
-    counts = vote_counts(votes)
-    top_count = max(counts.values())
-    tied = [route for route, count in counts.items() if count == top_count]
-    return min(tied, key=severity_of)
+    return pipeline.majority_route(votes, spec_v2.SEVERITY)
 
 
 def vote_route(votes: List[str]) -> str:
-    counts = vote_counts(votes)
-    top_severity = max(severity_of(vote) for vote in votes)
-    tied = [route for route in counts if severity_of(route) == top_severity]
-    top_count = max(counts[route] for route in tied)
-    for vote in votes:
-        if vote in tied and counts[vote] == top_count:
-            return vote
-    return tied[0]
+    return pipeline.vote_route(votes, spec_v2.SEVERITY)
 
 
 def run_self_check(

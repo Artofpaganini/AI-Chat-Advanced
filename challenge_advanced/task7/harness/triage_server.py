@@ -368,16 +368,22 @@ def parent_support_lines(decision: pipeline.Decision) -> List[str]:
     return lines
 
 
+def missing_data_line(profile: child_profile.ChildProfile) -> str:
+    if profile.age_months is not None:
+        return spec_v2.DATA_INSIGHT_ASK_METRICS
+    if profile.has_metrics:
+        return spec_v2.DATA_INSIGHT_ASK_AGE
+    return spec_v2.DATA_INSIGHT_ASK_ALL
+
+
 def data_insight_lines(
     decision: pipeline.Decision, profile: child_profile.ChildProfile
 ) -> List[str]:
-    if not profile.present:
-        return [spec_v2.DATA_INSIGHT_NO_PROFILE]
     compared, deviated, has_metrics = child_profile.compare_lines(profile)
-    if not compared:
-        return [spec_v2.DATA_INSIGHT_NO_AGE]
-    if not has_metrics:
-        return compared + [spec_v2.DATA_INSIGHT_NO_METRICS]
+    if not compared or not has_metrics:
+        lines = self_care_lines(decision)
+        lines.append(missing_data_line(profile))
+        return lines
     lines = [spec_v2.DATA_INSIGHT_LEAD]
     lines.extend(compared)
     lines.append(spec_v2.DATA_INSIGHT_OUT_TAIL if deviated else spec_v2.DATA_INSIGHT_ALL_IN_TAIL)
