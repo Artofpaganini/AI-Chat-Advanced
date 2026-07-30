@@ -96,7 +96,10 @@ HISTORY_MODES = (HISTORY_OFF, HISTORY_ON)
 DEFAULT_HISTORY = HISTORY_ON
 HISTORY_EXPLAIN_OFF = "история выключена флагом --history off"
 HISTORY_EXPLAIN_EMPTY = "истории в запросе нет"
-HISTORY_EXPLAIN_BROKEN = "разбор переписки не дал фактов, история не учтена"
+HISTORY_EXPLAIN_BROKEN = (
+    "разбор переписки не дал фактов, история не учтена; разбирала модель %s, адаптер %s"
+)
+HISTORY_ADAPTER_NONE = "нет"
 CHAT_PATHS = ("/v1/chat/completions", "/chat/completions")
 MODELS_PATHS = ("/v1/models", "/models")
 HEALTH_PATHS = ("/health", "/")
@@ -750,6 +753,7 @@ class Settings:
         strong_cfg: Optional[llm_client.ClientConfig] = None,
         policy: Optional[router.RoutePolicy] = None,
         history: str = DEFAULT_HISTORY,
+        context_cfg: Optional[llm_client.ClientConfig] = None,
     ) -> None:
         self.client_cfg = client_cfg
         self.critic_cfg = critic_cfg
@@ -760,12 +764,15 @@ class Settings:
         self.strong_cfg = strong_cfg
         self.policy = policy
         self.history = history
+        self.context_cfg = context_cfg
 
     @property
     def history_on(self) -> bool:
         return self.history == HISTORY_ON
 
     def context_config(self) -> llm_client.ClientConfig:
+        if self.context_cfg is not None:
+            return self.context_cfg
         return self.client_cfg
 
     @property
@@ -1023,20 +1030,27 @@ class TriageHandler(BaseHTTPRequestHandler):
             "history_cost_usd": 0.0,
             "block": "",
             "context_age_months": None,
+            "context_model": "",
             "explain": HISTORY_EXPLAIN_OFF,
         }
         if not settings.history_on:
             return summary
+        context_cfg = settings.context_config()
+        summary["context_model"] = context_cfg.model
         history = stages.clip_history(history_before_last(conversation_messages(payload)))
         summary["history_messages"] = len(history)
         if not history:
             summary["explain"] = HISTORY_EXPLAIN_EMPTY
             return summary
-        stage, facts, error = stages.run_stage1(case_text, settings.context_config(), history)
+        stage, facts, error = stages.run_stage1(case_text, context_cfg, history)
         summary["history_calls"] = 1
         summary["history_cost_usd"] = stage.cost_usd
         if error is not None or not stage.ok:
-            summary["explain"] = HISTORY_EXPLAIN_BROKEN
+            summary["explain"] = HISTORY_EXPLAIN_BROKEN % (
+                context_cfg.model,
+                context_cfg.adapter or HISTORY_ADAPTER_NONE,
+            )
+            summary["history_raw"] = stage.raw_text
             if error is not None:
                 summary["history_error"] = error
             return summary
@@ -1082,8 +1096,11 @@ class TriageHandler(BaseHTTPRequestHandler):
         triage["history_calls"] = context["history_calls"]
         triage["history_cost_usd"] = context["history_cost_usd"]
         triage["context_age_months"] = context["context_age_months"]
+        triage["context_model"] = context["context_model"]
         if context["explain"]:
             triage["history_explain"] = context["explain"]
+        if context.get("history_raw"):
+            triage["history_raw"] = context["history_raw"]
         if context.get("history_error"):
             triage["history_error"] = context["history_error"]
         return case_text, triage, answer_text(decision, profile)
@@ -1116,6 +1133,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
         dest="spec_version",
         choices=list(spec_v2.SPEC_VERSIONS),
         default=spec_v2.SPEC_VERSION_V2,
+    )
+    parser.add_argument("--context-model", dest="context_model", default="")
+    parser.add_argument("--context-base-url", dest="context_base_url", default="")
+    parser.add_argument("--context-key-env", dest="context_key_env", default="")
+    parser.add_argument(
+        "--context-adapters",
+        dest="context_adapters",
+        default="",
+        help=(
+            "адаптер для разбора переписки. По умолчанию пусто: LoRA триажа обучена на другую "
+            "задачу и ломает формат разбора"
+        ),
     )
     parser.add_argument(
         "--history",
@@ -1221,6 +1250,36 @@ def critic_flags_given(args: argparse.Namespace) -> bool:
     )
 
 
+def context_endpoint(args: argparse.Namespace, main_model: str, main_base_url: str, main_key_env: str):
+    return {
+        "model": args.context_model or main_model,
+        "base_url": args.context_base_url or main_base_url,
+        "key_env": args.context_key_env or main_key_env,
+        "adapters": args.context_adapters,
+    }
+
+
+def build_context_config(
+    args: argparse.Namespace, main_model: str, main_base_url: str, main_key_env: str
+) -> Tuple[Optional[llm_client.ClientConfig], Optional[str]]:
+    endpoint = context_endpoint(args, main_model, main_base_url, main_key_env)
+    if (
+        endpoint["model"] == main_model
+        and endpoint["base_url"] == main_base_url
+        and endpoint["key_env"] == main_key_env
+        and not endpoint["adapters"]
+    ):
+        return None, None
+    return build_client_config(
+        endpoint["model"],
+        endpoint["base_url"],
+        endpoint["key_env"],
+        endpoint["adapters"],
+        args.timeout,
+        args.thinking,
+    )
+
+
 def build_cascade_settings(args: argparse.Namespace) -> Tuple[Optional[Settings], Optional[str]]:
     cheap_cfg = router.cheap_config(
         args.cheap_model, args.cheap_base_url, args.cheap_adapters, args.timeout
@@ -1248,6 +1307,11 @@ def build_cascade_settings(args: argparse.Namespace) -> Tuple[Optional[Settings]
         router_spec.DEFAULT_CONFIDENCE_THRESHOLD,
         router_spec.CONFLICT_SEVERITY_CEILING,
     )
+    context_cfg, context_error = build_context_config(
+        args, args.strong_model, args.strong_base_url, args.strong_key_env
+    )
+    if context_error is not None:
+        return None, context_error
     settings = Settings(
         strong_cfg,
         critic_cfg,
@@ -1258,6 +1322,7 @@ def build_cascade_settings(args: argparse.Namespace) -> Tuple[Optional[Settings]
         strong_cfg,
         policy,
         args.history,
+        context_cfg,
     )
     return settings, None
 
@@ -1283,6 +1348,11 @@ def build_settings(args: argparse.Namespace) -> Tuple[Optional[Settings], Option
         )
         if critic_error is not None:
             return None, critic_error
+    context_cfg, context_error = build_context_config(
+        args, args.model, args.base_url, args.key_env
+    )
+    if context_error is not None:
+        return None, context_error
     return (
         Settings(
             client_cfg,
@@ -1290,6 +1360,7 @@ def build_settings(args: argparse.Namespace) -> Tuple[Optional[Settings], Option
             args.self_check_trigger,
             args.spec_version,
             history=args.history,
+            context_cfg=context_cfg,
         ),
         None,
     )
@@ -1352,11 +1423,13 @@ def describe_startup(args: argparse.Namespace, settings: Settings) -> List[str]:
         % (
             settings.history,
             (
-                " - до %d сообщений и %d символов, разбор этапом 1 task9 моделью %s"
+                " - до %d сообщений и %d символов, разбор этапом 1 task9 моделью %s (%s), адаптер %s"
                 % (
                     stages_spec.HISTORY_MAX_MESSAGES,
                     stages_spec.HISTORY_MAX_CHARS,
                     settings.context_config().model,
+                    settings.context_config().location,
+                    settings.context_config().adapter or HISTORY_ADAPTER_NONE,
                 )
                 if settings.history_on
                 else " - учитывается только последнее сообщение"
