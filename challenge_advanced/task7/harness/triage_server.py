@@ -17,6 +17,15 @@ spec7, ровно прежнее поведение. v2 - дефолт: те ж�
 промпт коротким блоком и в текст ответа, но в логи не попадают - там виден только факт, что
 профиль передан, и имена заполненных полей.
 
+Флаг --routing включает каскад из task8. При off - прежнее поведение, каждый запрос идёт в модель
+из --model. При smart работает стратегия route_smart: сначала дешёвый локальный уровень, наверх
+только при расхождении признака риска со спокойным ответом, при сломанном формате или низкой
+уверенности. Правила эскалации импортированы из task8, а не написаны здесь заново.
+
+Проверки, которые каскада не касаются: пустой ввод, чужой язык и кризисный гейт разбираются внутри
+пайплайна до сети и стоят ноль вызовов на обоих уровнях. Кризисный ответ наверх не отправляется
+никогда - иначе сильная модель получила бы право его отменить.
+
 При stream: true тот же ответ уходит потоком SSE: текст режется на куски по несколько слов,
 поле triage едет в последнем чанке с finish_reason stop, после него data: [DONE]. При stream: false
 или без поля отдаётся обычный JSON.
@@ -40,6 +49,12 @@ HARNESS_DIR = os.path.dirname(os.path.abspath(__file__))
 if HARNESS_DIR not in sys.path:
     sys.path.insert(0, HARNESS_DIR)
 
+TASK7_DIR = os.path.dirname(HARNESS_DIR)
+CHALLENGE_DIR = os.path.dirname(TASK7_DIR)
+TASK8_HARNESS_DIR = os.path.join(CHALLENGE_DIR, "task8", "harness")
+if TASK8_HARNESS_DIR not in sys.path:
+    sys.path.insert(0, TASK8_HARNESS_DIR)
+
 import child_profile
 import guards
 import llm_client
@@ -47,6 +62,10 @@ import pipeline
 import pipeline_v2
 import spec7
 import spec_v2
+
+import cascade
+import router
+import router_spec
 
 DEFAULT_PORT = 8090
 DEFAULT_HOST = "0.0.0.0"
@@ -123,6 +142,19 @@ EXPLAIN_REPAIRED = "формат ответа пришлось чинить"
 EXPLAIN_FORMAT_FAILED = "проверки формата нашли ошибки"
 EXPLAIN_CALL_ERROR = "было сбойное обращение к модели"
 EXPLAIN_CRISIS_FALLBACK = "кризисный признак в сообщении родителя"
+
+ROUTING_EXPLAIN_CHEAP = "ответила локальная модель, проверка не потребовалась"
+ROUTING_EXPLAIN_STRONG_TAIL = "перепроверено облачной моделью"
+ROUTING_EXPLAIN_FORCED = "запрос сразу ушёл в облачную модель"
+
+ROUTING_REASON_EXPLAIN = {
+    router_spec.E_CONFLICT: "локальная модель ответила спокойно при тревожном признаке",
+    router_spec.E_GUARD: "локальная модель ответила в неверном формате",
+    router_spec.E_CONF: "локальная модель не уверена в ответе",
+    router_spec.E_STATUS: "локальная модель пометила ответ как неуверенный",
+    router_spec.E_LEN: "ответ локальной модели неправдоподобной длины",
+    router_spec.E_RISK: "в сообщении есть тревожный признак",
+}
 
 PROFILE_LOG_PRESENT = "профиль есть"
 PROFILE_LOG_ABSENT = "профиля нет"
@@ -218,6 +250,53 @@ def explain_decision(decision: pipeline.Decision) -> str:
     if decision.error:
         parts.append(EXPLAIN_CALL_ERROR)
     return ", ".join(parts)
+
+
+def explain_routing(outcome: cascade.CascadeOutcome) -> str:
+    if outcome.answered_by == cascade.LEVEL_NONE:
+        return ""
+    parts: List[str] = []
+    if not outcome.escalated:
+        parts.append(ROUTING_EXPLAIN_CHEAP)
+    elif not outcome.escalation_reasons:
+        parts.append(ROUTING_EXPLAIN_FORCED)
+    else:
+        reasons = [
+            ROUTING_REASON_EXPLAIN.get(code, router_spec.ESCALATION_TITLES.get(code, code))
+            for code in outcome.escalation_reasons
+        ]
+        parts.append("%s - %s" % (", ".join(reasons), ROUTING_EXPLAIN_STRONG_TAIL))
+    if outcome.note:
+        parts.append(outcome.note)
+    return ", ".join(parts)
+
+
+def apply_routing(
+    block: Dict[str, Any], routing: str, outcome: Optional[cascade.CascadeOutcome]
+) -> Dict[str, Any]:
+    block["routing"] = routing
+    if outcome is None:
+        calls = int(block.get("calls") or 0)
+        block["escalated"] = False
+        block["escalation_reasons"] = []
+        block["answered_by"] = (
+            router_spec.LEVEL_STRONG if calls else cascade.LEVEL_NONE
+        )
+        block["calls_cheap"] = 0
+        block["calls_strong"] = calls
+        return block
+    block["escalated"] = outcome.escalated
+    block["escalation_reasons"] = list(outcome.escalation_reasons)
+    block["answered_by"] = outcome.answered_by
+    block["calls_cheap"] = outcome.calls_cheap
+    block["calls_strong"] = outcome.calls_strong
+    block["calls"] = outcome.calls_cheap + outcome.calls_strong
+    block["cost_usd"] = outcome.cost_usd
+    block["latency_ms"] = outcome.latency_ms
+    note = explain_routing(outcome)
+    if note:
+        block["explain"] = "%s, %s" % (block["explain"], note)
+    return block
 
 
 def emergency_lines(decision: pipeline.Decision) -> List[str]:
@@ -377,8 +456,8 @@ def triage_block(decision: pipeline.Decision) -> Dict[str, Any]:
     return block
 
 
-def failed_block(error_text: str, model: str) -> Dict[str, Any]:
-    return {
+def failed_block(error_text: str, model: str, routing: str = cascade.ROUTING_OFF) -> Dict[str, Any]:
+    block: Dict[str, Any] = {
         "route": None,
         "route_label": UNKNOWN_ROUTE_LABEL,
         "status": spec7.STATUS_FAIL,
@@ -398,6 +477,7 @@ def failed_block(error_text: str, model: str) -> Dict[str, Any]:
         "explain": EXPLAIN_UNPROCESSABLE,
         "error": error_text,
     }
+    return apply_routing(block, routing, None)
 
 
 def completion_response(content: str, triage: Dict[str, Any]) -> Dict[str, Any]:
@@ -507,6 +587,20 @@ def normalized_path(raw_path: str) -> str:
     return path
 
 
+def routing_mark(triage: Dict[str, Any]) -> str:
+    routing = triage.get("routing") or cascade.ROUTING_OFF
+    if routing == cascade.ROUTING_OFF:
+        return routing
+    reasons = ",".join(triage.get("escalation_reasons") or []) or "-"
+    return "%s %s д%d/с%d %s" % (
+        routing,
+        triage.get("answered_by") or cascade.LEVEL_NONE,
+        int(triage.get("calls_cheap") or 0),
+        int(triage.get("calls_strong") or 0),
+        reasons,
+    )
+
+
 def log_line(
     case_text: str, triage: Dict[str, Any], transport: str = LOG_TRANSPORT_JSON
 ) -> str:
@@ -514,7 +608,7 @@ def log_line(
     profile_mark = (
         PROFILE_LOG_PRESENT if triage.get("child_profile_present") else PROFILE_LOG_ABSENT
     )
-    return "%s | %s | %s | %s | conf %.2f | calls %d | %d ms | %s | %s" % (
+    return "%s | %s | %s | %s | conf %.2f | calls %d | %d ms | %s | %s | %s" % (
         time.strftime("%Y-%m-%d %H:%M:%S"),
         transport,
         triage.get("route") or "-",
@@ -523,6 +617,7 @@ def log_line(
         int(triage.get("calls") or 0),
         int(triage.get("latency_ms") or 0),
         profile_mark,
+        routing_mark(triage),
         preview,
     )
 
@@ -549,11 +644,40 @@ class Settings:
         critic_cfg: Optional[llm_client.ClientConfig],
         self_check_trigger: str,
         spec_version: str = spec_v2.SPEC_VERSION_V2,
+        routing: str = cascade.ROUTING_OFF,
+        cheap_cfg: Optional[llm_client.ClientConfig] = None,
+        strong_cfg: Optional[llm_client.ClientConfig] = None,
+        policy: Optional[router.RoutePolicy] = None,
     ) -> None:
         self.client_cfg = client_cfg
         self.critic_cfg = critic_cfg
         self.self_check_trigger = self_check_trigger
         self.spec_version = spec_version
+        self.routing = routing
+        self.cheap_cfg = cheap_cfg
+        self.strong_cfg = strong_cfg
+        self.policy = policy
+
+    @property
+    def cascade_on(self) -> bool:
+        return self.routing != cascade.ROUTING_OFF
+
+    def level_config(self, level: str) -> llm_client.ClientConfig:
+        if not self.cascade_on:
+            return self.client_cfg
+        if level == router_spec.LEVEL_STRONG:
+            return self.strong_cfg
+        return self.cheap_cfg
+
+    def level_critic(self, level: str) -> Optional[llm_client.ClientConfig]:
+        if not self.cascade_on or level == router_spec.LEVEL_STRONG:
+            return self.critic_cfg
+        return None
+
+    def answer_model(self) -> str:
+        if self.cascade_on:
+            return self.strong_cfg.model
+        return self.client_cfg.model
 
 
 class TriageServer(ThreadingHTTPServer):
@@ -580,7 +704,9 @@ class TriageHandler(BaseHTTPRequestHandler):
         self.response_started = True
         detail = explain or message or ("HTTP %s" % code)
         try:
-            triage = failed_block(str(detail), self.configured_model())
+            triage = failed_block(
+                str(detail), self.configured_model(), self.configured_routing()
+            )
             self.send_json(200, completion_response(SERVICE_UNAVAILABLE_TEXT, triage))
             write_log(log_line("", triage))
         except Exception:
@@ -588,9 +714,15 @@ class TriageHandler(BaseHTTPRequestHandler):
 
     def configured_model(self) -> str:
         try:
-            return self.server.settings.client_cfg.model
+            return self.server.settings.answer_model()
         except AttributeError:
             return SERVED_MODEL
+
+    def configured_routing(self) -> str:
+        try:
+            return self.server.settings.routing
+        except AttributeError:
+            return cascade.ROUTING_OFF
 
     def send_cors_headers(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -609,7 +741,7 @@ class TriageHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def send_failure(self, error_text: str) -> None:
-        triage = failed_block(error_text, self.configured_model())
+        triage = failed_block(error_text, self.configured_model(), self.configured_routing())
         self.send_json(200, completion_response(SERVICE_UNAVAILABLE_TEXT, triage))
         write_log(log_line("", triage))
 
@@ -712,7 +844,11 @@ class TriageHandler(BaseHTTPRequestHandler):
         try:
             case_text, triage, content = self.run_decision(payload)
         except Exception as unexpected_error:
-            triage = failed_block(SERVER_ERROR_TEXT % unexpected_error, self.configured_model())
+            triage = failed_block(
+                SERVER_ERROR_TEXT % unexpected_error,
+                self.configured_model(),
+                self.configured_routing(),
+            )
             content = SERVICE_UNAVAILABLE_TEXT
         try:
             self.send_event(stream_chunk(response_id, created, {"role": "assistant"}, None))
@@ -727,34 +863,71 @@ class TriageHandler(BaseHTTPRequestHandler):
             return
         write_log(log_line(case_text, triage, LOG_TRANSPORT_STREAM))
 
+    def run_level_v1(self, case_text: str, level: str) -> pipeline.Decision:
+        settings = self.server.settings
+        return pipeline.run_pipeline(
+            case_text,
+            settings.level_config(level),
+            "",
+            settings.self_check_trigger,
+            settings.level_critic(level),
+        )
+
+    def run_level_v2(
+        self,
+        case_text: str,
+        level: str,
+        profile_block: str,
+        profile_present: bool,
+        profile_names: List[str],
+        data_source: str,
+    ) -> pipeline.Decision:
+        settings = self.server.settings
+        return pipeline_v2.run_pipeline(
+            case_text,
+            settings.level_config(level),
+            "",
+            settings.self_check_trigger,
+            settings.level_critic(level),
+            profile_block,
+            profile_present,
+            profile_names,
+            data_source,
+        )
+
+    def decide(
+        self, case_text: str, run_level: cascade.RunLevel
+    ) -> Tuple[pipeline.Decision, Optional[cascade.CascadeOutcome]]:
+        settings = self.server.settings
+        if not settings.cascade_on:
+            return run_level(router_spec.LEVEL_STRONG), None
+        outcome = cascade.run_cascade(case_text, settings.policy, run_level)
+        return outcome.decision, outcome
+
     def run_decision(self, payload: Dict[str, Any]) -> Tuple[str, Dict[str, Any], str]:
         settings = self.server.settings
         case_text = last_user_text(payload)
         if settings.spec_version == spec_v2.SPEC_VERSION_V1:
-            decision = pipeline.run_pipeline(
-                case_text,
-                settings.client_cfg,
-                "",
-                settings.self_check_trigger,
-                settings.critic_cfg,
-            )
-            return case_text, triage_block(decision), answer_text(decision)
+
+            def run_level_v1(level: str) -> pipeline.Decision:
+                return self.run_level_v1(case_text, level)
+
+            decision, outcome = self.decide(case_text, run_level_v1)
+            triage = apply_routing(triage_block(decision), settings.routing, outcome)
+            return case_text, triage, answer_text(decision)
 
         stored = child_profile.sanitize(payload.get(spec_v2.CHILD_PROFILE_KEY))
         from_message = child_profile.parse_message(case_text)
         profile, data_source = child_profile.merge(from_message, stored)
-        decision = pipeline_v2.run_pipeline(
-            case_text,
-            settings.client_cfg,
-            "",
-            settings.self_check_trigger,
-            settings.critic_cfg,
-            child_profile.prompt_block(profile),
-            stored.present,
-            profile.names,
-            data_source,
-        )
-        triage = triage_block(decision)
+        profile_block = child_profile.prompt_block(profile)
+
+        def run_level_v2(level: str) -> pipeline.Decision:
+            return self.run_level_v2(
+                case_text, level, profile_block, stored.present, profile.names, data_source
+            )
+
+        decision, outcome = self.decide(case_text, run_level_v2)
+        triage = apply_routing(triage_block(decision), settings.routing, outcome)
         if stored.issues:
             triage["child_profile_issues"] = list(stored.issues)
         return case_text, triage, answer_text(decision, profile)
@@ -787,6 +960,27 @@ def build_arg_parser() -> argparse.ArgumentParser:
         dest="spec_version",
         choices=list(spec_v2.SPEC_VERSIONS),
         default=spec_v2.SPEC_VERSION_V2,
+    )
+    parser.add_argument(
+        "--routing",
+        dest="routing",
+        choices=list(cascade.ROUTING_MODES),
+        default=cascade.ROUTING_OFF,
+        help="off - каждый запрос в модель из --model, smart - каскад task8",
+    )
+    parser.add_argument("--cheap-model", dest="cheap_model", default=router_spec.CHEAP_MODEL)
+    parser.add_argument(
+        "--cheap-base-url", dest="cheap_base_url", default=router_spec.CHEAP_BASE_URL
+    )
+    parser.add_argument(
+        "--cheap-adapters", dest="cheap_adapters", default=router_spec.CHEAP_ADAPTERS
+    )
+    parser.add_argument("--strong-model", dest="strong_model", default=router_spec.STRONG_MODEL)
+    parser.add_argument(
+        "--strong-base-url", dest="strong_base_url", default=router_spec.STRONG_BASE_URL
+    )
+    parser.add_argument(
+        "--strong-key-env", dest="strong_key_env", default=router_spec.STRONG_KEY_ENV
     )
     return parser
 
@@ -855,7 +1049,55 @@ def build_client_config(
     return config, None
 
 
+def critic_flags_given(args: argparse.Namespace) -> bool:
+    return bool(
+        args.critic_model or args.critic_base_url or args.critic_key_env or args.critic_adapters
+    )
+
+
+def build_cascade_settings(args: argparse.Namespace) -> Tuple[Optional[Settings], Optional[str]]:
+    cheap_cfg = router.cheap_config(
+        args.cheap_model, args.cheap_base_url, args.cheap_adapters, args.timeout
+    )
+    _, key_error = resolve_key(args.strong_base_url, args.strong_key_env)
+    if key_error is not None:
+        return None, key_error
+    strong_cfg = router.strong_config(
+        args.strong_model, args.strong_base_url, args.strong_key_env, args.timeout
+    )
+    critic_cfg: Optional[llm_client.ClientConfig] = None
+    if critic_flags_given(args):
+        critic_cfg, critic_error = build_client_config(
+            args.critic_model or args.strong_model,
+            args.critic_base_url or args.strong_base_url,
+            args.critic_key_env or args.strong_key_env,
+            args.critic_adapters,
+            args.timeout,
+            args.thinking,
+        )
+        if critic_error is not None:
+            return None, critic_error
+    policy = cascade.policy_for(
+        args.routing,
+        router_spec.DEFAULT_CONFIDENCE_THRESHOLD,
+        router_spec.CONFLICT_SEVERITY_CEILING,
+    )
+    settings = Settings(
+        strong_cfg,
+        critic_cfg,
+        args.self_check_trigger,
+        args.spec_version,
+        args.routing,
+        cheap_cfg,
+        strong_cfg,
+        policy,
+    )
+    return settings, None
+
+
 def build_settings(args: argparse.Namespace) -> Tuple[Optional[Settings], Optional[str]]:
+    if args.routing != cascade.ROUTING_OFF:
+        return build_cascade_settings(args)
     client_cfg, client_error = build_client_config(
         args.model, args.base_url, args.key_env, args.adapters, args.timeout, args.thinking
     )
@@ -877,24 +1119,62 @@ def build_settings(args: argparse.Namespace) -> Tuple[Optional[Settings], Option
     return Settings(client_cfg, critic_cfg, args.self_check_trigger, args.spec_version), None
 
 
+def key_env_of(args: argparse.Namespace) -> str:
+    if args.routing != cascade.ROUTING_OFF:
+        return args.strong_key_env
+    return args.key_env
+
+
+def describe_routing(settings: Settings) -> List[str]:
+    if not settings.cascade_on:
+        return [
+            "Роутинг: %s - %s"
+            % (cascade.ROUTING_OFF, cascade.ROUTING_TITLES[cascade.ROUTING_OFF])
+        ]
+    policy = settings.policy
+    lines = [
+        "Роутинг: %s - %s" % (settings.routing, cascade.ROUTING_TITLES[settings.routing]),
+        "Стратегия каскада: %s - %s"
+        % (policy.strategy, router_spec.STRATEGY_TITLES[policy.strategy]),
+        "Правила эскалации: %s" % ", ".join(policy.heuristics),
+        "Дешёвый уровень: %s (%s)"
+        % (settings.cheap_cfg.model, settings.cheap_cfg.base_url),
+        "Сильный уровень: %s (%s)"
+        % (settings.strong_cfg.model, settings.strong_cfg.base_url),
+        "Порог уверенности для E_CONF: %.2f" % policy.confidence_threshold,
+    ]
+    if settings.cheap_cfg.adapter:
+        lines.append("Адаптер дешёвого уровня: %s" % settings.cheap_cfg.adapter)
+    return lines
+
+
 def describe_startup(args: argparse.Namespace, settings: Settings) -> List[str]:
     critic = settings.critic_cfg or settings.client_cfg
     lines = [
         "Сервер триажа слушает http://%s:%d%s" % (args.host, args.port, CHAT_PATHS[0]),
-        "Модель основного прохода: %s (%s)"
-        % (settings.client_cfg.model, settings.client_cfg.base_url),
-        "Модель критика: %s (%s)" % (critic.model, critic.base_url),
+    ]
+    if not settings.cascade_on:
+        lines.append(
+            "Модель основного прохода: %s (%s)"
+            % (settings.client_cfg.model, settings.client_cfg.base_url)
+        )
+    if settings.cascade_on and settings.critic_cfg is None:
+        lines.append("Критик: каждый уровень проверяет сам себя")
+    else:
+        lines.append("Модель критика: %s (%s)" % (critic.model, critic.base_url))
+    lines += [
         "Триггер критика: %s - %s"
         % (
             settings.self_check_trigger,
             spec7.SELF_CHECK_TRIGGER_TITLES[settings.self_check_trigger],
         ),
-        "Ключ: %s" % llm_client.describe_key_source(args.key_env),
+        "Ключ: %s" % llm_client.describe_key_source(key_env_of(args)),
         "Имя модели для клиента: %s" % SERVED_MODEL,
         "Версия набора маршрутов: %s - %s"
         % (settings.spec_version, SPEC_VERSION_TITLES[settings.spec_version]),
     ]
-    if settings.client_cfg.adapter:
+    lines.extend(describe_routing(settings))
+    if not settings.cascade_on and settings.client_cfg.adapter:
         lines.append("Адаптер основного прохода: %s" % settings.client_cfg.adapter)
     if critic.adapter:
         lines.append("Адаптер критика: %s" % critic.adapter)

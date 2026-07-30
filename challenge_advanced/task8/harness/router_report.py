@@ -6,6 +6,16 @@
 Если стратегия прогонялась несколько раз, показывается диапазон и медиана, а для missed_emergency
 берётся худший прогон - правило task7, разброс не сглаживается.
 
+Ключ --traffic-mix переключает вес кейсов. При test каждый кейс весит одинаково, как в наборе:
+20 clean, 15 borderline, 15 noisy. При realistic вес берётся по группе из TRAFFIC_WEIGHTS -
+clean 0.80, borderline 0.15, noisy 0.05 - и делится на число кейсов группы, попавших в прогон.
+Взвешиваются только точность, доля эскалаций, стоимость и экономия.
+
+Пропущенные экстренные не взвешиваются никогда. Это абсолютный счётчик безопасности: один
+пропущенный ребёнок остаётся одним пропущенным ребёнком, каким бы редким ни был его тип трафика.
+По той же причине не взвешиваются ложные тревоги, число вызовов и задержки - это счётчики, а не
+доли. В таблице и в JSON рядом с цифрами всегда стоит, каким миксом они посчитаны.
+
 Exit code 1, если у любой роутинг-стратегии missed_emergency хуже, чем у only_strong.
 """
 
@@ -54,7 +64,57 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("inputs", nargs="*", default=[])
     parser.add_argument("--cases", dest="cases_path", default=router_spec.CASES_PATH)
     parser.add_argument("--out", dest="out_path", default=router_spec.DEFAULT_REPORT_PATH)
+    parser.add_argument(
+        "--traffic-mix",
+        dest="traffic_mix",
+        choices=router_spec.TRAFFIC_MIXES,
+        default=router_spec.DEFAULT_TRAFFIC_MIX,
+        help="как взвешивать кейсы: test - поровну, realistic - по долям групп в живом трафике",
+    )
     return parser
+
+
+def group_of(case: Optional[Dict[str, Any]]) -> Optional[str]:
+    if case is None:
+        return None
+    group = case.get("group")
+    if not isinstance(group, str):
+        return None
+    return group
+
+
+def case_weights(
+    records: List[Dict[str, Any]], cases: Dict[str, Dict[str, Any]], mix: str
+) -> Optional[Dict[str, float]]:
+    """Вес каждого кейса прогона. None - режим test, там все веса равны единице."""
+    if mix != router_spec.TRAFFIC_MIX_REALISTIC:
+        return None
+    sizes: Dict[str, int] = {}
+    for record in records:
+        group = group_of(cases.get(str(record.get("case_id"))))
+        if group is None:
+            continue
+        sizes[group] = sizes.get(group, 0) + 1
+    present_weight = sum(
+        router_spec.TRAFFIC_WEIGHTS.get(group, 0.0) for group in sizes if sizes[group]
+    )
+    weights: Dict[str, float] = {}
+    for record in records:
+        case_id = str(record.get("case_id"))
+        group = group_of(cases.get(case_id))
+        size = sizes.get(group or "", 0)
+        share = router_spec.TRAFFIC_WEIGHTS.get(group or "", 0.0)
+        if not size or not share or present_weight <= 0:
+            weights[case_id] = 0.0
+            continue
+        weights[case_id] = share / size / present_weight
+    return weights
+
+
+def weight_of(weights: Optional[Dict[str, float]], case_id: str) -> float:
+    if weights is None:
+        return 1.0
+    return weights.get(case_id, 0.0)
 
 
 def collect_paths(inputs: List[str]) -> List[str]:
@@ -197,7 +257,7 @@ def count_reasons(records: List[Dict[str, Any]]) -> Dict[str, int]:
         for code in record.get("escalation_reasons") or []:
             counts[str(code)] = counts.get(str(code), 0) + 1
     ordered: Dict[str, int] = {}
-    for code in router_spec.ESCALATION_CODES:
+    for code in router_spec.KNOWN_ESCALATION_CODES:
         if code in counts:
             ordered[code] = counts[code]
     for code in sorted(counts):
@@ -212,6 +272,7 @@ def summarize_run(
     strategy: str,
     path: str,
     counterfactual: Dict[str, str],
+    weights: Optional[Dict[str, float]] = None,
 ) -> Dict[str, Any]:
     route_graded = 0
     correct = 0
@@ -226,10 +287,19 @@ def summarize_run(
     calls_strong = 0
     cost = 0.0
     latencies: List[float] = []
+    weight_total = 0.0
+    weight_escalated = 0.0
+    weight_graded = 0.0
+    weight_correct = 0.0
+    weight_cost = 0.0
 
     for record in records:
+        case_id = str(record.get("case_id"))
+        weight = weight_of(weights, case_id)
+        weight_total += weight
         if record.get("escalated"):
             escalated += 1
+            weight_escalated += weight
         if record.get("error"):
             errors += 1
         calls_cheap += int(record.get("calls_cheap") or 0)
@@ -237,10 +307,11 @@ def summarize_run(
         value = record.get("cost_usd")
         if isinstance(value, (int, float)) and not isinstance(value, bool):
             cost += float(value)
+            weight_cost += weight * float(value)
         latency = record.get("latency_ms")
         if isinstance(latency, int):
             latencies.append(float(latency))
-        case = cases.get(str(record.get("case_id")))
+        case = cases.get(case_id)
         if case is None:
             unknown_cases += 1
             continue
@@ -252,14 +323,28 @@ def summarize_run(
         gold = str(case.get("expected_route"))
         predicted = record.get("final_route")
         route_graded += 1
+        weight_graded += weight
         if predicted == gold:
             correct += 1
+            weight_correct += weight
         if gold == spec7.ROUTE_EMERGENCY and report.route_severity(predicted) < spec7.SEVERITY[gold]:
             missed_emergency += 1
         if gold != spec7.ROUTE_EMERGENCY and predicted == spec7.ROUTE_EMERGENCY:
             false_emergency += 1
 
     total = len(records)
+    if weights is None:
+        escalated_share = round(escalated / total, 4) if total else 0.0
+        stayed_share = round((total - escalated) / total, 4) if total else 0.0
+        accuracy = round(correct / route_graded, 4) if route_graded else 0.0
+        cost_reported = round(cost, 6)
+    else:
+        escalated_share = round(weight_escalated / weight_total, 4) if weight_total else 0.0
+        stayed_share = (
+            round((weight_total - weight_escalated) / weight_total, 4) if weight_total else 0.0
+        )
+        accuracy = round(weight_correct / weight_graded, 4) if weight_graded else 0.0
+        cost_reported = round(weight_cost / weight_total * total, 6) if weight_total else 0.0
     return {
         "strategy": strategy,
         "path": path,
@@ -267,18 +352,20 @@ def summarize_run(
         "total": total,
         "escalated": escalated,
         "stayed": total - escalated,
-        "escalated_share": round(escalated / total, 4) if total else 0.0,
-        "stayed_share": round((total - escalated) / total, 4) if total else 0.0,
+        "escalated_share": escalated_share,
+        "stayed_share": stayed_share,
         "route_graded": route_graded,
         "correct": correct,
-        "accuracy": round(correct / route_graded, 4) if route_graded else 0.0,
+        "accuracy": accuracy,
+        "accuracy_unweighted": round(correct / route_graded, 4) if route_graded else 0.0,
+        "cost_usd_unweighted": round(cost, 6),
         "missed_emergency": missed_emergency,
         "false_emergency": false_emergency,
         "noisy_expected_fail": status_graded,
         "noisy_handled": status_correct,
         "calls_cheap": calls_cheap,
         "calls_strong": calls_strong,
-        "cost_usd": round(cost, 6),
+        "cost_usd": cost_reported,
         "latency_p50_ms": int(report.percentile(latencies, router_spec.PERCENTILE_50)),
         "latency_p95_ms": int(report.percentile(latencies, router_spec.PERCENTILE_95)),
         "errors": errors,
@@ -307,7 +394,7 @@ def merge_reasons(runs: List[Dict[str, Any]]) -> Dict[str, int]:
         for code, value in run["escalation_reasons"].items():
             counts[code] = counts.get(code, 0) + value
     ordered: Dict[str, int] = {}
-    for code in router_spec.ESCALATION_CODES:
+    for code in router_spec.KNOWN_ESCALATION_CODES:
         if code in counts:
             ordered[code] = counts[code]
     for code in sorted(counts):
@@ -334,6 +421,8 @@ def aggregate_strategy(strategy: str, runs: List[Dict[str, Any]]) -> Dict[str, A
         "escalated_share": spread([run["escalated_share"] for run in runs]),
         "stayed_share": spread([run["stayed_share"] for run in runs]),
         "accuracy": spread([run["accuracy"] for run in runs]),
+        "accuracy_unweighted": spread([run["accuracy_unweighted"] for run in runs]),
+        "cost_usd_unweighted": spread([run["cost_usd_unweighted"] for run in runs]),
         "missed_emergency": spread([float(run["missed_emergency"]) for run in runs], True),
         "missed_emergency_worst": max(run["missed_emergency"] for run in runs),
         "false_emergency": spread([float(run["false_emergency"]) for run in runs], True),
@@ -410,9 +499,20 @@ def value_with_spread(block: Dict[str, Any], formatter) -> str:
     )
 
 
-def print_table(aggregates: Dict[str, Dict[str, Any]]) -> None:
+def weighted_mode(mix: str) -> bool:
+    return mix == router_spec.TRAFFIC_MIX_REALISTIC
+
+
+def mix_line(mix: str) -> str:
+    line = "Микс трафика: %s - %s\n" % (mix, router_spec.TRAFFIC_MIX_TITLES.get(mix, mix))
+    if weighted_mode(mix):
+        line += "Источник весов: %s\n" % router_spec.TRAFFIC_WEIGHTS_SOURCE
+    return line
+
+
+def print_table(aggregates: Dict[str, Dict[str, Any]], mix: str) -> None:
     header = " ".join("%-*s" % (width, title) for title, width in TABLE_COLUMNS)
-    sys.stdout.write("\nСводка по стратегиям\n")
+    sys.stdout.write("\nСводка по стратегиям, микс %s\n" % mix)
     sys.stdout.write(header + "\n")
     sys.stdout.write("-" * len(header) + "\n")
     for strategy in router_spec.STRATEGIES:
@@ -441,6 +541,43 @@ def print_table(aggregates: Dict[str, Dict[str, Any]]) -> None:
         "\nпроп.экс и ложн.экс - худший прогон, остальное - медиана по прогонам. "
         "low и high - вызовы дешёвого и сильного уровня.\n"
     )
+    if not weighted_mode(mix):
+        return
+    sys.stdout.write(
+        "ВЗВЕШЕНЫ миксом %s: эскал., точность, цена USD, экономия. Это МОДЕЛЬ трафика, "
+        "а не наблюдение: замерены цифры из колонки «без» ниже.\n"
+        "НЕ ВЗВЕШЕНЫ, абсолютные счётчики: проп.экс, ложн.экс, low, high, p50, p95.\n"
+        "Пропущенные экстренные не взвешиваются намеренно: редкость группы не делает "
+        "пропущенный экстренный случай дешевле.\n" % mix
+    )
+
+
+def print_weight_comparison(aggregates: Dict[str, Dict[str, Any]], mix: str) -> None:
+    if not weighted_mode(mix):
+        return
+    sys.stdout.write("\nВзвешенное против невзвешенного, медианы по прогонам\n")
+    sys.stdout.write(
+        "  %-14s %-19s %-19s %s\n"
+        % ("стратегия", "точность вес/без", "цена USD вес/без", "проп.экс, без весов")
+    )
+    for strategy in router_spec.STRATEGIES:
+        aggregate = aggregates.get(strategy)
+        if aggregate is None:
+            continue
+        sys.stdout.write(
+            "  %-14s %-19s %-19s %s\n"
+            % (
+                strategy,
+                "%.4f / %.4f"
+                % (aggregate["accuracy"]["median"], aggregate["accuracy_unweighted"]["median"]),
+                "%s / %s"
+                % (
+                    format_cost(aggregate["cost_usd"]["median"]),
+                    format_cost(aggregate["cost_usd_unweighted"]["median"]),
+                ),
+                str(aggregate["missed_emergency_worst"]),
+            )
+        )
 
 
 def print_spreads(aggregates: Dict[str, Dict[str, Any]]) -> None:
@@ -510,7 +647,7 @@ def print_benefit(aggregates: Dict[str, Dict[str, Any]]) -> None:
             )
 
 
-def print_success_criteria(aggregates: Dict[str, Dict[str, Any]]) -> None:
+def print_success_criteria(aggregates: Dict[str, Dict[str, Any]], mix: str) -> None:
     cheap = aggregates.get(router_spec.STRATEGY_ONLY_CHEAP)
     strong = aggregates.get(router_spec.STRATEGY_ONLY_STRONG)
     if cheap is None or strong is None:
@@ -519,7 +656,7 @@ def print_success_criteria(aggregates: Dict[str, Dict[str, Any]]) -> None:
             % (router_spec.STRATEGY_ONLY_CHEAP, router_spec.STRATEGY_ONLY_STRONG)
         )
         return
-    sys.stdout.write("\nКритерий успеха из SPEC раздел 7\n")
+    sys.stdout.write("\nКритерий успеха из SPEC раздел 7, микс %s\n" % mix)
     for strategy in router_spec.ROUTING_STRATEGIES:
         aggregate = aggregates.get(strategy)
         if aggregate is None:
@@ -568,7 +705,14 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     counterfactual = counterfactual_routes(runs)
     summaries = [
-        summarize_run(run["records"], cases, run["strategy"], run["path"], counterfactual)
+        summarize_run(
+            run["records"],
+            cases,
+            run["strategy"],
+            run["path"],
+            counterfactual,
+            case_weights(run["records"], cases, args.traffic_mix),
+        )
         for run in runs
     ]
 
@@ -584,22 +728,41 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     sys.stdout.write("Прогонов прочитано: %d\n" % len(summaries))
     sys.stdout.write("Кейсов в наборе: %d, файл %s\n" % (len(cases), args.cases_path))
+    sys.stdout.write(mix_line(args.traffic_mix))
     if reference_cost is None:
         sys.stdout.write(
             "Прогона %s нет, экономия и гейт по безопасности не считаются.\n"
             % router_spec.STRATEGY_ONLY_STRONG
         )
 
-    print_table(aggregates)
+    print_table(aggregates, args.traffic_mix)
+    print_weight_comparison(aggregates, args.traffic_mix)
     print_spreads(aggregates)
     print_reasons(aggregates)
     print_benefit(aggregates)
-    print_success_criteria(aggregates)
+    print_success_criteria(aggregates, args.traffic_mix)
 
     payload = {
         "cases_path": args.cases_path,
         "cases_total": len(cases),
+        "traffic_mix": args.traffic_mix,
+        "traffic_mix_title": router_spec.TRAFFIC_MIX_TITLES.get(
+            args.traffic_mix, args.traffic_mix
+        ),
+        "traffic_weights": (
+            router_spec.TRAFFIC_WEIGHTS if weighted_mode(args.traffic_mix) else None
+        ),
+        "traffic_weights_source": (
+            router_spec.TRAFFIC_WEIGHTS_SOURCE if weighted_mode(args.traffic_mix) else None
+        ),
+        "weighted_metrics": (
+            ["accuracy", "escalated_share", "stayed_share", "cost_usd", "saved_vs_strong"]
+            if weighted_mode(args.traffic_mix)
+            else []
+        ),
+        "unweighted_metrics": list(router_spec.UNWEIGHTED_METRICS),
         "confidence_thresholds": list(router_spec.CONFIDENCE_THRESHOLDS),
+        "conflict_severity_ceiling": router_spec.CONFLICT_SEVERITY_CEILING,
         "answer_length_bounds": [router_spec.MIN_ANSWER_CHARS, router_spec.MAX_ANSWER_CHARS],
         "reference_cost_usd": reference_cost,
         "strategies": {

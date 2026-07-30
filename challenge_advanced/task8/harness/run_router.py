@@ -48,6 +48,13 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=router_spec.DEFAULT_CONFIDENCE_THRESHOLD,
     )
+    parser.add_argument(
+        "--conflict-ceiling",
+        dest="conflict_ceiling",
+        choices=spec7.ROUTES,
+        default=spec7.ROUTE_DOCTOR_SOON,
+        help="самый тяжёлый ответ дешёвой модели, который E_CONFLICT ещё считает расхождением",
+    )
     parser.add_argument("--repeats", type=int, default=router_spec.DEFAULT_REPEATS)
     parser.add_argument("--cases", dest="cases_path", default=router_spec.CASES_PATH)
     parser.add_argument("--out-dir", dest="out_dir", default=router_spec.RAW_DIR)
@@ -98,7 +105,29 @@ def expected_calls(strategy: str, total: int, risk_count: int) -> Dict[str, Any]
     if strategy == router_spec.STRATEGY_ROUTE_ALL:
         stayed = total - risk_count
         return {"cheap": (stayed, stayed), "strong": (risk_count, total)}
+    if strategy == router_spec.STRATEGY_ROUTE_CONFLICT:
+        return {"cheap": (total, total), "strong": (0, risk_count)}
     return {"cheap": (total, total), "strong": (0, total)}
+
+
+def dead_confidence_threshold(strategies: List[str], threshold: float) -> bool:
+    uses_conf = any(
+        router_spec.E_CONF in router_spec.STRATEGY_HEURISTICS.get(strategy, ())
+        for strategy in strategies
+    )
+    return uses_conf and threshold < router_spec.MEASURED_CONFIDENCE_FLOOR
+
+
+def confidence_warning(threshold: float) -> str:
+    return (
+        "ВНИМАНИЕ: порог E_CONF %.2f ниже измеренного минимума уверенности дешёвой модели %.2f. "
+        "Правило не сработает ни разу. Значения для перебора: %s\n"
+        % (
+            threshold,
+            router_spec.MEASURED_CONFIDENCE_FLOOR,
+            ", ".join("%.2f" % value for value in router_spec.CONFIDENCE_THRESHOLDS),
+        )
+    )
 
 
 def format_range(bounds) -> str:
@@ -147,7 +176,13 @@ def print_dry_run(
         )
     )
     sys.stdout.write("Порог уверенности для E_CONF: %.2f\n" % args.conf_threshold)
-    sys.stdout.write("Повторов каждой стратегии: %d\n\n" % args.repeats)
+    sys.stdout.write(
+        "Потолок расхождения для E_CONFLICT: %s и спокойнее\n" % args.conflict_ceiling
+    )
+    sys.stdout.write("Повторов каждой стратегии: %d\n" % args.repeats)
+    if dead_confidence_threshold(strategies_for(args.strategy), args.conf_threshold):
+        sys.stdout.write(confidence_warning(args.conf_threshold))
+    sys.stdout.write("\n")
 
     header = "%-14s %-38s %-12s %-12s %s" % (
         "стратегия",
@@ -363,13 +398,19 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     sys.stdout.write("Порог уверенности для E_CONF: %.2f\n" % args.conf_threshold)
     sys.stdout.write(
+        "Потолок расхождения для E_CONFLICT: %s и спокойнее\n" % args.conflict_ceiling
+    )
+    sys.stdout.write(
         "Стратегий: %d, повторов каждой: %d\n" % (len(selected), args.repeats)
     )
+    if dead_confidence_threshold(selected, args.conf_threshold):
+        sys.stdout.write(confidence_warning(args.conf_threshold))
 
+    conflict_ceiling = spec7.SEVERITY[args.conflict_ceiling]
     summaries: List[Dict[str, Any]] = []
     for repeat in range(1, args.repeats + 1):
         for strategy in selected:
-            policy = router.policy_for(strategy, args.conf_threshold)
+            policy = router.policy_for(strategy, args.conf_threshold, conflict_ceiling)
             out_path = out_path_for(args.out_dir, strategy, repeat, args.repeats)
             summaries.append(
                 run_strategy(cases, policy, cheap_cfg, strong_cfg, out_path, args.workers)

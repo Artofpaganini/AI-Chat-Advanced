@@ -1,13 +1,24 @@
 {
   "cases_path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task7/data/cases.jsonl",
   "cases_total": 50,
-  "confidence_thresholds": [
-    0.5,
-    0.65,
-    0.75,
-    0.85,
-    0.95
+  "traffic_mix": "test",
+  "traffic_mix_title": "тестовый набор как есть, каждый кейс весит одинаково, это наблюдение",
+  "traffic_weights": null,
+  "traffic_weights_source": null,
+  "weighted_metrics": [],
+  "unweighted_metrics": [
+    "пропущенные экстренные",
+    "ложные тревоги",
+    "вызовы уровней",
+    "задержки"
   ],
+  "confidence_thresholds": [
+    0.82,
+    0.86,
+    0.9,
+    0.94
+  ],
+  "conflict_severity_ceiling": 2,
   "answer_length_bounds": [
     40,
     1500
@@ -36,6 +47,16 @@
         "median": 0.8261,
         "min": 0.8261,
         "max": 0.8261
+      },
+      "accuracy_unweighted": {
+        "median": 0.8261,
+        "min": 0.8261,
+        "max": 0.8261
+      },
+      "cost_usd_unweighted": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
       },
       "missed_emergency": {
         "median": 1,
@@ -122,6 +143,16 @@
         "min": 0.8696,
         "max": 0.8696
       },
+      "accuracy_unweighted": {
+        "median": 0.8696,
+        "min": 0.8696,
+        "max": 0.8696
+      },
+      "cost_usd_unweighted": {
+        "median": 0.001339,
+        "min": 0.001339,
+        "max": 0.001339
+      },
       "missed_emergency": {
         "median": 0,
         "min": 0,
@@ -206,6 +237,16 @@
         "median": 0.8478,
         "min": 0.8478,
         "max": 0.8478
+      },
+      "accuracy_unweighted": {
+        "median": 0.8478,
+        "min": 0.8478,
+        "max": 0.8478
+      },
+      "cost_usd_unweighted": {
+        "median": 0.000542,
+        "min": 0.000542,
+        "max": 0.000542
       },
       "missed_emergency": {
         "median": 0,
@@ -294,6 +335,16 @@
         "min": 0.8043,
         "max": 0.8043
       },
+      "accuracy_unweighted": {
+        "median": 0.8043,
+        "min": 0.8043,
+        "max": 0.8043
+      },
+      "cost_usd_unweighted": {
+        "median": 9.5e-05,
+        "min": 9.5e-05,
+        "max": 9.5e-05
+      },
       "missed_emergency": {
         "median": 1,
         "min": 1,
@@ -380,6 +431,16 @@
         "median": 0.8478,
         "min": 0.8478,
         "max": 0.8478
+      },
+      "accuracy_unweighted": {
+        "median": 0.8478,
+        "min": 0.8478,
+        "max": 0.8478
+      },
+      "cost_usd_unweighted": {
+        "median": 0.000873,
+        "min": 0.000873,
+        "max": 0.000873
       },
       "missed_emergency": {
         "median": 0,
@@ -468,6 +529,16 @@
         "min": 0.8696,
         "max": 0.8696
       },
+      "accuracy_unweighted": {
+        "median": 0.8696,
+        "min": 0.8696,
+        "max": 0.8696
+      },
+      "cost_usd_unweighted": {
+        "median": 0.000968,
+        "min": 0.000968,
+        "max": 0.000968
+      },
       "missed_emergency": {
         "median": 0,
         "min": 0,
@@ -533,6 +604,201 @@
       },
       "saved_vs_strong_usd": 0.000371,
       "saved_vs_strong_share": 0.2771
+    },
+    "route_conflict": {
+      "strategy": "route_conflict",
+      "title": "эскалация по расхождению риска и ответа",
+      "runs": 1,
+      "files": [
+        "router_route_conflict.jsonl"
+      ],
+      "total": 50,
+      "escalated_share": {
+        "median": 0.3,
+        "min": 0.3,
+        "max": 0.3
+      },
+      "stayed_share": {
+        "median": 0.7,
+        "min": 0.7,
+        "max": 0.7
+      },
+      "accuracy": {
+        "median": 0.8261,
+        "min": 0.8261,
+        "max": 0.8261
+      },
+      "accuracy_unweighted": {
+        "median": 0.8261,
+        "min": 0.8261,
+        "max": 0.8261
+      },
+      "cost_usd_unweighted": {
+        "median": 0.00041,
+        "min": 0.00041,
+        "max": 0.00041
+      },
+      "missed_emergency": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "missed_emergency_worst": 0,
+      "false_emergency": {
+        "median": 6,
+        "min": 6,
+        "max": 6
+      },
+      "false_emergency_worst": 6,
+      "cost_usd": {
+        "median": 0.00041,
+        "min": 0.00041,
+        "max": 0.00041
+      },
+      "calls_cheap": {
+        "median": 50,
+        "min": 50,
+        "max": 50
+      },
+      "calls_strong": {
+        "median": 15,
+        "min": 15,
+        "max": 15
+      },
+      "latency_p50_ms": {
+        "median": 6063,
+        "min": 6063,
+        "max": 6063
+      },
+      "latency_p95_ms": {
+        "median": 12778,
+        "min": 12778,
+        "max": 12778
+      },
+      "errors": 0,
+      "noisy_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "escalation_reasons": {
+        "E_CONFLICT": 15
+      },
+      "benefit": {
+        "escalated": 15,
+        "comparable": 15,
+        "from_pair": 15,
+        "from_counterfactual": 0,
+        "not_comparable": 0,
+        "changed_route": 4,
+        "unchanged_route": 11,
+        "improved": 2,
+        "worsened": 1,
+        "neutral_change": 1,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 11
+      },
+      "saved_vs_strong_usd": 0.000929,
+      "saved_vs_strong_share": 0.6938
+    },
+    "route_smart": {
+      "strategy": "route_smart",
+      "title": "расхождение плюс негодный ответ",
+      "runs": 1,
+      "files": [
+        "router_route_smart.jsonl"
+      ],
+      "total": 50,
+      "escalated_share": {
+        "median": 0.38,
+        "min": 0.38,
+        "max": 0.38
+      },
+      "stayed_share": {
+        "median": 0.62,
+        "min": 0.62,
+        "max": 0.62
+      },
+      "accuracy": {
+        "median": 0.8478,
+        "min": 0.8478,
+        "max": 0.8478
+      },
+      "accuracy_unweighted": {
+        "median": 0.8478,
+        "min": 0.8478,
+        "max": 0.8478
+      },
+      "cost_usd_unweighted": {
+        "median": 0.000534,
+        "min": 0.000534,
+        "max": 0.000534
+      },
+      "missed_emergency": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "missed_emergency_worst": 0,
+      "false_emergency": {
+        "median": 5,
+        "min": 5,
+        "max": 5
+      },
+      "false_emergency_worst": 5,
+      "cost_usd": {
+        "median": 0.000534,
+        "min": 0.000534,
+        "max": 0.000534
+      },
+      "calls_cheap": {
+        "median": 50,
+        "min": 50,
+        "max": 50
+      },
+      "calls_strong": {
+        "median": 19,
+        "min": 19,
+        "max": 19
+      },
+      "latency_p50_ms": {
+        "median": 15195,
+        "min": 15195,
+        "max": 15195
+      },
+      "latency_p95_ms": {
+        "median": 26474,
+        "min": 26474,
+        "max": 26474
+      },
+      "errors": 0,
+      "noisy_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "escalation_reasons": {
+        "E_GUARD": 3,
+        "E_CONFLICT": 16
+      },
+      "benefit": {
+        "escalated": 19,
+        "comparable": 16,
+        "from_pair": 19,
+        "from_counterfactual": 0,
+        "not_comparable": 3,
+        "changed_route": 4,
+        "unchanged_route": 12,
+        "improved": 2,
+        "worsened": 1,
+        "neutral_change": 1,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 12
+      },
+      "saved_vs_strong_usd": 0.000805,
+      "saved_vs_strong_share": 0.6012
     }
   },
   "runs": [
@@ -548,6 +814,8 @@
       "route_graded": 46,
       "correct": 38,
       "accuracy": 0.8261,
+      "accuracy_unweighted": 0.8261,
+      "cost_usd_unweighted": 0.0,
       "missed_emergency": 1,
       "false_emergency": 4,
       "noisy_expected_fail": 4,
@@ -588,6 +856,8 @@
       "route_graded": 46,
       "correct": 40,
       "accuracy": 0.8696,
+      "accuracy_unweighted": 0.8696,
+      "cost_usd_unweighted": 0.001339,
       "missed_emergency": 0,
       "false_emergency": 3,
       "noisy_expected_fail": 4,
@@ -628,6 +898,8 @@
       "route_graded": 46,
       "correct": 40,
       "accuracy": 0.8696,
+      "accuracy_unweighted": 0.8696,
+      "cost_usd_unweighted": 0.000968,
       "missed_emergency": 0,
       "false_emergency": 3,
       "noisy_expected_fail": 4,
@@ -672,6 +944,8 @@
       "route_graded": 46,
       "correct": 39,
       "accuracy": 0.8478,
+      "accuracy_unweighted": 0.8478,
+      "cost_usd_unweighted": 0.000542,
       "missed_emergency": 0,
       "false_emergency": 5,
       "noisy_expected_fail": 4,
@@ -703,6 +977,50 @@
       }
     },
     {
+      "strategy": "route_conflict",
+      "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_route_conflict.jsonl",
+      "file": "router_route_conflict.jsonl",
+      "total": 50,
+      "escalated": 15,
+      "stayed": 35,
+      "escalated_share": 0.3,
+      "stayed_share": 0.7,
+      "route_graded": 46,
+      "correct": 38,
+      "accuracy": 0.8261,
+      "accuracy_unweighted": 0.8261,
+      "cost_usd_unweighted": 0.00041,
+      "missed_emergency": 0,
+      "false_emergency": 6,
+      "noisy_expected_fail": 4,
+      "noisy_handled": 0,
+      "calls_cheap": 50,
+      "calls_strong": 15,
+      "cost_usd": 0.00041,
+      "latency_p50_ms": 6063,
+      "latency_p95_ms": 12778,
+      "errors": 0,
+      "unknown_cases": 0,
+      "escalation_reasons": {
+        "E_CONFLICT": 15
+      },
+      "benefit": {
+        "escalated": 15,
+        "comparable": 15,
+        "from_pair": 15,
+        "from_counterfactual": 0,
+        "not_comparable": 0,
+        "changed_route": 4,
+        "unchanged_route": 11,
+        "improved": 2,
+        "worsened": 1,
+        "neutral_change": 1,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 11
+      }
+    },
+    {
       "strategy": "route_risk",
       "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_route_risk.jsonl",
       "file": "router_route_risk.jsonl",
@@ -714,6 +1032,8 @@
       "route_graded": 46,
       "correct": 39,
       "accuracy": 0.8478,
+      "accuracy_unweighted": 0.8478,
+      "cost_usd_unweighted": 0.000873,
       "missed_emergency": 0,
       "false_emergency": 3,
       "noisy_expected_fail": 4,
@@ -745,6 +1065,51 @@
       }
     },
     {
+      "strategy": "route_smart",
+      "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_route_smart.jsonl",
+      "file": "router_route_smart.jsonl",
+      "total": 50,
+      "escalated": 19,
+      "stayed": 31,
+      "escalated_share": 0.38,
+      "stayed_share": 0.62,
+      "route_graded": 46,
+      "correct": 39,
+      "accuracy": 0.8478,
+      "accuracy_unweighted": 0.8478,
+      "cost_usd_unweighted": 0.000534,
+      "missed_emergency": 0,
+      "false_emergency": 5,
+      "noisy_expected_fail": 4,
+      "noisy_handled": 0,
+      "calls_cheap": 50,
+      "calls_strong": 19,
+      "cost_usd": 0.000534,
+      "latency_p50_ms": 15195,
+      "latency_p95_ms": 26474,
+      "errors": 0,
+      "unknown_cases": 0,
+      "escalation_reasons": {
+        "E_GUARD": 3,
+        "E_CONFLICT": 16
+      },
+      "benefit": {
+        "escalated": 19,
+        "comparable": 16,
+        "from_pair": 19,
+        "from_counterfactual": 0,
+        "not_comparable": 3,
+        "changed_route": 4,
+        "unchanged_route": 12,
+        "improved": 2,
+        "worsened": 1,
+        "neutral_change": 1,
+        "emergency_rescued": 1,
+        "emergency_lost": 0,
+        "wasted_calls": 12
+      }
+    },
+    {
       "strategy": "route_status",
       "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task8/raw/router_route_status.jsonl",
       "file": "router_route_status.jsonl",
@@ -756,6 +1121,8 @@
       "route_graded": 46,
       "correct": 37,
       "accuracy": 0.8043,
+      "accuracy_unweighted": 0.8043,
+      "cost_usd_unweighted": 9.5e-05,
       "missed_emergency": 1,
       "false_emergency": 5,
       "noisy_expected_fail": 4,

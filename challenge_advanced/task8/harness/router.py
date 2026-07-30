@@ -5,7 +5,39 @@
 Ответ сильной модели окончательный, третьего уровня нет.
 
 Эвристика E_RISK работает по тексту запроса до любого вызова: дешёвый уровень тогда
-не зовётся вовсе и calls_cheap остаётся нулём. Остальные четыре смотрят на ответ дешёвой модели.
+не зовётся вовсе и calls_cheap остаётся нулём. Остальные смотрят на ответ дешёвой модели.
+
+E_CONFLICT берёт тот же признак риска, что и E_RISK, но сравнивает его с ответом дешёвой модели и
+поднимает наверх только расхождение. Дешёвая ответила EMERGENCY - она уже согласна с признаком,
+платить за подтверждение незачем. Ответила спокойнее порога CONFLICT_SEVERITY_CEILING - вот это
+спор, его и разбирает сильная модель. Из-за сравнения с ответом правило постовое: дешёвый вызов
+делается всегда, зато сильный редко.
+
+Дешёвая не дала маршрута вовсе - тоже спор, и самый сильный: severity такого ответа ниже любого
+потолка, кейс уходит наверх. Это осознанно, дешёвый уровень промолчал на тексте с признаком риска.
+На наборе из 50 кейсов пустой маршрут и отклонённый вход не встретились ни разу, так что цена
+решения нулевая.
+
+Потолок ниже DOCTOR_SOON ставить нельзя, и два основания у этого разной прочности.
+
+Безопасность потолка 2 держится не на замере ответов, а на устройстве правила. Признак риска есть
+у всех 13 экстренных кейсов набора, а потолок 2 поднимает наверх любой маркерный кейс, где дешёвая
+ответила ниже EMERGENCY. Значит любой экстренный случай, который дешёвая занизила, уходит к
+сильной модели по построению, каким бы ни вышел семпл.
+
+Но и этот довод не бесплатный: он наследует безопасность у полноты маркеров на экстренном классе.
+13 из 13 - замер на 50 кейсах, а не свойство шаблонов RISK_PATTERNS. Экстренный случай,
+сформулированный мимо шаблонов, до сравнения с ответом дешёвой модели просто не дойдёт, и потолок
+его не спасёт. Величина, за которой следить дальше, - не потолок, а полнота маркеров на золотых
+EMERGENCY: просядет она, просядет и весь довод.
+
+Вред потолка 1 держится на замере, и он слабее. Зазор - экстренные кейсы, где дешёвая ответила
+ниже, - на наборе состоит из одного borderline_08 с ответом DOCTOR_SOON: потолок 2 его берёт,
+потолок 1 уже нет, и точность падает ниже only_cheap. Зазор проверен на семи семплах дешёвого
+уровня (only_cheap, route_conf на четырёх порогах, route_status, route_conflict) и во всех семи
+одинаков. Но опора всё равно узкая: сдвинься ответ на этом кейсе на SELF_CARE, и потолок 1 стал
+бы безопасным. Закреплять потолок в контракте без добора кейсов, где дешёвая занижает экстренное,
+не стоит.
 
 Статус дешёвого ответа run_baseline не считает - там всегда OK, это его контракт честной точки
 отсчёта. Поэтому статус выводится здесь через pipeline.resolve_status по порогам task7:
@@ -38,6 +70,7 @@ class RoutePolicy:
     strategy: str
     heuristics: Tuple[str, ...] = ()
     confidence_threshold: float = router_spec.DEFAULT_CONFIDENCE_THRESHOLD
+    conflict_ceiling: int = router_spec.CONFLICT_SEVERITY_CEILING
     force_strong: bool = False
 
     def enabled(self, code: str) -> bool:
@@ -63,12 +96,15 @@ class RouteOutcome:
 
 
 def policy_for(
-    strategy: str, confidence_threshold: float = router_spec.DEFAULT_CONFIDENCE_THRESHOLD
+    strategy: str,
+    confidence_threshold: float = router_spec.DEFAULT_CONFIDENCE_THRESHOLD,
+    conflict_ceiling: int = router_spec.CONFLICT_SEVERITY_CEILING,
 ) -> RoutePolicy:
     return RoutePolicy(
         strategy=strategy,
         heuristics=router_spec.STRATEGY_HEURISTICS.get(strategy, ()),
         confidence_threshold=confidence_threshold,
+        conflict_ceiling=conflict_ceiling,
         force_strong=strategy == router_spec.STRATEGY_ONLY_STRONG,
     )
 
@@ -122,8 +158,25 @@ def should_escalate_pre(case_text: str, policy: RoutePolicy) -> List[str]:
     return []
 
 
-def should_escalate_post(cheap_decision: pipeline.Decision, policy: RoutePolicy) -> List[str]:
+def route_severity(route: Optional[str]) -> int:
+    if route not in spec7.SEVERITY:
+        return router_spec.NO_ROUTE_SEVERITY
+    return spec7.SEVERITY[route]
+
+
+def is_risk_conflict(case_text: str, cheap_decision: pipeline.Decision, ceiling: int) -> bool:
+    if not pipeline.detect_risk_markers(case_text):
+        return False
+    return route_severity(cheap_decision.route) <= ceiling
+
+
+def should_escalate_post(
+    case_text: str, cheap_decision: pipeline.Decision, policy: RoutePolicy
+) -> List[str]:
     reasons: List[str] = []
+    if policy.enabled(router_spec.E_CONFLICT):
+        if is_risk_conflict(case_text, cheap_decision, policy.conflict_ceiling):
+            reasons.append(router_spec.E_CONFLICT)
     if policy.enabled(router_spec.E_CONF):
         if cheap_decision.confidence_final < policy.confidence_threshold:
             reasons.append(router_spec.E_CONF)
@@ -204,7 +257,7 @@ def route_one(
             return outcome
 
         cheap = call_level(case_text, case_id, cheap_cfg)
-        post_reasons = should_escalate_post(cheap, policy)
+        post_reasons = should_escalate_post(case_text, cheap, policy)
         if not post_reasons:
             return outcome_of_single(
                 case_id, policy, cheap, router_spec.LEVEL_CHEAP, started
