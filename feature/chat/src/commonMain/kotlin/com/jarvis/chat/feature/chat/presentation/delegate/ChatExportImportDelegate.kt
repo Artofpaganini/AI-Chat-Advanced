@@ -43,8 +43,14 @@ internal class ChatExportImportDelegate(
     }
 
     fun onImportRequested(json: String) {
+        val sessionId = currentState().activeSessionId
         viewModelScope.launch {
-            importChatHistoryUseCase(json = json, strategy = ImportStrategy.MERGE, current = currentState().messages)
+            importChatHistoryUseCase(
+                sessionId = sessionId,
+                json = json,
+                strategy = ImportStrategy.MERGE,
+                current = currentState().messages,
+            )
                 .onSuccess { messages -> dispatch(ChatAction.Internal.Imported(messages)) }
                 .onFailure { dispatch(ChatAction.Internal.ImportFailed) }
         }

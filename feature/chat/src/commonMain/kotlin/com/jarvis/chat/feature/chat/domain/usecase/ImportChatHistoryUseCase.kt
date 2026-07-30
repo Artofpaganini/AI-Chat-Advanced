@@ -9,9 +9,10 @@ internal class ImportChatHistoryUseCase(
 ) {
 
     suspend operator fun invoke(
+        sessionId: String,
         json: String,
         strategy: ImportStrategy,
         current: List<HistoryMessageModel>,
     ): Result<List<HistoryMessageModel>> =
-        runCatching { repository.importMessages(json = json, strategy = strategy, current = current) }
+        runCatching { repository.importMessages(sessionId = sessionId, json = json, strategy = strategy, current = current) }
 }

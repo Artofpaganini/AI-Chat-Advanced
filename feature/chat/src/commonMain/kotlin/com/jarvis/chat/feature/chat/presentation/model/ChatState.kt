@@ -4,6 +4,7 @@ import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 
 internal data class ChatState(
+    val activeSessionId: String = "",
     val messages: List<HistoryMessageModel> = emptyList(),
     val inputText: String = "",
     val isLoading: Boolean = false,

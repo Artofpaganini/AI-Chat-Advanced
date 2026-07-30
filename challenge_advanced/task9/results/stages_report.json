@@ -1,0 +1,409 @@
+{
+  "cases_paths": [
+    "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task7/data/cases.jsonl"
+  ],
+  "cases": 50,
+  "modes": {
+    "monolithic": {
+      "mode": "monolithic",
+      "runs": 1,
+      "files": [
+        "monolithic_runs.jsonl"
+      ],
+      "cases": 50,
+      "accuracy": {
+        "median": 0.8043,
+        "min": 0.8043,
+        "max": 0.8043
+      },
+      "missed_emergency": {
+        "median": 2,
+        "min": 2,
+        "max": 2
+      },
+      "missed_emergency_worst": 2,
+      "false_emergency": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "false_emergency_worst": 4,
+      "stage_failures": {
+        "median": 2,
+        "min": 2,
+        "max": 2
+      },
+      "latency_p50_ms": {
+        "median": 1462,
+        "min": 1462,
+        "max": 1462
+      },
+      "latency_p95_ms": {
+        "median": 1762,
+        "min": 1762,
+        "max": 1762
+      },
+      "cost_usd": {
+        "median": 0.002176,
+        "min": 0.002176,
+        "max": 0.002176
+      },
+      "calls": {
+        "median": 50,
+        "min": 50,
+        "max": 50
+      },
+      "errors": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "expected_fail": 4,
+      "expected_fail_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "groups": {
+        "clean": {
+          "graded": 20,
+          "correct": 19,
+          "accuracy": 0.95
+        },
+        "borderline": {
+          "graded": 15,
+          "correct": 8,
+          "accuracy": 0.5333
+        },
+        "noisy": {
+          "graded": 11,
+          "correct": 10,
+          "accuracy": 0.9091
+        }
+      },
+      "group_accuracy_spread": {
+        "clean": {
+          "median": 0.95,
+          "min": 0.95,
+          "max": 0.95
+        },
+        "borderline": {
+          "median": 0.5333,
+          "min": 0.5333,
+          "max": 0.5333
+        },
+        "noisy": {
+          "median": 0.9091,
+          "min": 0.9091,
+          "max": 0.9091
+        }
+      },
+      "stages": {
+        "monolithic": {
+          "calls": 50,
+          "format_failures": 2,
+          "first_failures": 0,
+          "tokens_in": 96366,
+          "tokens_out": 3493,
+          "cost_usd": 0.00217628,
+          "latency_ms": 72913
+        }
+      },
+      "violations": {
+        "W_FENCED": 2
+      },
+      "question_types": {},
+      "metrics_none": 0,
+      "metrics_with_age": 0,
+      "care_accuracy": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "care_graded": 0
+    },
+    "multistage": {
+      "mode": "multistage",
+      "runs": 1,
+      "files": [
+        "multistage_runs.jsonl"
+      ],
+      "cases": 50,
+      "accuracy": {
+        "median": 0.7391,
+        "min": 0.7391,
+        "max": 0.7391
+      },
+      "missed_emergency": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "missed_emergency_worst": 1,
+      "false_emergency": {
+        "median": 5,
+        "min": 5,
+        "max": 5
+      },
+      "false_emergency_worst": 5,
+      "stage_failures": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "latency_p50_ms": {
+        "median": 4547,
+        "min": 4547,
+        "max": 4547
+      },
+      "latency_p95_ms": {
+        "median": 5167,
+        "min": 5167,
+        "max": 5167
+      },
+      "cost_usd": {
+        "median": 0.004923,
+        "min": 0.004923,
+        "max": 0.004923
+      },
+      "calls": {
+        "median": 150,
+        "min": 150,
+        "max": 150
+      },
+      "errors": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "expected_fail": 4,
+      "expected_fail_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "groups": {
+        "clean": {
+          "graded": 20,
+          "correct": 17,
+          "accuracy": 0.85
+        },
+        "borderline": {
+          "graded": 15,
+          "correct": 9,
+          "accuracy": 0.6
+        },
+        "noisy": {
+          "graded": 11,
+          "correct": 8,
+          "accuracy": 0.7273
+        }
+      },
+      "group_accuracy_spread": {
+        "clean": {
+          "median": 0.85,
+          "min": 0.85,
+          "max": 0.85
+        },
+        "borderline": {
+          "median": 0.6,
+          "min": 0.6,
+          "max": 0.6
+        },
+        "noisy": {
+          "median": 0.7273,
+          "min": 0.7273,
+          "max": 0.7273
+        }
+      },
+      "stages": {
+        "stage1_parse": {
+          "calls": 50,
+          "format_failures": 0,
+          "first_failures": 0,
+          "tokens_in": 26516,
+          "tokens_out": 2753,
+          "cost_usd": 0.00184908,
+          "latency_ms": 70363
+        },
+        "stage2_decide": {
+          "calls": 50,
+          "format_failures": 0,
+          "first_failures": 0,
+          "tokens_in": 41530,
+          "tokens_out": 2090,
+          "cost_usd": 0.0011309,
+          "latency_ms": 68544
+        },
+        "stage3_answer": {
+          "calls": 50,
+          "format_failures": 0,
+          "first_failures": 0,
+          "tokens_in": 24950,
+          "tokens_out": 3872,
+          "cost_usd": 0.00194316,
+          "latency_ms": 87934
+        }
+      },
+      "violations": {},
+      "question_types": {
+        "CARE": 39,
+        "PARENT": 2,
+        "OTHER": 9
+      },
+      "metrics_none": 41,
+      "metrics_with_age": 0,
+      "care_accuracy": {
+        "median": 0.7436,
+        "min": 0.7436,
+        "max": 0.7436
+      },
+      "care_graded": 39
+    }
+  },
+  "runs": {
+    "monolithic": [
+      {
+        "mode": "monolithic",
+        "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task9/raw/monolithic_runs.jsonl",
+        "file": "monolithic_runs.jsonl",
+        "total": 50,
+        "route_graded": 46,
+        "correct": 37,
+        "accuracy": 0.8043,
+        "missed_emergency": 2,
+        "false_emergency": 4,
+        "expected_fail": 4,
+        "expected_fail_handled": 0,
+        "unknown_cases": 0,
+        "errors": 0,
+        "calls": 50,
+        "cost_usd": 0.002176,
+        "latency_p50_ms": 1462,
+        "latency_p95_ms": 1762,
+        "groups": {
+          "clean": {
+            "graded": 20,
+            "correct": 19,
+            "accuracy": 0.95
+          },
+          "borderline": {
+            "graded": 15,
+            "correct": 8,
+            "accuracy": 0.5333
+          },
+          "noisy": {
+            "graded": 11,
+            "correct": 10,
+            "accuracy": 0.9091
+          }
+        },
+        "stages": {
+          "monolithic": {
+            "calls": 50,
+            "format_failures": 2,
+            "first_failures": 0,
+            "tokens_in": 96366,
+            "tokens_out": 3493,
+            "cost_usd": 0.00217628,
+            "latency_ms": 72913
+          }
+        },
+        "violations": {
+          "W_FENCED": 2
+        },
+        "stage_failures": 2,
+        "question_types": {},
+        "metrics_none": 0,
+        "metrics_with_age": 0,
+        "care_graded": 0,
+        "care_accuracy": 0.0
+      }
+    ],
+    "multistage": [
+      {
+        "mode": "multistage",
+        "path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task9/raw/multistage_runs.jsonl",
+        "file": "multistage_runs.jsonl",
+        "total": 50,
+        "route_graded": 46,
+        "correct": 34,
+        "accuracy": 0.7391,
+        "missed_emergency": 1,
+        "false_emergency": 5,
+        "expected_fail": 4,
+        "expected_fail_handled": 0,
+        "unknown_cases": 0,
+        "errors": 0,
+        "calls": 150,
+        "cost_usd": 0.004923,
+        "latency_p50_ms": 4547,
+        "latency_p95_ms": 5167,
+        "groups": {
+          "clean": {
+            "graded": 20,
+            "correct": 17,
+            "accuracy": 0.85
+          },
+          "borderline": {
+            "graded": 15,
+            "correct": 9,
+            "accuracy": 0.6
+          },
+          "noisy": {
+            "graded": 11,
+            "correct": 8,
+            "accuracy": 0.7273
+          }
+        },
+        "stages": {
+          "stage1_parse": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 26516,
+            "tokens_out": 2753,
+            "cost_usd": 0.00184908,
+            "latency_ms": 70363
+          },
+          "stage2_decide": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 41530,
+            "tokens_out": 2090,
+            "cost_usd": 0.0011309,
+            "latency_ms": 68544
+          },
+          "stage3_answer": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 24950,
+            "tokens_out": 3872,
+            "cost_usd": 0.00194316,
+            "latency_ms": 87934
+          }
+        },
+        "violations": {},
+        "stage_failures": 0,
+        "question_types": {
+          "CARE": 39,
+          "PARENT": 2,
+          "OTHER": 9
+        },
+        "metrics_none": 41,
+        "metrics_with_age": 0,
+        "care_graded": 39,
+        "care_accuracy": 0.7436
+      }
+    ]
+  },
+  "hypotheses": [
+    "Гипотеза 1 (цепочка точнее на пограничных случаях, ждём прирост на группе borderline): монолит 0.5333, цепочка 0.6000 -> подтверждается.",
+    "Гипотеза 3 (цепочка устойчивее к шуму, ждём прирост на группе noisy): монолит 0.9091, цепочка 0.7273 -> не подтверждается.",
+    "Гипотеза 2 (цепочка дороже и медленнее, ждём рост стоимости примерно втрое): цена 0.004923 против 0.002176, во сколько раз дороже - 2.26; задержка p50 4547 против 1462 мс.",
+    "Гипотеза 4 (цепочка чинит дефект с показателями через QUESTION_TYPE): этап 1 сказал METRICS=none на 41 разборах, возраст утёк в показатели 0 раз; распределение QUESTION_TYPE CARE 39, OTHER 9, PARENT 2; точность на CARE 0.7436."
+  ],
+  "gate_failed": null
+}

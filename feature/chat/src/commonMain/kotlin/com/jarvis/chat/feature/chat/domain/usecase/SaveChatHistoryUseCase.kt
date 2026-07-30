@@ -7,6 +7,6 @@ internal class SaveChatHistoryUseCase(
     private val repository: ChatHistoryRepository,
 ) {
 
-    suspend operator fun invoke(messages: List<HistoryMessageModel>): Result<Unit> =
-        runCatching { repository.saveMessages(messages) }
+    suspend operator fun invoke(sessionId: String, messages: List<HistoryMessageModel>): Result<Unit> =
+        runCatching { repository.saveMessages(sessionId, messages) }
 }

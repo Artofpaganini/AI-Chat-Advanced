@@ -7,5 +7,5 @@ internal class LoadChatHistoryUseCase(
     private val repository: ChatHistoryRepository,
 ) {
 
-    suspend operator fun invoke(): List<HistoryMessageModel> = repository.loadMessages()
+    suspend operator fun invoke(sessionId: String): List<HistoryMessageModel> = repository.loadMessages(sessionId)
 }

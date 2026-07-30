@@ -8,11 +8,12 @@ internal class DeleteMessageUseCase(
 ) {
 
     suspend operator fun invoke(
+        sessionId: String,
         messages: List<HistoryMessageModel>,
         messageId: String,
     ): Result<List<HistoryMessageModel>> = runCatching {
         val updatedMessages = messages.filterNot { message -> message.id == messageId }
-        repository.saveMessages(updatedMessages)
+        repository.saveMessages(sessionId, updatedMessages)
         updatedMessages
     }
 }

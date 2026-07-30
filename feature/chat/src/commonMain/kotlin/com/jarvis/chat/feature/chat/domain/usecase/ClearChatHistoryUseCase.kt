@@ -6,6 +6,6 @@ internal class ClearChatHistoryUseCase(
     private val repository: ChatHistoryRepository,
 ) {
 
-    suspend operator fun invoke(): Result<Unit> =
-        runCatching { repository.clearMessages() }
+    suspend operator fun invoke(sessionId: String): Result<Unit> =
+        runCatching { repository.clearMessages(sessionId) }
 }

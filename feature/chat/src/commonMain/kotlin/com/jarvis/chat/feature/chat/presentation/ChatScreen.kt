@@ -47,14 +47,15 @@ private const val SPEECH_PLAYBACK_FAILED_MESSAGE = "Speech playback failed."
 private const val SCROLL_TO_BOTTOM_TARGET_INDEX = Int.MAX_VALUE
 
 @Composable
-fun ChatScreen(onSettingsClick: () -> Unit, modifier: Modifier = Modifier) {
-    ChatContent(onSettingsClick = onSettingsClick, modifier = modifier)
+fun ChatScreen(onSettingsClick: () -> Unit, onSessionsClick: () -> Unit, modifier: Modifier = Modifier) {
+    ChatContent(onSettingsClick = onSettingsClick, onSessionsClick = onSessionsClick, modifier = modifier)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ChatContent(
     onSettingsClick: () -> Unit,
+    onSessionsClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ChatViewModel = koinViewModel(),
 ) {
@@ -145,6 +146,7 @@ internal fun ChatContent(
                 actions = {
                     ChatTopBarActions(
                         isFavoritesFilterActive = uiState.isFavoritesFilterActive,
+                        onSessionsClick = onSessionsClick,
                         onFavoritesClick = { viewModel.onAction(ChatAction.Ui.FavoritesFilterToggled) },
                         onExportClick = { viewModel.onAction(ChatAction.Ui.ExportClicked) },
                         onImportClick = importJsonFile,

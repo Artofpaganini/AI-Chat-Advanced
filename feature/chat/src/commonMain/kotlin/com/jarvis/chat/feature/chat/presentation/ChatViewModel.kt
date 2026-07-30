@@ -8,6 +8,8 @@ import com.jarvis.chat.feature.chat.domain.usecase.DeleteMessageUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ExportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ImportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.LoadChatHistoryUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.LoadChatSessionsUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.ObserveActiveChatSessionUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
 import com.jarvis.chat.feature.chat.presentation.delegate.ChatExportImportDelegate
 import com.jarvis.chat.feature.chat.presentation.delegate.ChatHistoryDelegate
@@ -23,6 +25,8 @@ private const val COPIED_MESSAGE = "Скопировано"
 
 internal class ChatViewModel(
     sendMessageStreamUseCase: SendMessageStreamUseCase,
+    loadChatSessionsUseCase: LoadChatSessionsUseCase,
+    observeActiveChatSessionUseCase: ObserveActiveChatSessionUseCase,
     loadChatHistoryUseCase: LoadChatHistoryUseCase,
     saveChatHistoryUseCase: SaveChatHistoryUseCase,
     clearChatHistoryUseCase: ClearChatHistoryUseCase,
@@ -35,7 +39,19 @@ internal class ChatViewModel(
     uiMapper = uiMapper,
 ) {
 
+    private val replyDelegate = ChatReplyDelegate(
+        sendMessageStreamUseCase = sendMessageStreamUseCase,
+        saveChatHistoryUseCase = saveChatHistoryUseCase,
+        viewModelScope = viewModelScope,
+        currentState = ::currentState,
+        updateState = ::updateState,
+        postEvent = ::postEvent,
+        dispatch = ::onAction,
+    )
+
     private val historyDelegate = ChatHistoryDelegate(
+        loadChatSessionsUseCase = loadChatSessionsUseCase,
+        observeActiveChatSessionUseCase = observeActiveChatSessionUseCase,
         loadChatHistoryUseCase = loadChatHistoryUseCase,
         saveChatHistoryUseCase = saveChatHistoryUseCase,
         clearChatHistoryUseCase = clearChatHistoryUseCase,
@@ -45,16 +61,8 @@ internal class ChatViewModel(
         updateState = ::updateState,
         postEvent = ::postEvent,
         dispatch = ::onAction,
-    )
-
-    private val replyDelegate = ChatReplyDelegate(
-        sendMessageStreamUseCase = sendMessageStreamUseCase,
-        viewModelScope = viewModelScope,
-        currentState = ::currentState,
-        updateState = ::updateState,
-        postEvent = ::postEvent,
-        dispatch = ::onAction,
-        persistHistory = historyDelegate::persist,
+        liveSessionMessages = replyDelegate::liveMessagesOrNull,
+        isSessionGenerating = replyDelegate::isGenerating,
     )
 
     private val exportImportDelegate = ChatExportImportDelegate(
@@ -73,7 +81,7 @@ internal class ChatViewModel(
     )
 
     init {
-        historyDelegate.loadHistory()
+        historyDelegate.start()
     }
 
     override fun onAction(action: ChatAction) {
@@ -97,11 +105,18 @@ internal class ChatViewModel(
             is ChatAction.Ui.DeleteMessageClicked -> historyDelegate.onDeleteMessageClicked(action.messageId)
             is ChatAction.Ui.DeleteMessageConfirmed -> historyDelegate.onDeleteMessageConfirmed()
             is ChatAction.Ui.DeleteMessageCancelled -> historyDelegate.onDeleteMessageCancelled()
-            is ChatAction.Internal.HistoryLoaded -> historyDelegate.onHistoryLoaded(action.messages)
+            is ChatAction.Internal.ActiveSessionChanged -> historyDelegate.onActiveSessionChanged(action.sessionId)
+            is ChatAction.Internal.HistoryLoaded -> historyDelegate.onHistoryLoaded(action.sessionId, action.messages)
             is ChatAction.Internal.ReplyChunkReceived ->
-                replyDelegate.onReplyChunkReceived(action.messageId, action.textChunk, action.modelId, action.triage)
-            is ChatAction.Internal.ReplyCompleted -> replyDelegate.onReplyCompleted()
-            is ChatAction.Internal.ReplyFailed -> replyDelegate.onReplyFailed(action.messageId, action.error)
+                replyDelegate.onReplyChunkReceived(
+                    sessionId = action.sessionId,
+                    messageId = action.messageId,
+                    textChunk = action.textChunk,
+                    modelId = action.modelId,
+                    triage = action.triage,
+                )
+            is ChatAction.Internal.ReplyCompleted -> replyDelegate.onReplyCompleted(action.sessionId)
+            is ChatAction.Internal.ReplyFailed -> replyDelegate.onReplyFailed(action.sessionId, action.messageId, action.error)
             is ChatAction.Internal.Exported -> exportImportDelegate.onExported(action.filePath)
             is ChatAction.Internal.ExportFailed -> exportImportDelegate.onExportFailed()
             is ChatAction.Internal.Imported -> exportImportDelegate.onImported(action.messages)
@@ -127,7 +142,7 @@ internal class ChatViewModel(
             if (message.id == messageId) message.copy(isFavorite = !message.isFavorite) else message
         }
         updateState { copy(messages = history) }
-        historyDelegate.persist(history)
+        historyDelegate.persist(currentState.activeSessionId, history)
     }
 
     private fun onMessageCopied() {

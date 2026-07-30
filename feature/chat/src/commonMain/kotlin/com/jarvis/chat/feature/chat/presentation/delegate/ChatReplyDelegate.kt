@@ -5,8 +5,9 @@ import com.jarvis.chat.feature.ai.domain.model.AiException
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
-import com.jarvis.chat.feature.chat.domain.mapper.toChatMessageModel
+import com.jarvis.chat.feature.chat.domain.mapper.toRequestContext
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
+import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
 import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
 import com.jarvis.chat.feature.chat.presentation.model.ChatState
@@ -22,18 +23,24 @@ private const val MESSAGE_ID_PREFIX = "msg-"
 
 internal class ChatReplyDelegate(
     private val sendMessageStreamUseCase: SendMessageStreamUseCase,
+    private val saveChatHistoryUseCase: SaveChatHistoryUseCase,
     private val viewModelScope: CoroutineScope,
     private val currentState: () -> ChatState,
     private val updateState: (ChatState.() -> ChatState) -> Unit,
     private val postEvent: (ChatEvent) -> Unit,
     private val dispatch: (ChatAction) -> Unit,
-    private val persistHistory: (List<HistoryMessageModel>) -> Unit,
 ) {
 
-    private var replyJob: Job? = null
-    private var activeAssistantMessageId: String? = null
+    private val replyJobs = mutableMapOf<String, Job>()
+    private val replyBuffers = mutableMapOf<String, List<HistoryMessageModel>>()
+    private val activeAssistantMessageIds = mutableMapOf<String, String>()
+
+    fun liveMessagesOrNull(sessionId: String): List<HistoryMessageModel>? = replyBuffers[sessionId]
+
+    fun isGenerating(sessionId: String): Boolean = replyJobs.containsKey(sessionId)
 
     fun onSendClicked() {
+        val sessionId = currentState().activeSessionId
         val text = currentState().inputText.trim()
         if (text.isEmpty() || currentState().isLoading) {
             return
@@ -50,11 +57,12 @@ internal class ChatReplyDelegate(
             )
         }
         postEvent(ChatEvent.ScrollToBottom)
-        persistHistory(history)
-        requestReply(history)
+        persist(sessionId, history)
+        requestReply(sessionId, history)
     }
 
     fun onRetryClicked() {
+        val sessionId = currentState().activeSessionId
         val text = currentState().lastSentText
         if (text.isEmpty() || currentState().isLoading) {
             return
@@ -65,14 +73,15 @@ internal class ChatReplyDelegate(
                 error = null,
             )
         }
-        requestReply(currentState().messages)
+        requestReply(sessionId, currentState().messages)
     }
 
     fun onStopClicked() {
-        replyJob?.cancel()
-        replyJob = null
-        val pendingMessage = currentState().messages.find { message -> message.id == activeAssistantMessageId }
-        activeAssistantMessageId = null
+        val sessionId = currentState().activeSessionId
+        replyJobs.remove(sessionId)?.cancel()
+        val messageId = activeAssistantMessageIds.remove(sessionId)
+        replyBuffers.remove(sessionId)
+        val pendingMessage = messageId?.let { id -> currentState().messages.find { message -> message.id == id } }
         val history = if (pendingMessage != null && pendingMessage.text.isEmpty()) {
             currentState().messages.withoutMessage(pendingMessage.id)
         } else {
@@ -80,12 +89,13 @@ internal class ChatReplyDelegate(
         }
         updateState { copy(messages = history, isLoading = false, error = null) }
         if (pendingMessage != null && pendingMessage.text.isNotEmpty()) {
-            persistHistory(history)
+            persist(sessionId, history)
         }
     }
 
-    fun onReplyChunkReceived(messageId: String, textChunk: String, modelId: String?, triage: TriageModel?) {
-        val history = currentState().messages.map { message ->
+    fun onReplyChunkReceived(sessionId: String, messageId: String, textChunk: String, modelId: String?, triage: TriageModel?) {
+        val buffer = replyBuffers[sessionId] ?: return
+        val updatedBuffer = buffer.map { message ->
             if (message.id == messageId) {
                 message.copy(
                     text = message.text + textChunk,
@@ -96,42 +106,56 @@ internal class ChatReplyDelegate(
                 message
             }
         }
-        updateState { copy(messages = history) }
+        replyBuffers[sessionId] = updatedBuffer
+        if (sessionId == currentState().activeSessionId) {
+            updateState { copy(messages = updatedBuffer) }
+        }
     }
 
-    fun onReplyCompleted() {
-        activeAssistantMessageId = null
-        replyJob = null
-        updateState { copy(isLoading = false, error = null) }
-        postEvent(ChatEvent.ScrollToBottom)
-        persistHistory(currentState().messages)
+    fun onReplyCompleted(sessionId: String) {
+        replyJobs.remove(sessionId)
+        activeAssistantMessageIds.remove(sessionId)
+        val finalMessages = replyBuffers.remove(sessionId) ?: return
+        if (sessionId == currentState().activeSessionId) {
+            updateState { copy(isLoading = false, error = null) }
+            postEvent(ChatEvent.ScrollToBottom)
+        }
+        persist(sessionId, finalMessages)
     }
 
-    fun onReplyFailed(messageId: String, error: AiErrorModel) {
-        activeAssistantMessageId = null
-        replyJob = null
-        val history = currentState().messages.withoutMessage(messageId)
-        updateState {
-            copy(
-                messages = history,
-                isLoading = false,
-                error = error,
-            )
+    fun onReplyFailed(sessionId: String, messageId: String, error: AiErrorModel) {
+        replyJobs.remove(sessionId)
+        activeAssistantMessageIds.remove(sessionId)
+        replyBuffers.remove(sessionId)
+        if (sessionId == currentState().activeSessionId) {
+            val history = currentState().messages.withoutMessage(messageId)
+            updateState {
+                copy(
+                    messages = history,
+                    isLoading = false,
+                    error = error,
+                )
+            }
         }
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun requestReply(history: List<HistoryMessageModel>) {
-        replyJob?.cancel()
+    private fun requestReply(sessionId: String, history: List<HistoryMessageModel>) {
+        replyJobs.remove(sessionId)?.cancel()
         val assistantMessage = createMessage(author = MessageAuthor.ASSISTANT, text = "")
-        activeAssistantMessageId = assistantMessage.id
-        updateState { copy(messages = history + assistantMessage) }
-        replyJob = viewModelScope.launch {
+        activeAssistantMessageIds[sessionId] = assistantMessage.id
+        val fullHistory = history + assistantMessage
+        replyBuffers[sessionId] = fullHistory
+        if (sessionId == currentState().activeSessionId) {
+            updateState { copy(messages = fullHistory) }
+        }
+        replyJobs[sessionId] = viewModelScope.launch {
             try {
-                sendMessageStreamUseCase(history.map { message -> message.toChatMessageModel() })
+                sendMessageStreamUseCase(history.toRequestContext())
                     .collect { chunk ->
                         dispatch(
                             ChatAction.Internal.ReplyChunkReceived(
+                                sessionId = sessionId,
                                 messageId = assistantMessage.id,
                                 textChunk = chunk.text,
                                 modelId = chunk.modelId,
@@ -139,13 +163,19 @@ internal class ChatReplyDelegate(
                             ),
                         )
                     }
-                dispatch(ChatAction.Internal.ReplyCompleted)
+                dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (throwable: Throwable) {
                 val error = (throwable as? AiException)?.error ?: AiErrorModel.Unknown
-                dispatch(ChatAction.Internal.ReplyFailed(assistantMessage.id, error))
+                dispatch(ChatAction.Internal.ReplyFailed(sessionId, assistantMessage.id, error))
             }
+        }
+    }
+
+    private fun persist(sessionId: String, messages: List<HistoryMessageModel>) {
+        viewModelScope.launch {
+            saveChatHistoryUseCase(sessionId, messages)
         }
     }
 

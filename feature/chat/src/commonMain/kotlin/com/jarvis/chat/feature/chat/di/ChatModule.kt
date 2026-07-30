@@ -7,13 +7,21 @@ import com.jarvis.chat.feature.chat.data.repository.ChatHistoryRepositoryImpl
 import com.jarvis.chat.feature.chat.domain.model.ChatStorageConfigModel
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
 import com.jarvis.chat.feature.chat.domain.usecase.ClearChatHistoryUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.CreateChatSessionUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.DeleteChatSessionUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.DeleteMessageUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ExportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ImportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.LoadChatHistoryUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.LoadChatSessionsUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.ObserveActiveChatSessionUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.RenameChatSessionUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.SwitchChatSessionUseCase
 import com.jarvis.chat.feature.chat.presentation.ChatViewModel
+import com.jarvis.chat.feature.chat.presentation.SessionsViewModel
 import com.jarvis.chat.feature.chat.presentation.mapper.ChatUiMapper
+import com.jarvis.chat.feature.chat.presentation.mapper.SessionsUiMapper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.Module
@@ -37,6 +45,14 @@ fun chatModule(storageDirectoryPath: String): Module = module {
     factoryOf(::DeleteMessageUseCase)
     factoryOf(::ExportChatHistoryUseCase)
     factoryOf(::ImportChatHistoryUseCase)
+    factoryOf(::LoadChatSessionsUseCase)
+    factoryOf(::ObserveActiveChatSessionUseCase)
+    factoryOf(::CreateChatSessionUseCase)
+    factoryOf(::SwitchChatSessionUseCase)
+    factoryOf(::RenameChatSessionUseCase)
+    factoryOf(::DeleteChatSessionUseCase)
     factoryOf(::ChatUiMapper)
+    factoryOf(::SessionsUiMapper)
     viewModelOf(::ChatViewModel)
+    viewModelOf(::SessionsViewModel)
 }

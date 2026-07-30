@@ -3,6 +3,8 @@ package com.jarvis.chat
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import com.jarvis.chat.feature.chat.presentation.ChatScreen
+import com.jarvis.chat.feature.chat.presentation.SessionsBottomSheet
+import com.jarvis.chat.feature.chat.presentation.rememberOpenSessionsAction
 import com.jarvis.chat.feature.settings.presentation.SettingsBottomSheet
 import com.jarvis.chat.feature.settings.presentation.model.ThemeModeUiModel
 import com.jarvis.chat.feature.settings.presentation.rememberOpenSettingsAction
@@ -13,6 +15,7 @@ import com.jarvis.chat.ui.theme.JarvisTheme
 fun App() {
     val selectedThemeMode = rememberSelectedThemeMode()
     val onSettingsClick = rememberOpenSettingsAction()
+    val onSessionsClick = rememberOpenSessionsAction()
     val isDarkTheme = when (selectedThemeMode) {
         ThemeModeUiModel.SYSTEM -> isSystemInDarkTheme()
         ThemeModeUiModel.LIGHT -> false
@@ -20,7 +23,8 @@ fun App() {
     }
 
     JarvisTheme(darkTheme = isDarkTheme) {
-        ChatScreen(onSettingsClick = onSettingsClick)
+        ChatScreen(onSettingsClick = onSettingsClick, onSessionsClick = onSessionsClick)
         SettingsBottomSheet()
+        SessionsBottomSheet()
     }
 }

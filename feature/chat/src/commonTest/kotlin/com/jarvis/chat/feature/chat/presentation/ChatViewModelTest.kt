@@ -6,6 +6,9 @@ import com.jarvis.chat.feature.ai.domain.model.ChatStreamChunkModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
+import com.jarvis.chat.feature.chat.domain.mapper.MAX_CONTEXT_MESSAGES
+import com.jarvis.chat.feature.chat.domain.model.ChatSessionModel
+import com.jarvis.chat.feature.chat.domain.model.ChatSessionsModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
@@ -14,15 +17,22 @@ import com.jarvis.chat.feature.chat.domain.usecase.DeleteMessageUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ExportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ImportChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.LoadChatHistoryUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.LoadChatSessionsUseCase
+import com.jarvis.chat.feature.chat.domain.usecase.ObserveActiveChatSessionUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
 import com.jarvis.chat.feature.chat.presentation.mapper.ChatUiMapper
 import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -34,6 +44,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+
+private const val DEFAULT_SESSION_ID = "session-1"
 
 class ChatViewModelTest {
 
@@ -123,6 +135,19 @@ class ChatViewModelTest {
         viewModel.onAction(ChatAction.Ui.SendClicked)
 
         assertEquals(listOf("ping", "pong"), repository.saved.last().map { message -> message.text })
+    }
+
+    @Test
+    fun sendClicked_sendsOnlyLastMaxContextMessagesToAiRepositoryWithCurrentMessageLast() = runTest {
+        val manyMessages = (1..MAX_CONTEXT_MESSAGES + 5).map { index -> historyMessage(id = "m$index", text = "text $index") }
+        val ai = CapturingAiRepository()
+        val viewModel = createViewModel(storedMessages = manyMessages, aiRepository = ai)
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        assertEquals(MAX_CONTEXT_MESSAGES, ai.lastRequestedHistory.size)
+        assertEquals("ping", ai.lastRequestedHistory.last().text)
     }
 
     @Test
@@ -561,6 +586,70 @@ class ChatViewModelTest {
         assertTrue(repository.saved.isEmpty())
     }
 
+    @Test
+    fun activeSessionChanged_loadsMessagesForNewSessionWithoutMixingWithPrevious() = runTest {
+        val repository = FakeChatHistoryRepository(
+            initialSessions = listOf(sessionModel("session-1"), sessionModel("session-2")),
+        )
+        repository.setMessages("session-2", listOf(historyMessage(id = "2", text = "session two message")))
+        val viewModel = createViewModel(
+            storedMessages = listOf(historyMessage(id = "1", text = "session one message")),
+            chatRepository = repository,
+        )
+
+        repository.switchSession("session-2")
+
+        assertEquals(listOf("session two message"), viewModel.uiState.value.messages.map { message -> message.text })
+
+        repository.switchSession("session-1")
+
+        assertEquals(listOf("session one message"), viewModel.uiState.value.messages.map { message -> message.text })
+    }
+
+    @Test
+    fun sendClicked_completesWhileSwitchedAway_persistsReplyToOriginatingSessionOnly() = runTest {
+        val repository = FakeChatHistoryRepository(
+            initialSessions = listOf(sessionModel("session-1"), sessionModel("session-2")),
+        )
+        val ai = PartialThenControllableAiRepository()
+        val viewModel = createViewModel(chatRepository = repository, aiRepository = ai)
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+        repository.switchSession("session-2")
+
+        assertTrue(viewModel.uiState.value.messages.isEmpty())
+
+        ai.release()
+        advanceUntilIdle()
+
+        assertEquals(listOf("ping", "pong"), repository.storedFor("session-1").map { message -> message.text })
+        assertTrue(repository.storedFor("session-2").isEmpty())
+        assertTrue(viewModel.uiState.value.messages.isEmpty())
+    }
+
+    @Test
+    fun switchingBackToGeneratingSession_showsLiveInProgressReplyAndLoadingState() = runTest {
+        val repository = FakeChatHistoryRepository(
+            initialSessions = listOf(sessionModel("session-1"), sessionModel("session-2")),
+        )
+        val ai = PartialThenControllableAiRepository()
+        val viewModel = createViewModel(chatRepository = repository, aiRepository = ai)
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+        repository.switchSession("session-2")
+        repository.switchSession("session-1")
+
+        assertTrue(viewModel.uiState.value.isLoading)
+        assertEquals(listOf("ping", "pong"), viewModel.uiState.value.messages.map { message -> message.text })
+
+        ai.release()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.isLoading)
+    }
+
     private fun createViewModel(
         storedMessages: List<HistoryMessageModel> = emptyList(),
         chatRepository: FakeChatHistoryRepository = FakeChatHistoryRepository(),
@@ -572,6 +661,8 @@ class ChatViewModelTest {
         val sendMessageStreamUseCase = SendMessageStreamUseCase(repository = aiRepository)
         return ChatViewModel(
             sendMessageStreamUseCase = sendMessageStreamUseCase,
+            loadChatSessionsUseCase = LoadChatSessionsUseCase(chatRepository),
+            observeActiveChatSessionUseCase = ObserveActiveChatSessionUseCase(chatRepository),
             loadChatHistoryUseCase = LoadChatHistoryUseCase(chatRepository),
             saveChatHistoryUseCase = SaveChatHistoryUseCase(chatRepository),
             clearChatHistoryUseCase = ClearChatHistoryUseCase(chatRepository),
@@ -591,6 +682,9 @@ class ChatViewModelTest {
             timestamp = TEST_TIMESTAMP,
         )
 
+    private fun sessionModel(id: String): ChatSessionModel =
+        ChatSessionModel(id = id, title = "", createdAt = TEST_TIMESTAMP, lastMessageAt = TEST_TIMESTAMP, messageCount = 0)
+
     private class FakeAiRepository(
         private val reply: String = "reply",
         private val error: Throwable? = null,
@@ -606,6 +700,22 @@ class ChatViewModelTest {
         override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
             error?.let { failure -> throw failure }
             chunks.forEach { chunk -> emit(ChatStreamChunkModel(text = chunk, modelId = modelId)) }
+        }
+    }
+
+    private class CapturingAiRepository(
+        private val reply: String = "reply",
+    ) : AiRepository {
+
+        var lastRequestedHistory: List<ChatMessageModel> = emptyList()
+            private set
+
+        override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel =
+            error("not used in streaming tests")
+
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
+            lastRequestedHistory = history
+            emit(ChatStreamChunkModel(text = reply))
         }
     }
 
@@ -653,6 +763,24 @@ class ChatViewModelTest {
         }
     }
 
+    private class PartialThenControllableAiRepository : AiRepository {
+
+        private val releaseSignal = CompletableDeferred<Unit>()
+
+        override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel =
+            error("not used in streaming tests")
+
+        override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
+            emit(ChatStreamChunkModel(text = "po"))
+            emit(ChatStreamChunkModel(text = "ng"))
+            releaseSignal.await()
+        }
+
+        fun release() {
+            releaseSignal.complete(Unit)
+        }
+    }
+
     private class FailThenSucceedAiRepository(
         private val failure: Throwable,
         private val successReply: String,
@@ -678,22 +806,59 @@ class ChatViewModelTest {
         private val exportResult: String = "/tmp/export.json",
         private val exportError: Throwable? = null,
         private val clearError: Throwable? = null,
+        initialSessions: List<ChatSessionModel> = listOf(
+            ChatSessionModel(id = DEFAULT_SESSION_ID, title = "", createdAt = TEST_TIMESTAMP, lastMessageAt = TEST_TIMESTAMP, messageCount = 0),
+        ),
     ) : ChatHistoryRepository {
 
-        var stored: List<HistoryMessageModel> = emptyList()
-        val saved: MutableList<List<HistoryMessageModel>> = mutableListOf()
+        private val sessions = initialSessions
+        private val messagesBySession = mutableMapOf<String, List<HistoryMessageModel>>()
+        private val savedBySession = mutableMapOf<String, MutableList<List<HistoryMessageModel>>>()
+        private val activeSessionIdFlow = MutableStateFlow<String?>(sessions.first().id)
+
         var lastImportStrategy: ImportStrategy? = null
+            private set
 
-        override suspend fun loadMessages(): List<HistoryMessageModel> = stored
+        var stored: List<HistoryMessageModel>
+            get() = messagesBySession[DEFAULT_SESSION_ID].orEmpty()
+            set(value) {
+                messagesBySession[DEFAULT_SESSION_ID] = value
+            }
 
-        override suspend fun saveMessages(messages: List<HistoryMessageModel>) {
-            saved += messages
-            stored = messages
+        val saved: List<List<HistoryMessageModel>>
+            get() = savedBySession[DEFAULT_SESSION_ID].orEmpty()
+
+        fun setMessages(sessionId: String, messages: List<HistoryMessageModel>) {
+            messagesBySession[sessionId] = messages
         }
 
-        override suspend fun clearMessages() {
+        fun storedFor(sessionId: String): List<HistoryMessageModel> = messagesBySession[sessionId].orEmpty()
+
+        override fun observeActiveSessionId(): StateFlow<String?> = activeSessionIdFlow.asStateFlow()
+
+        override suspend fun loadSessions(): ChatSessionsModel =
+            ChatSessionsModel(sessions = sessions, activeSessionId = activeSessionIdFlow.value.orEmpty())
+
+        override suspend fun createSession(): ChatSessionModel = error("not used in these tests")
+
+        override suspend fun renameSession(sessionId: String, title: String) = Unit
+
+        override suspend fun deleteSession(sessionId: String): ChatSessionsModel = error("not used in these tests")
+
+        override suspend fun switchSession(sessionId: String) {
+            activeSessionIdFlow.update { sessionId }
+        }
+
+        override suspend fun loadMessages(sessionId: String): List<HistoryMessageModel> = messagesBySession[sessionId].orEmpty()
+
+        override suspend fun saveMessages(sessionId: String, messages: List<HistoryMessageModel>) {
+            savedBySession.getOrPut(sessionId) { mutableListOf() }.add(messages)
+            messagesBySession[sessionId] = messages
+        }
+
+        override suspend fun clearMessages(sessionId: String) {
             clearError?.let { failure -> throw failure }
-            stored = emptyList()
+            messagesBySession[sessionId] = emptyList()
         }
 
         override suspend fun exportMessages(messages: List<HistoryMessageModel>): String {
@@ -702,12 +867,14 @@ class ChatViewModelTest {
         }
 
         override suspend fun importMessages(
+            sessionId: String,
             json: String,
             strategy: ImportStrategy,
             current: List<HistoryMessageModel>,
         ): List<HistoryMessageModel> {
             importError?.let { failure -> throw failure }
             lastImportStrategy = strategy
+            messagesBySession[sessionId] = importResult
             return importResult
         }
     }

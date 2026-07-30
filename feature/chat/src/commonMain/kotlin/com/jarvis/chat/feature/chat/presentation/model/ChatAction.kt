@@ -49,18 +49,21 @@ internal sealed interface ChatAction {
 
     sealed interface Internal : ChatAction {
 
-        data class HistoryLoaded(val messages: List<HistoryMessageModel>) : Internal
+        data class ActiveSessionChanged(val sessionId: String) : Internal
+
+        data class HistoryLoaded(val sessionId: String, val messages: List<HistoryMessageModel>) : Internal
 
         data class ReplyChunkReceived(
+            val sessionId: String,
             val messageId: String,
             val textChunk: String,
             val modelId: String? = null,
             val triage: TriageModel? = null,
         ) : Internal
 
-        data object ReplyCompleted : Internal
+        data class ReplyCompleted(val sessionId: String) : Internal
 
-        data class ReplyFailed(val messageId: String, val error: AiErrorModel) : Internal
+        data class ReplyFailed(val sessionId: String, val messageId: String, val error: AiErrorModel) : Internal
 
         data class Exported(val filePath: String) : Internal
 
