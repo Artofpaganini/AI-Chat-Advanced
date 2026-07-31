@@ -110,6 +110,22 @@ def stages_are_split(args: argparse.Namespace) -> bool:
     )
 
 
+# chat_template_kwargs из run_eval.build_extra_payload рассчитан на локальный vLLM. Прямые имена
+# облачных моделей deepseek-v4-flash и deepseek-v4-pro (в отличие от алиаса deepseek-chat) по
+# умолчанию думают вслух и не слушают этот параметр - весь потолок токенов уходит в reasoning_content,
+# а content приходит пустым. Проверено живым запросом. reasoning_effort=none их выключает, deepseek-chat
+# этот параметр просто игнорирует.
+CLOUD_REASONING_OFF = {"reasoning_effort": "none"}
+
+
+def build_extra_payload(endpoint: Dict[str, str], thinking_off: bool, location: str) -> Optional[Dict[str, Any]]:
+    payload = run_eval.build_extra_payload(thinking_off, endpoint["adapters"]) or {}
+    if thinking_off and location == spec7.LOCATION_CLOUD:
+        payload = dict(payload)
+        payload.update(CLOUD_REASONING_OFF)
+    return payload or None
+
+
 def build_config(
     endpoint: Dict[str, str], timeout: int, thinking_off: bool
 ) -> Tuple[Optional[llm_client.ClientConfig], Optional[str]]:
@@ -129,7 +145,7 @@ def build_config(
             base_url=endpoint["base_url"],
             api_key=api_key,
             timeout=timeout,
-            extra_payload=run_eval.build_extra_payload(thinking_off, endpoint["adapters"]),
+            extra_payload=build_extra_payload(endpoint, thinking_off, location),
         ),
         None,
     )

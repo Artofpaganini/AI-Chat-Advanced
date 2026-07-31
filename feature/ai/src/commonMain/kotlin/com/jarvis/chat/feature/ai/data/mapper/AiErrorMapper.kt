@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.ai.data.mapper
 
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
+import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigModel
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ServerResponseException
@@ -11,11 +12,24 @@ private const val HTTP_STATUS_BAD_REQUEST = 400
 private const val HTTP_STATUS_UNAUTHORIZED = 401
 private const val HTTP_STATUS_TOO_MANY_REQUESTS = 429
 
-internal suspend fun Throwable.toAiErrorModel(): AiErrorModel = when (this) {
+private val CLOUD_LIKE_PROVIDER_CONFIG = AiProviderConfigModel(
+    baseUrl = "",
+    modelId = "",
+    systemPrompt = "",
+    isApiKeyRequired = true,
+)
+
+internal suspend fun Throwable.toAiErrorModel(
+    providerConfig: AiProviderConfigModel = CLOUD_LIKE_PROVIDER_CONFIG,
+): AiErrorModel = when (this) {
     is HttpRequestTimeoutException -> AiErrorModel.Timeout
     is ClientRequestException -> toClientRequestAiErrorModel()
     is ServerResponseException -> AiErrorModel.ServerError(code = response.status.value)
-    is IOException -> AiErrorModel.NoConnection
+    is IOException -> if (providerConfig.isApiKeyRequired) {
+        AiErrorModel.NoConnection
+    } else {
+        AiErrorModel.LocalProviderUnreachable(address = providerConfig.baseUrl)
+    }
     else -> AiErrorModel.Unknown
 }
 

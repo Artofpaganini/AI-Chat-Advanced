@@ -9,6 +9,7 @@ import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekPromptConfigModel
+import com.jarvis.chat.feature.ai.di.MultiStageDefaults
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.timeout
@@ -72,6 +73,28 @@ internal class DeepSeekRemoteDataSourceImpl(
         }.execute { response ->
             emitAll(completionStreamChunkFlow(channel = response.bodyAsChannel(), json = json))
         }
+    }
+
+    override suspend fun requestRawCompletion(
+        messages: List<ChatMessageRequestModel>,
+        maxTokens: Int,
+    ): ChatCompletionResponseModel {
+        val providerConfig = providerConfigProvider.currentConfig()
+        val requestBody = ChatCompletionRequestModel(
+            model = modelProvider.currentModel(),
+            messages = messages,
+            stream = false,
+            adapters = providerConfig.adapterPath,
+            maxTokens = maxTokens,
+            temperature = MultiStageDefaults.STAGE_TEMPERATURE,
+            repetitionPenalty = providerConfig.repetitionPenalty,
+            reasoningEffort = MultiStageDefaults.STAGE_REASONING_EFFORT,
+        )
+        return httpClient.post(providerConfig.baseUrl + COMPLETIONS_PATH) {
+            applyAuthHeader(providerConfig = providerConfig)
+            contentType(ContentType.Application.Json)
+            setBody(requestBody)
+        }.body()
     }
 
     private fun HttpRequestBuilder.applyAuthHeader(providerConfig: AiProviderConfigModel) {

@@ -4,6 +4,8 @@ sealed interface AiErrorModel {
 
     data object NoConnection : AiErrorModel
 
+    data class LocalProviderUnreachable(val address: String) : AiErrorModel
+
     data object Timeout : AiErrorModel
 
     data object Unauthorized : AiErrorModel

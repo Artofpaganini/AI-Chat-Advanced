@@ -14,4 +14,9 @@ internal interface DeepSeekRemoteDataSource {
     fun requestCompletionStream(
         messages: List<ChatMessageRequestModel>,
     ): Flow<ChatStreamChunkDataModel>
+
+    suspend fun requestRawCompletion(
+        messages: List<ChatMessageRequestModel>,
+        maxTokens: Int,
+    ): ChatCompletionResponseModel
 }

@@ -8,12 +8,16 @@ import com.jarvis.chat.feature.ai.domain.model.AiProviderTypeModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelIdModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelProvider
+import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel as AiInferenceModeModel
+import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
 import com.jarvis.chat.feature.chat.di.chatModule
 import com.jarvis.chat.feature.settings.di.settingsModule
 import com.jarvis.chat.feature.settings.domain.model.AiModelModel
 import com.jarvis.chat.feature.settings.domain.model.AiProviderModel
+import com.jarvis.chat.feature.settings.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiProviderUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveInferenceModeUseCase
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
@@ -69,6 +73,10 @@ fun initKoin(appConfig: AppConfig) {
                     val providerConfigProvider: AiProviderConfigProvider = get()
                     DeepSeekModelProvider { providerConfigProvider.currentConfig().modelId }
                 }
+                single<InferenceModeProvider> {
+                    val observeInferenceModeUseCase: ObserveInferenceModeUseCase = get()
+                    InferenceModeProvider { observeInferenceModeUseCase().value.toAiInferenceModeModel() }
+                }
             },
             chatModule(storageDirectoryPath = appConfig.filesDirectoryPath),
             settingsModule,
@@ -87,4 +95,10 @@ private fun AiProviderModel.toAiProviderType(): AiProviderTypeModel =
         AiProviderModel.DEEP_SEEK_CLOUD -> AiProviderTypeModel.CLOUD_DEEP_SEEK
         AiProviderModel.LOCAL_MLX -> AiProviderTypeModel.LOCAL_MLX
         AiProviderModel.LOCAL_TRIAGE -> AiProviderTypeModel.LOCAL_TRIAGE
+    }
+
+private fun InferenceModeModel.toAiInferenceModeModel(): AiInferenceModeModel =
+    when (this) {
+        InferenceModeModel.ONE_SHOT -> AiInferenceModeModel.ONE_SHOT
+        InferenceModeModel.MULTI_STAGE -> AiInferenceModeModel.MULTI_STAGE
     }

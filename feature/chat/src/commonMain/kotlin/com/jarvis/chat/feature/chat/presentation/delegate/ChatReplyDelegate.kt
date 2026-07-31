@@ -2,9 +2,13 @@ package com.jarvis.chat.feature.chat.presentation.delegate
 
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
+import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel
+import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
 import com.jarvis.chat.feature.chat.domain.mapper.toRequestContext
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
@@ -23,6 +27,8 @@ private const val MESSAGE_ID_PREFIX = "msg-"
 
 internal class ChatReplyDelegate(
     private val sendMessageStreamUseCase: SendMessageStreamUseCase,
+    private val sendMultiStageMessageUseCase: SendMultiStageMessageUseCase,
+    private val inferenceModeProvider: InferenceModeProvider,
     private val saveChatHistoryUseCase: SaveChatHistoryUseCase,
     private val viewModelScope: CoroutineScope,
     private val currentState: () -> ChatState,
@@ -93,7 +99,14 @@ internal class ChatReplyDelegate(
         }
     }
 
-    fun onReplyChunkReceived(sessionId: String, messageId: String, textChunk: String, modelId: String?, triage: TriageModel?) {
+    fun onReplyChunkReceived(
+        sessionId: String,
+        messageId: String,
+        textChunk: String,
+        modelId: String?,
+        triage: TriageModel?,
+        multiStage: MultiStageResultModel? = null,
+    ) {
         val buffer = replyBuffers[sessionId] ?: return
         val updatedBuffer = buffer.map { message ->
             if (message.id == messageId) {
@@ -101,6 +114,7 @@ internal class ChatReplyDelegate(
                     text = message.text + textChunk,
                     modelId = modelId ?: message.modelId,
                     triage = triage ?: message.triage,
+                    multiStage = multiStage ?: message.multiStage,
                 )
             } else {
                 message
@@ -139,7 +153,6 @@ internal class ChatReplyDelegate(
         }
     }
 
-    @Suppress("TooGenericExceptionCaught")
     private fun requestReply(sessionId: String, history: List<HistoryMessageModel>) {
         replyJobs.remove(sessionId)?.cancel()
         val assistantMessage = createMessage(author = MessageAuthor.ASSISTANT, text = "")
@@ -150,26 +163,58 @@ internal class ChatReplyDelegate(
             updateState { copy(messages = fullHistory) }
         }
         replyJobs[sessionId] = viewModelScope.launch {
-            try {
-                sendMessageStreamUseCase(history.toRequestContext())
-                    .collect { chunk ->
-                        dispatch(
-                            ChatAction.Internal.ReplyChunkReceived(
-                                sessionId = sessionId,
-                                messageId = assistantMessage.id,
-                                textChunk = chunk.text,
-                                modelId = chunk.modelId,
-                                triage = chunk.triage,
-                            ),
-                        )
-                    }
-                dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
-            } catch (cancellation: CancellationException) {
-                throw cancellation
-            } catch (throwable: Throwable) {
-                val error = (throwable as? AiException)?.error ?: AiErrorModel.Unknown
-                dispatch(ChatAction.Internal.ReplyFailed(sessionId, assistantMessage.id, error))
+            when (inferenceModeProvider.currentMode()) {
+                InferenceModeModel.ONE_SHOT -> requestStreamReply(sessionId, assistantMessage.id, history)
+                InferenceModeModel.MULTI_STAGE -> requestMultiStageReply(sessionId, assistantMessage.id, history)
             }
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun requestStreamReply(sessionId: String, messageId: String, history: List<HistoryMessageModel>) {
+        try {
+            sendMessageStreamUseCase(history.toRequestContext())
+                .collect { chunk ->
+                    dispatch(
+                        ChatAction.Internal.ReplyChunkReceived(
+                            sessionId = sessionId,
+                            messageId = messageId,
+                            textChunk = chunk.text,
+                            modelId = chunk.modelId,
+                            triage = chunk.triage,
+                        ),
+                    )
+                }
+            dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (throwable: Throwable) {
+            val error = (throwable as? AiException)?.error ?: AiErrorModel.Unknown
+            dispatch(ChatAction.Internal.ReplyFailed(sessionId, messageId, error))
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun requestMultiStageReply(sessionId: String, messageId: String, history: List<HistoryMessageModel>) {
+        try {
+            val caseText = history.lastOrNull()?.text.orEmpty()
+            val result = sendMultiStageMessageUseCase(caseText)
+            dispatch(
+                ChatAction.Internal.ReplyChunkReceived(
+                    sessionId = sessionId,
+                    messageId = messageId,
+                    textChunk = result.answerText,
+                    modelId = null,
+                    triage = null,
+                    multiStage = result,
+                ),
+            )
+            dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (throwable: Throwable) {
+            val error = (throwable as? AiException)?.error ?: AiErrorModel.Unknown
+            dispatch(ChatAction.Internal.ReplyFailed(sessionId, messageId, error))
         }
     }
 
