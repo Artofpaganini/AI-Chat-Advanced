@@ -1,8 +1,10 @@
 package com.jarvis.chat.feature.chat.presentation
 
 import androidx.lifecycle.viewModelScope
+import com.jarvis.chat.core.micromodel.domain.usecase.ClassifyMessageUseCase
 import com.jarvis.chat.core.viewmodel.UdfBaseViewModel
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
+import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
 import com.jarvis.chat.feature.chat.domain.usecase.ClearChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.DeleteMessageUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.ExportChatHistoryUseCase
@@ -25,6 +27,8 @@ private const val COPIED_MESSAGE = "Скопировано"
 
 internal class ChatViewModel(
     sendMessageStreamUseCase: SendMessageStreamUseCase,
+    classifyMessageUseCase: ClassifyMessageUseCase,
+    microModelGateSettingProvider: MicroModelGateSettingProvider,
     loadChatSessionsUseCase: LoadChatSessionsUseCase,
     observeActiveChatSessionUseCase: ObserveActiveChatSessionUseCase,
     loadChatHistoryUseCase: LoadChatHistoryUseCase,
@@ -41,6 +45,8 @@ internal class ChatViewModel(
 
     private val replyDelegate = ChatReplyDelegate(
         sendMessageStreamUseCase = sendMessageStreamUseCase,
+        classifyMessageUseCase = classifyMessageUseCase,
+        microModelGateSettingProvider = microModelGateSettingProvider,
         saveChatHistoryUseCase = saveChatHistoryUseCase,
         viewModelScope = viewModelScope,
         currentState = ::currentState,
@@ -114,6 +120,7 @@ internal class ChatViewModel(
                     textChunk = action.textChunk,
                     modelId = action.modelId,
                     triage = action.triage,
+                    routeDecision = action.routeDecision,
                 )
             is ChatAction.Internal.ReplyCompleted -> replyDelegate.onReplyCompleted(action.sessionId)
             is ChatAction.Internal.ReplyFailed -> replyDelegate.onReplyFailed(action.sessionId, action.messageId, action.error)

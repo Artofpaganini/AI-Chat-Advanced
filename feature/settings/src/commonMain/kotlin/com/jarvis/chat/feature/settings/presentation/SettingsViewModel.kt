@@ -7,9 +7,11 @@ import com.jarvis.chat.feature.settings.domain.model.AiProviderModel
 import com.jarvis.chat.feature.settings.domain.model.ThemeModeModel
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiProviderUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveMicroModelFirstEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveThemeModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiProviderUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.SaveMicroModelFirstEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveThemeModeUseCase
 import com.jarvis.chat.feature.settings.presentation.mapper.SettingsUiMapper
 import com.jarvis.chat.feature.settings.presentation.mapper.toAiModelModel
@@ -31,12 +33,15 @@ internal class SettingsViewModel(
     private val saveAiModelUseCase: SaveAiModelUseCase,
     observeAiProviderUseCase: ObserveAiProviderUseCase,
     private val saveAiProviderUseCase: SaveAiProviderUseCase,
+    observeMicroModelFirstEnabledUseCase: ObserveMicroModelFirstEnabledUseCase,
+    private val saveMicroModelFirstEnabledUseCase: SaveMicroModelFirstEnabledUseCase,
     uiMapper: SettingsUiMapper,
 ) : UdfBaseViewModel<SettingsAction, SettingsUiModel, SettingsState, SettingsEvent>(
     initialState = SettingsState(
         themeMode = observeThemeModeUseCase().value,
         aiModel = observeAiModelUseCase().value,
         aiProvider = observeAiProviderUseCase().value,
+        isMicroModelFirstEnabled = observeMicroModelFirstEnabledUseCase().value,
     ),
     uiMapper = uiMapper,
 ) {
@@ -51,6 +56,11 @@ internal class SettingsViewModel(
         viewModelScope.launch {
             observeAiProviderUseCase().collect { aiProvider -> onAction(SettingsAction.Internal.AiProviderChanged(aiProvider)) }
         }
+        viewModelScope.launch {
+            observeMicroModelFirstEnabledUseCase().collect { enabled ->
+                onAction(SettingsAction.Internal.MicroModelFirstChanged(enabled))
+            }
+        }
     }
 
     override fun onAction(action: SettingsAction) {
@@ -60,9 +70,11 @@ internal class SettingsViewModel(
             is SettingsAction.Ui.ThemeModeSelected -> onThemeModeSelected(action.themeMode)
             is SettingsAction.Ui.AiModelSelected -> onAiModelSelected(action.aiModel)
             is SettingsAction.Ui.AiProviderSelected -> onAiProviderSelected(action.aiProvider)
+            is SettingsAction.Ui.MicroModelFirstToggled -> onMicroModelFirstToggled(action.enabled)
             is SettingsAction.Internal.ThemeModeChanged -> onThemeModeChanged(action.themeMode)
             is SettingsAction.Internal.AiModelChanged -> onAiModelChanged(action.aiModel)
             is SettingsAction.Internal.AiProviderChanged -> onAiProviderChanged(action.aiProvider)
+            is SettingsAction.Internal.MicroModelFirstChanged -> onMicroModelFirstChanged(action.enabled)
         }
     }
 
@@ -99,5 +111,13 @@ internal class SettingsViewModel(
 
     private fun onAiProviderChanged(aiProvider: AiProviderModel) {
         updateState { copy(aiProvider = aiProvider) }
+    }
+
+    private fun onMicroModelFirstToggled(enabled: Boolean) {
+        saveMicroModelFirstEnabledUseCase(enabled)
+    }
+
+    private fun onMicroModelFirstChanged(enabled: Boolean) {
+        updateState { copy(isMicroModelFirstEnabled = enabled) }
     }
 }

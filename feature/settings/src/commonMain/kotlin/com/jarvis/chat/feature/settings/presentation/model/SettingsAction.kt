@@ -17,6 +17,8 @@ internal sealed interface SettingsAction {
         data class AiModelSelected(val aiModel: AiModelUiModel) : Ui
 
         data class AiProviderSelected(val aiProvider: AiProviderUiModel) : Ui
+
+        data class MicroModelFirstToggled(val enabled: Boolean) : Ui
     }
 
     sealed interface Internal : SettingsAction {
@@ -26,5 +28,7 @@ internal sealed interface SettingsAction {
         data class AiModelChanged(val aiModel: AiModelModel) : Internal
 
         data class AiProviderChanged(val aiProvider: AiProviderModel) : Internal
+
+        data class MicroModelFirstChanged(val enabled: Boolean) : Internal
     }
 }

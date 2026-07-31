@@ -1,5 +1,7 @@
 package com.jarvis.chat.feature.chat.presentation.mapper
 
+import com.jarvis.chat.core.micromodel.domain.model.MicroTriageRouteModel
+import com.jarvis.chat.core.micromodel.domain.model.MicroTriageStatusModel
 import com.jarvis.chat.core.viewmodel.UiMapper
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
@@ -7,6 +9,8 @@ import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.ai.domain.model.TriageRouteModel
 import com.jarvis.chat.feature.ai.domain.model.TriageStatusModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
+import com.jarvis.chat.feature.chat.domain.model.RouteDecisionModel
+import com.jarvis.chat.feature.chat.domain.model.RouteSourceModel
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
 import com.jarvis.chat.feature.chat.presentation.model.ChatState
 import com.jarvis.chat.feature.chat.presentation.model.ChatUiModel
@@ -22,6 +26,20 @@ private const val TIME_LABEL_PAD_LENGTH = 2
 private const val TIME_LABEL_PAD_CHAR = '0'
 private const val TIME_LABEL_SEPARATOR = ":"
 private const val CONFIDENCE_PERCENT_MULTIPLIER = 100
+private const val CONFIDENCE_DECIMAL_PAD_LENGTH = 2
+private const val CONFIDENCE_DECIMAL_PAD_CHAR = '0'
+private const val ROUTE_BADGE_LOCAL_PREFIX = "локально"
+private const val ROUTE_BADGE_CLOUD_PREFIX = "облако"
+private const val ROUTE_BADGE_SEPARATOR = " · "
+private const val ROUTE_BADGE_MS_SUFFIX = " мс"
+private const val ROUTE_BADGE_ARROW = " -> "
+private const val ROUTE_BADGE_RAISED_PREFIX = " (поднято с "
+private const val ROUTE_BADGE_RAISED_SUFFIX = ")"
+private const val ROUTE_BADGE_HELD_PREFIX = " (экстренный маршрут удержан вопреки "
+private const val ROUTE_BADGE_HELD_SUFFIX = " от LLM)"
+private const val SESSION_SUMMARY_PREFIX = "Локально обработано: "
+private const val SESSION_SUMMARY_SEPARATOR = " из "
+private const val SESSION_SUMMARY_SAVED_PREFIX = " · сэкономлено вызовов LLM: "
 private const val ERROR_MESSAGE_NO_CONNECTION = "No internet connection. Check your network and try again."
 private const val ERROR_MESSAGE_TIMEOUT = "The request timed out. Please try again."
 private const val ERROR_MESSAGE_UNAUTHORIZED = "Authorization failed. Check your API key in settings."
@@ -55,6 +73,7 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
                 state.error == null &&
                 !state.isFavoritesFilterActive,
             isFavoritesEmptyState = state.isFavoritesFilterActive && visibleMessages.isEmpty(),
+            microModelSessionSummary = state.toMicroModelSessionSummaryOrNull(),
         )
     }
 
@@ -71,8 +90,45 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             timeLabel = timestamp.toTimeLabel(),
             modelId = if (isFromUser) null else modelId?.takeIf { value -> value.isNotBlank() },
             triage = if (isFromUser) null else triage?.toTriageUiModel(),
+            routeBadgeText = if (isFromUser) null else routeDecision?.toRouteBadgeText(triage),
         )
     }
+}
+
+private fun ChatState.toMicroModelSessionSummaryOrNull(): String? {
+    if (totalRoutedCount <= 0) {
+        return null
+    }
+    return "$SESSION_SUMMARY_PREFIX$localHandledCount$SESSION_SUMMARY_SEPARATOR$totalRoutedCount" +
+        "$SESSION_SUMMARY_SAVED_PREFIX$localHandledCount"
+}
+
+private fun RouteDecisionModel.toRouteBadgeText(triage: TriageModel?): String =
+    when (source) {
+        RouteSourceModel.LOCAL ->
+            "$ROUTE_BADGE_LOCAL_PREFIX$ROUTE_BADGE_SEPARATOR${microRoute.name}$ROUTE_BADGE_SEPARATOR" +
+                "${microConfidence.toTwoDecimalString()}$ROUTE_BADGE_SEPARATOR$elapsedMillis$ROUTE_BADGE_MS_SUFFIX"
+        RouteSourceModel.CLOUD -> {
+            val base = "$ROUTE_BADGE_CLOUD_PREFIX$ROUTE_BADGE_SEPARATOR" +
+                "${MicroTriageStatusModel.UNSURE.name} ${microConfidence.toTwoDecimalString()}"
+            val finalRouteName = triage?.route?.name
+            val withFinalRoute = if (finalRouteName != null) "$base$ROUTE_BADGE_ARROW$finalRouteName" else base
+            val preMergeRouteName = llmRouteBeforeMerge?.name
+            when {
+                preMergeRouteName == null || preMergeRouteName == finalRouteName -> withFinalRoute
+                microRoute == MicroTriageRouteModel.EMERGENCY ->
+                    "$withFinalRoute$ROUTE_BADGE_HELD_PREFIX$preMergeRouteName$ROUTE_BADGE_HELD_SUFFIX"
+                else ->
+                    "$withFinalRoute$ROUTE_BADGE_RAISED_PREFIX$preMergeRouteName$ROUTE_BADGE_RAISED_SUFFIX"
+            }
+        }
+    }
+
+private fun Double.toTwoDecimalString(): String {
+    val roundedHundredths = (this * CONFIDENCE_PERCENT_MULTIPLIER).roundToInt()
+    val wholePart = roundedHundredths / CONFIDENCE_PERCENT_MULTIPLIER
+    val fractionPart = roundedHundredths % CONFIDENCE_PERCENT_MULTIPLIER
+    return "$wholePart.${fractionPart.toString().padStart(CONFIDENCE_DECIMAL_PAD_LENGTH, CONFIDENCE_DECIMAL_PAD_CHAR)}"
 }
 
 private fun TriageModel.toTriageUiModel(): TriageUiModel =

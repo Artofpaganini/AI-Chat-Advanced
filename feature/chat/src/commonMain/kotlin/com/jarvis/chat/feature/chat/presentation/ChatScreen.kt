@@ -1,5 +1,6 @@
 package com.jarvis.chat.feature.chat.presentation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -142,7 +144,14 @@ internal fun ChatContent(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(text = TITLE) },
+                title = {
+                    Column {
+                        Text(text = TITLE)
+                        uiState.microModelSessionSummary?.let { summary ->
+                            Text(text = summary, style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
+                },
                 actions = {
                     ChatTopBarActions(
                         isFavoritesFilterActive = uiState.isFavoritesFilterActive,

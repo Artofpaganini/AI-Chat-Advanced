@@ -40,6 +40,7 @@ dependencyResolutionManagement {
 include(":androidApp")
 include(":composeApp")
 include(":core:viewmodel")
+include(":core:micromodel")
 include(":feature:ai")
 include(":feature:voice")
 include(":feature:chat")

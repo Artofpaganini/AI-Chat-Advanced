@@ -11,4 +11,5 @@ internal data class ChatMessageUiModel(
     val timeLabel: String,
     val modelId: String?,
     val triage: TriageUiModel?,
+    val routeBadgeText: String?,
 )

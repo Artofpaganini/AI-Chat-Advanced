@@ -15,6 +15,7 @@ kotlin {
             api(projects.feature.ai)
             implementation(projects.feature.voice)
             implementation(projects.core.viewmodel)
+            implementation(projects.core.micromodel)
             implementation(libs.compose.material3)
             implementation(libs.compose.material.icons.extended)
             implementation(libs.androidx.lifecycle.viewmodel)

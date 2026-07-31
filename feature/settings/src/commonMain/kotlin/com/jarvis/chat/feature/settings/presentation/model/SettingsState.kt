@@ -8,5 +8,6 @@ internal data class SettingsState(
     val themeMode: ThemeModeModel = ThemeModeModel.SYSTEM,
     val aiModel: AiModelModel = AiModelModel.FLASH,
     val aiProvider: AiProviderModel = AiProviderModel.DEEP_SEEK_CLOUD,
+    val isMicroModelFirstEnabled: Boolean = true,
     val isSheetVisible: Boolean = false,
 )

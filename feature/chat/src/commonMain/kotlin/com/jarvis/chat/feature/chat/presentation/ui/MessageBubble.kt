@@ -124,6 +124,13 @@ internal fun MessageBubble(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                message.routeBadgeText?.let { badgeText ->
+                    Text(
+                        text = badgeText,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 message.triage?.let { triage ->
                     TriageInfo(triage = triage)
                 }

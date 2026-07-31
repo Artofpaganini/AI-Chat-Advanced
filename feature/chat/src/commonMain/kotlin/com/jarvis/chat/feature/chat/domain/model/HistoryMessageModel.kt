@@ -11,4 +11,5 @@ internal data class HistoryMessageModel(
     val timestamp: Long,
     val modelId: String? = null,
     val triage: TriageModel? = null,
+    val routeDecision: RouteDecisionModel? = null,
 )

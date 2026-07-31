@@ -9,11 +9,13 @@ import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelIdModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelProvider
 import com.jarvis.chat.feature.chat.di.chatModule
+import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
 import com.jarvis.chat.feature.settings.di.settingsModule
 import com.jarvis.chat.feature.settings.domain.model.AiModelModel
 import com.jarvis.chat.feature.settings.domain.model.AiProviderModel
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiProviderUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveMicroModelFirstEnabledUseCase
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
@@ -68,6 +70,10 @@ fun initKoin(appConfig: AppConfig) {
                 single<DeepSeekModelProvider> {
                     val providerConfigProvider: AiProviderConfigProvider = get()
                     DeepSeekModelProvider { providerConfigProvider.currentConfig().modelId }
+                }
+                single<MicroModelGateSettingProvider> {
+                    val observeMicroModelFirstEnabledUseCase: ObserveMicroModelFirstEnabledUseCase = get()
+                    MicroModelGateSettingProvider { observeMicroModelFirstEnabledUseCase().value }
                 }
             },
             chatModule(storageDirectoryPath = appConfig.filesDirectoryPath),

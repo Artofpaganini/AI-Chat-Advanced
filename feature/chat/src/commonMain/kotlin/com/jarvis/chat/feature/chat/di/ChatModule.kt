@@ -1,5 +1,6 @@
 package com.jarvis.chat.feature.chat.di
 
+import com.jarvis.chat.core.micromodel.di.microModelModule
 import com.jarvis.chat.feature.ai.di.aiModule
 import com.jarvis.chat.feature.chat.data.datasource.ChatHistoryLocalDataSource
 import com.jarvis.chat.feature.chat.data.datasource.createChatHistoryLocalDataSource
@@ -33,6 +34,7 @@ import org.koin.dsl.module
 
 fun chatModule(storageDirectoryPath: String): Module = module {
     includes(aiModule)
+    includes(microModelModule)
     single { ChatStorageConfigModel(directoryPath = storageDirectoryPath) }
     single<CoroutineDispatcher> { Dispatchers.Default }
     single<ChatHistoryLocalDataSource> {

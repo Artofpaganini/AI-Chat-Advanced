@@ -12,6 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,6 +38,8 @@ private const val AI_PROVIDER_TITLE = "AI Provider"
 private const val AI_PROVIDER_LABEL_DEEP_SEEK_CLOUD = "DeepSeek Cloud"
 private const val AI_PROVIDER_LABEL_LOCAL_MLX = "Local model"
 private const val AI_PROVIDER_LABEL_LOCAL_TRIAGE = "Local model (verified)"
+private const val MICRO_MODEL_FIRST_TITLE = "Micro-model first"
+private const val MICRO_MODEL_FIRST_DESCRIPTION = "Classify messages on-device before calling the AI"
 
 @Composable
 fun rememberSelectedThemeMode(): ThemeModeUiModel {
@@ -79,8 +82,27 @@ fun SettingsBottomSheet() {
                     selectedAiProvider = uiState.selectedAiProvider,
                     onAiProviderSelected = { aiProvider -> viewModel.onAction(SettingsAction.Ui.AiProviderSelected(aiProvider)) },
                 )
+                Spacer(modifier = Modifier.height(SettingsDimens.spacingMd))
+                MicroModelFirstOption(
+                    isEnabled = uiState.isMicroModelFirstEnabled,
+                    onToggled = { enabled -> viewModel.onAction(SettingsAction.Ui.MicroModelFirstToggled(enabled)) },
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun MicroModelFirstOption(isEnabled: Boolean, onToggled: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = MICRO_MODEL_FIRST_TITLE, style = MaterialTheme.typography.titleMedium)
+            Text(text = MICRO_MODEL_FIRST_DESCRIPTION, style = MaterialTheme.typography.bodySmall)
+        }
+        Switch(checked = isEnabled, onCheckedChange = onToggled)
     }
 }
 

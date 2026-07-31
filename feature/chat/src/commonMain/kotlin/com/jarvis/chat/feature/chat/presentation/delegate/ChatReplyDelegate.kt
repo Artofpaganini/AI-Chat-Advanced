@@ -1,12 +1,23 @@
 package com.jarvis.chat.feature.chat.presentation.delegate
 
+import com.jarvis.chat.core.micromodel.domain.model.MicroTriageModel
+import com.jarvis.chat.core.micromodel.domain.model.MicroTriageRouteModel
+import com.jarvis.chat.core.micromodel.domain.model.MicroTriageStatusModel
+import com.jarvis.chat.core.micromodel.domain.usecase.ClassifyMessageUseCase
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
+import com.jarvis.chat.feature.chat.domain.mapper.mergeWithMicroRoute
+import com.jarvis.chat.feature.chat.domain.mapper.toFallbackTriageModel
+import com.jarvis.chat.feature.chat.domain.mapper.toLocalReplyText
 import com.jarvis.chat.feature.chat.domain.mapper.toRequestContext
+import com.jarvis.chat.feature.chat.domain.mapper.toTriageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
+import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
+import com.jarvis.chat.feature.chat.domain.model.RouteDecisionModel
+import com.jarvis.chat.feature.chat.domain.model.RouteSourceModel
 import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
 import com.jarvis.chat.feature.chat.presentation.model.ChatAction
 import com.jarvis.chat.feature.chat.presentation.model.ChatEvent
@@ -23,6 +34,8 @@ private const val MESSAGE_ID_PREFIX = "msg-"
 
 internal class ChatReplyDelegate(
     private val sendMessageStreamUseCase: SendMessageStreamUseCase,
+    private val classifyMessageUseCase: ClassifyMessageUseCase,
+    private val microModelGateSettingProvider: MicroModelGateSettingProvider,
     private val saveChatHistoryUseCase: SaveChatHistoryUseCase,
     private val viewModelScope: CoroutineScope,
     private val currentState: () -> ChatState,
@@ -93,7 +106,14 @@ internal class ChatReplyDelegate(
         }
     }
 
-    fun onReplyChunkReceived(sessionId: String, messageId: String, textChunk: String, modelId: String?, triage: TriageModel?) {
+    fun onReplyChunkReceived(
+        sessionId: String,
+        messageId: String,
+        textChunk: String,
+        modelId: String?,
+        triage: TriageModel?,
+        routeDecision: RouteDecisionModel?,
+    ) {
         val buffer = replyBuffers[sessionId] ?: return
         val updatedBuffer = buffer.map { message ->
             if (message.id == messageId) {
@@ -101,6 +121,7 @@ internal class ChatReplyDelegate(
                     text = message.text + textChunk,
                     modelId = modelId ?: message.modelId,
                     triage = triage ?: message.triage,
+                    routeDecision = routeDecision ?: message.routeDecision,
                 )
             } else {
                 message
@@ -151,19 +172,24 @@ internal class ChatReplyDelegate(
         }
         replyJobs[sessionId] = viewModelScope.launch {
             try {
-                sendMessageStreamUseCase(history.toRequestContext())
-                    .collect { chunk ->
-                        dispatch(
-                            ChatAction.Internal.ReplyChunkReceived(
-                                sessionId = sessionId,
-                                messageId = assistantMessage.id,
-                                textChunk = chunk.text,
-                                modelId = chunk.modelId,
-                                triage = chunk.triage,
-                            ),
-                        )
-                    }
-                dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
+                val userText = history.lastOrNull { message -> message.author == MessageAuthor.USER }?.text.orEmpty()
+                val microResult = if (microModelGateSettingProvider.isMicroModelFirstEnabled()) {
+                    classifyMessageUseCase(userText)
+                } else {
+                    null
+                }
+                val localMicroResult = microResult?.takeIf { result -> result.status == MicroTriageStatusModel.OK }
+                updateState {
+                    copy(
+                        totalRoutedCount = totalRoutedCount + 1,
+                        localHandledCount = if (localMicroResult != null) localHandledCount + 1 else localHandledCount,
+                    )
+                }
+                if (localMicroResult != null) {
+                    replyLocally(sessionId, assistantMessage.id, localMicroResult)
+                } else {
+                    replyFromCloud(sessionId, assistantMessage.id, history, microResult)
+                }
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (throwable: Throwable) {
@@ -171,6 +197,88 @@ internal class ChatReplyDelegate(
                 dispatch(ChatAction.Internal.ReplyFailed(sessionId, assistantMessage.id, error))
             }
         }
+    }
+
+    private fun replyLocally(sessionId: String, messageId: String, microResult: MicroTriageModel) {
+        dispatch(
+            ChatAction.Internal.ReplyChunkReceived(
+                sessionId = sessionId,
+                messageId = messageId,
+                textChunk = microResult.route.toLocalReplyText(),
+                modelId = null,
+                triage = microResult.toTriageModel(),
+                routeDecision = RouteDecisionModel(
+                    source = RouteSourceModel.LOCAL,
+                    microRoute = microResult.route,
+                    microConfidence = microResult.confidence,
+                    elapsedMillis = microResult.elapsedMillis,
+                ),
+            ),
+        )
+        dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
+    }
+
+    private suspend fun replyFromCloud(
+        sessionId: String,
+        messageId: String,
+        history: List<HistoryMessageModel>,
+        microResult: MicroTriageModel?,
+    ) {
+        val baseRouteDecision = microResult?.let { result ->
+            RouteDecisionModel(
+                source = RouteSourceModel.CLOUD,
+                microRoute = result.route,
+                microConfidence = result.confidence,
+                elapsedMillis = result.elapsedMillis,
+            )
+        }
+        sendMessageStreamUseCase(history.toRequestContext())
+            .collect { chunk ->
+                val llmTriage = chunk.triage
+                val mergedTriage = llmTriage?.mergeWithMicroRoute(microResult?.route)
+                val mergedRouteDecision = if (llmTriage != null && baseRouteDecision != null) {
+                    baseRouteDecision.copy(llmRouteBeforeMerge = llmTriage.route)
+                } else {
+                    baseRouteDecision
+                }
+                dispatch(
+                    ChatAction.Internal.ReplyChunkReceived(
+                        sessionId = sessionId,
+                        messageId = messageId,
+                        textChunk = chunk.text,
+                        modelId = chunk.modelId,
+                        triage = mergedTriage,
+                        routeDecision = mergedRouteDecision,
+                    ),
+                )
+            }
+        ensureEmergencyVisible(sessionId, messageId, microResult)
+        dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
+    }
+
+    private fun ensureEmergencyVisible(sessionId: String, messageId: String, microResult: MicroTriageModel?) {
+        if (microResult == null || microResult.route != MicroTriageRouteModel.EMERGENCY) {
+            return
+        }
+        val currentTriage = replyBuffers[sessionId]?.find { message -> message.id == messageId }?.triage
+        if (currentTriage != null) {
+            return
+        }
+        dispatch(
+            ChatAction.Internal.ReplyChunkReceived(
+                sessionId = sessionId,
+                messageId = messageId,
+                textChunk = "",
+                modelId = null,
+                triage = microResult.toFallbackTriageModel(),
+                routeDecision = RouteDecisionModel(
+                    source = RouteSourceModel.CLOUD,
+                    microRoute = microResult.route,
+                    microConfidence = microResult.confidence,
+                    elapsedMillis = microResult.elapsedMillis,
+                ),
+            ),
+        )
     }
 
     private fun persist(sessionId: String, messages: List<HistoryMessageModel>) {

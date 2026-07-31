@@ -4,5 +4,6 @@ internal data class SettingsUiModel(
     val selectedThemeMode: ThemeModeUiModel,
     val selectedAiModel: AiModelUiModel,
     val selectedAiProvider: AiProviderUiModel,
+    val isMicroModelFirstEnabled: Boolean,
     val isSheetVisible: Boolean,
 )

@@ -14,4 +14,5 @@ internal data class ChatUiModel(
     val isDeleteMessageConfirmationVisible: Boolean,
     val isEmptyState: Boolean,
     val isFavoritesEmptyState: Boolean,
+    val microModelSessionSummary: String?,
 )

@@ -1,0 +1,1138 @@
+{
+  "raw_dir": "task10/raw",
+  "runs": {
+    "only_llm": [
+      {
+        "file": "pipeline_only_llm.jsonl",
+        "repeat": 1,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 38,
+          "accuracy": 0.8261,
+          "missed_emergency": 3,
+          "false_emergency": 2,
+          "handled_by_micro": 0,
+          "fallback_count": 50,
+          "llm_calls": 50,
+          "cost_usd": 0.00269844,
+          "latency_mean_ms": 1569.1,
+          "latency_p50_ms": 1545.0,
+          "latency_p95_ms": 1938.0,
+          "micro_latency_mean_ms": 0.0,
+          "micro_latency_p50_ms": 0.0,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 20,
+              "accuracy": 1.0,
+              "escalated": 20
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 8,
+              "accuracy": 0.5333,
+              "escalated": 15
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 10,
+              "accuracy": 0.9091,
+              "escalated": 11
+            }
+          }
+        }
+      },
+      {
+        "file": "pipeline_only_llm_r2.jsonl",
+        "repeat": 2,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 37,
+          "accuracy": 0.8043,
+          "missed_emergency": 3,
+          "false_emergency": 3,
+          "handled_by_micro": 0,
+          "fallback_count": 50,
+          "llm_calls": 50,
+          "cost_usd": 0.00134709,
+          "latency_mean_ms": 1453.9,
+          "latency_p50_ms": 1469.0,
+          "latency_p95_ms": 1689.0,
+          "micro_latency_mean_ms": 0.0,
+          "micro_latency_p50_ms": 0.0,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 20,
+              "accuracy": 1.0,
+              "escalated": 20
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 7,
+              "accuracy": 0.4667,
+              "escalated": 15
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 10,
+              "accuracy": 0.9091,
+              "escalated": 11
+            }
+          }
+        }
+      },
+      {
+        "file": "pipeline_only_llm_r3.jsonl",
+        "repeat": 3,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 38,
+          "accuracy": 0.8261,
+          "missed_emergency": 3,
+          "false_emergency": 2,
+          "handled_by_micro": 0,
+          "fallback_count": 50,
+          "llm_calls": 50,
+          "cost_usd": 0.00135381,
+          "latency_mean_ms": 1470.6,
+          "latency_p50_ms": 1452.0,
+          "latency_p95_ms": 1852.0,
+          "micro_latency_mean_ms": 0.0,
+          "micro_latency_p50_ms": 0.0,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 20,
+              "accuracy": 1.0,
+              "escalated": 20
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 8,
+              "accuracy": 0.5333,
+              "escalated": 15
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 10,
+              "accuracy": 0.9091,
+              "escalated": 11
+            }
+          }
+        }
+      }
+    ],
+    "only_micro": [
+      {
+        "file": "pipeline_only_micro.jsonl",
+        "repeat": 1,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 36,
+          "accuracy": 0.7826,
+          "missed_emergency": 1,
+          "false_emergency": 6,
+          "handled_by_micro": 50,
+          "fallback_count": 0,
+          "llm_calls": 0,
+          "cost_usd": 0.0,
+          "latency_mean_ms": 0.1,
+          "latency_p50_ms": 0.0,
+          "latency_p95_ms": 1.0,
+          "micro_latency_mean_ms": 0.4988,
+          "micro_latency_p50_ms": 0.459,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 18,
+              "accuracy": 0.9,
+              "escalated": 0
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 10,
+              "accuracy": 0.6667,
+              "escalated": 0
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 8,
+              "accuracy": 0.7273,
+              "escalated": 0
+            }
+          }
+        }
+      },
+      {
+        "file": "pipeline_only_micro_r2.jsonl",
+        "repeat": 2,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 36,
+          "accuracy": 0.7826,
+          "missed_emergency": 1,
+          "false_emergency": 6,
+          "handled_by_micro": 50,
+          "fallback_count": 0,
+          "llm_calls": 0,
+          "cost_usd": 0.0,
+          "latency_mean_ms": 0.0,
+          "latency_p50_ms": 0.0,
+          "latency_p95_ms": 0.0,
+          "micro_latency_mean_ms": 0.3207,
+          "micro_latency_p50_ms": 0.3114,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 18,
+              "accuracy": 0.9,
+              "escalated": 0
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 10,
+              "accuracy": 0.6667,
+              "escalated": 0
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 8,
+              "accuracy": 0.7273,
+              "escalated": 0
+            }
+          }
+        }
+      },
+      {
+        "file": "pipeline_only_micro_r3.jsonl",
+        "repeat": 3,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 36,
+          "accuracy": 0.7826,
+          "missed_emergency": 1,
+          "false_emergency": 6,
+          "handled_by_micro": 50,
+          "fallback_count": 0,
+          "llm_calls": 0,
+          "cost_usd": 0.0,
+          "latency_mean_ms": 0.0,
+          "latency_p50_ms": 0.0,
+          "latency_p95_ms": 0.0,
+          "micro_latency_mean_ms": 0.2764,
+          "micro_latency_p50_ms": 0.2644,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 18,
+              "accuracy": 0.9,
+              "escalated": 0
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 10,
+              "accuracy": 0.6667,
+              "escalated": 0
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 8,
+              "accuracy": 0.7273,
+              "escalated": 0
+            }
+          }
+        }
+      }
+    ],
+    "cascade": [
+      {
+        "file": "pipeline_cascade.jsonl",
+        "repeat": 1,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 35,
+          "accuracy": 0.7609,
+          "missed_emergency": 4,
+          "false_emergency": 2,
+          "handled_by_micro": 23,
+          "fallback_count": 27,
+          "llm_calls": 27,
+          "cost_usd": 0.00077115,
+          "latency_mean_ms": 810.7,
+          "latency_p50_ms": 1269.0,
+          "latency_p95_ms": 1715.0,
+          "micro_latency_mean_ms": 0.8929,
+          "micro_latency_p50_ms": 0.5645,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 19,
+              "accuracy": 0.95,
+              "escalated": 8
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 7,
+              "accuracy": 0.4667,
+              "escalated": 9
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 9,
+              "accuracy": 0.8182,
+              "escalated": 6
+            }
+          }
+        }
+      },
+      {
+        "file": "pipeline_cascade_r2.jsonl",
+        "repeat": 2,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 35,
+          "accuracy": 0.7609,
+          "missed_emergency": 4,
+          "false_emergency": 2,
+          "handled_by_micro": 23,
+          "fallback_count": 27,
+          "llm_calls": 27,
+          "cost_usd": 0.00077115,
+          "latency_mean_ms": 828.6,
+          "latency_p50_ms": 1334.0,
+          "latency_p95_ms": 1744.0,
+          "micro_latency_mean_ms": 0.9876,
+          "micro_latency_p50_ms": 0.7729,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 19,
+              "accuracy": 0.95,
+              "escalated": 8
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 7,
+              "accuracy": 0.4667,
+              "escalated": 9
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 9,
+              "accuracy": 0.8182,
+              "escalated": 6
+            }
+          }
+        }
+      },
+      {
+        "file": "pipeline_cascade_r3.jsonl",
+        "repeat": 3,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 35,
+          "accuracy": 0.7609,
+          "missed_emergency": 4,
+          "false_emergency": 2,
+          "handled_by_micro": 23,
+          "fallback_count": 27,
+          "llm_calls": 27,
+          "cost_usd": 0.00077367,
+          "latency_mean_ms": 815.0,
+          "latency_p50_ms": 1319.0,
+          "latency_p95_ms": 1772.0,
+          "micro_latency_mean_ms": 0.9805,
+          "micro_latency_p50_ms": 0.7727,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 19,
+              "accuracy": 0.95,
+              "escalated": 8
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 7,
+              "accuracy": 0.4667,
+              "escalated": 9
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 9,
+              "accuracy": 0.8182,
+              "escalated": 6
+            }
+          }
+        }
+      }
+    ],
+    "cascade_max": [
+      {
+        "file": "pipeline_cascade_max.jsonl",
+        "repeat": 1,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 36,
+          "accuracy": 0.7826,
+          "missed_emergency": 1,
+          "false_emergency": 6,
+          "handled_by_micro": 23,
+          "fallback_count": 27,
+          "llm_calls": 27,
+          "cost_usd": 0.00077255,
+          "latency_mean_ms": 805.7,
+          "latency_p50_ms": 1225.0,
+          "latency_p95_ms": 1752.0,
+          "micro_latency_mean_ms": 1.0795,
+          "micro_latency_p50_ms": 0.8336,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 18,
+              "accuracy": 0.9,
+              "escalated": 8
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 10,
+              "accuracy": 0.6667,
+              "escalated": 9
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 8,
+              "accuracy": 0.7273,
+              "escalated": 6
+            }
+          }
+        }
+      },
+      {
+        "file": "pipeline_cascade_max_r2.jsonl",
+        "repeat": 2,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 35,
+          "accuracy": 0.7609,
+          "missed_emergency": 1,
+          "false_emergency": 7,
+          "handled_by_micro": 23,
+          "fallback_count": 27,
+          "llm_calls": 27,
+          "cost_usd": 0.00077591,
+          "latency_mean_ms": 811.9,
+          "latency_p50_ms": 1328.0,
+          "latency_p95_ms": 1724.0,
+          "micro_latency_mean_ms": 1.0272,
+          "micro_latency_p50_ms": 0.8006,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 18,
+              "accuracy": 0.9,
+              "escalated": 8
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 9,
+              "accuracy": 0.6,
+              "escalated": 9
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 8,
+              "accuracy": 0.7273,
+              "escalated": 6
+            }
+          }
+        }
+      },
+      {
+        "file": "pipeline_cascade_max_r3.jsonl",
+        "repeat": 3,
+        "metrics": {
+          "cases": 50,
+          "evaluable": 46,
+          "hits": 36,
+          "accuracy": 0.7826,
+          "missed_emergency": 1,
+          "false_emergency": 6,
+          "handled_by_micro": 23,
+          "fallback_count": 27,
+          "llm_calls": 27,
+          "cost_usd": 0.00076779,
+          "latency_mean_ms": 788.3,
+          "latency_p50_ms": 1260.0,
+          "latency_p95_ms": 1671.0,
+          "micro_latency_mean_ms": 0.8675,
+          "micro_latency_p50_ms": 0.5751,
+          "errors": 0,
+          "by_group": {
+            "clean": {
+              "cases": 20,
+              "hits": 18,
+              "accuracy": 0.9,
+              "escalated": 8
+            },
+            "borderline": {
+              "cases": 15,
+              "hits": 10,
+              "accuracy": 0.6667,
+              "escalated": 9
+            },
+            "noisy": {
+              "cases": 11,
+              "hits": 8,
+              "accuracy": 0.7273,
+              "escalated": 6
+            }
+          }
+        }
+      }
+    ]
+  },
+  "summary": {
+    "only_llm": {
+      "repeats": 3,
+      "accuracy": {
+        "min": 0.8043,
+        "max": 0.8261,
+        "mean": 0.8188
+      },
+      "missed_emergency_worst": 3,
+      "missed_emergency_best": 3,
+      "false_emergency_worst": 3,
+      "handled_by_micro": {
+        "min": 0,
+        "max": 0,
+        "mean": 0.0
+      },
+      "fallback_count": {
+        "min": 50,
+        "max": 50,
+        "mean": 50.0
+      },
+      "llm_calls_total": 150,
+      "llm_calls_per_run": {
+        "min": 50,
+        "max": 50,
+        "mean": 50.0
+      },
+      "cost_usd_total": 0.00539934,
+      "cost_usd_per_run": {
+        "min": 0.0013,
+        "max": 0.0027,
+        "mean": 0.0018
+      },
+      "latency_mean_ms": {
+        "min": 1453.9,
+        "max": 1569.1,
+        "mean": 1497.8667
+      },
+      "latency_p50_ms": {
+        "min": 1452.0,
+        "max": 1545.0,
+        "mean": 1488.6667
+      },
+      "latency_p95_ms": {
+        "min": 1689.0,
+        "max": 1938.0,
+        "mean": 1826.3333
+      },
+      "micro_latency_p50_ms": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "errors_total": 0,
+      "accuracy_by_group": {
+        "clean": {
+          "min": 1.0,
+          "max": 1.0,
+          "mean": 1.0
+        },
+        "borderline": {
+          "min": 0.4667,
+          "max": 0.5333,
+          "mean": 0.5111
+        },
+        "noisy": {
+          "min": 0.9091,
+          "max": 0.9091,
+          "mean": 0.9091
+        }
+      }
+    },
+    "only_micro": {
+      "repeats": 3,
+      "accuracy": {
+        "min": 0.7826,
+        "max": 0.7826,
+        "mean": 0.7826
+      },
+      "missed_emergency_worst": 1,
+      "missed_emergency_best": 1,
+      "false_emergency_worst": 6,
+      "handled_by_micro": {
+        "min": 50,
+        "max": 50,
+        "mean": 50.0
+      },
+      "fallback_count": {
+        "min": 0,
+        "max": 0,
+        "mean": 0.0
+      },
+      "llm_calls_total": 0,
+      "llm_calls_per_run": {
+        "min": 0,
+        "max": 0,
+        "mean": 0.0
+      },
+      "cost_usd_total": 0.0,
+      "cost_usd_per_run": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "latency_mean_ms": {
+        "min": 0.0,
+        "max": 0.1,
+        "mean": 0.0333
+      },
+      "latency_p50_ms": {
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0
+      },
+      "latency_p95_ms": {
+        "min": 0.0,
+        "max": 1.0,
+        "mean": 0.3333
+      },
+      "micro_latency_p50_ms": {
+        "min": 0.2644,
+        "max": 0.459,
+        "mean": 0.3449
+      },
+      "errors_total": 0,
+      "accuracy_by_group": {
+        "clean": {
+          "min": 0.9,
+          "max": 0.9,
+          "mean": 0.9
+        },
+        "borderline": {
+          "min": 0.6667,
+          "max": 0.6667,
+          "mean": 0.6667
+        },
+        "noisy": {
+          "min": 0.7273,
+          "max": 0.7273,
+          "mean": 0.7273
+        }
+      }
+    },
+    "cascade": {
+      "repeats": 3,
+      "accuracy": {
+        "min": 0.7609,
+        "max": 0.7609,
+        "mean": 0.7609
+      },
+      "missed_emergency_worst": 4,
+      "missed_emergency_best": 4,
+      "false_emergency_worst": 2,
+      "handled_by_micro": {
+        "min": 23,
+        "max": 23,
+        "mean": 23.0
+      },
+      "fallback_count": {
+        "min": 27,
+        "max": 27,
+        "mean": 27.0
+      },
+      "llm_calls_total": 81,
+      "llm_calls_per_run": {
+        "min": 27,
+        "max": 27,
+        "mean": 27.0
+      },
+      "cost_usd_total": 0.00231597,
+      "cost_usd_per_run": {
+        "min": 0.0008,
+        "max": 0.0008,
+        "mean": 0.0008
+      },
+      "latency_mean_ms": {
+        "min": 810.7,
+        "max": 828.6,
+        "mean": 818.1
+      },
+      "latency_p50_ms": {
+        "min": 1269.0,
+        "max": 1334.0,
+        "mean": 1307.3333
+      },
+      "latency_p95_ms": {
+        "min": 1715.0,
+        "max": 1772.0,
+        "mean": 1743.6667
+      },
+      "micro_latency_p50_ms": {
+        "min": 0.5645,
+        "max": 0.7729,
+        "mean": 0.7034
+      },
+      "errors_total": 0,
+      "accuracy_by_group": {
+        "clean": {
+          "min": 0.95,
+          "max": 0.95,
+          "mean": 0.95
+        },
+        "borderline": {
+          "min": 0.4667,
+          "max": 0.4667,
+          "mean": 0.4667
+        },
+        "noisy": {
+          "min": 0.8182,
+          "max": 0.8182,
+          "mean": 0.8182
+        }
+      }
+    },
+    "cascade_max": {
+      "repeats": 3,
+      "accuracy": {
+        "min": 0.7609,
+        "max": 0.7826,
+        "mean": 0.7754
+      },
+      "missed_emergency_worst": 1,
+      "missed_emergency_best": 1,
+      "false_emergency_worst": 7,
+      "handled_by_micro": {
+        "min": 23,
+        "max": 23,
+        "mean": 23.0
+      },
+      "fallback_count": {
+        "min": 27,
+        "max": 27,
+        "mean": 27.0
+      },
+      "llm_calls_total": 81,
+      "llm_calls_per_run": {
+        "min": 27,
+        "max": 27,
+        "mean": 27.0
+      },
+      "cost_usd_total": 0.00231625,
+      "cost_usd_per_run": {
+        "min": 0.0008,
+        "max": 0.0008,
+        "mean": 0.0008
+      },
+      "latency_mean_ms": {
+        "min": 788.3,
+        "max": 811.9,
+        "mean": 801.9667
+      },
+      "latency_p50_ms": {
+        "min": 1225.0,
+        "max": 1328.0,
+        "mean": 1271.0
+      },
+      "latency_p95_ms": {
+        "min": 1671.0,
+        "max": 1752.0,
+        "mean": 1715.6667
+      },
+      "micro_latency_p50_ms": {
+        "min": 0.5751,
+        "max": 0.8336,
+        "mean": 0.7364
+      },
+      "errors_total": 0,
+      "accuracy_by_group": {
+        "clean": {
+          "min": 0.9,
+          "max": 0.9,
+          "mean": 0.9
+        },
+        "borderline": {
+          "min": 0.6,
+          "max": 0.6667,
+          "mean": 0.6445
+        },
+        "noisy": {
+          "min": 0.7273,
+          "max": 0.7273,
+          "mean": 0.7273
+        }
+      }
+    }
+  },
+  "escalation": {
+    "cascade": {
+      "runs": 3,
+      "stayed": 69,
+      "escalated": 81,
+      "always_escalate": 66,
+      "low_confidence": 15,
+      "llm_confirmed": 48,
+      "llm_lowered": 33,
+      "llm_raised": 0,
+      "llm_no_route": 0,
+      "final_differs_from_micro": 33
+    },
+    "cascade_max": {
+      "runs": 3,
+      "stayed": 69,
+      "escalated": 81,
+      "always_escalate": 66,
+      "low_confidence": 15,
+      "llm_confirmed": 47,
+      "llm_lowered": 33,
+      "llm_raised": 1,
+      "llm_no_route": 0,
+      "final_differs_from_micro": 1
+    }
+  },
+  "emergency_recall": {
+    "micro_alone": {
+      "gold": 13,
+      "caught": 12,
+      "runs": 3
+    },
+    "only_llm": {
+      "gold": 13,
+      "caught": 10,
+      "runs": 3
+    },
+    "cascade": {
+      "gold": 13,
+      "caught": 9,
+      "runs": 3
+    },
+    "cascade_max": {
+      "gold": 13,
+      "caught": 12,
+      "runs": 3
+    },
+    "micro_inside_cascade": {
+      "gold": 13,
+      "caught": 12,
+      "runs": 3
+    }
+  },
+  "cascade_max_vs_only_micro": {
+    "comparable": true,
+    "left": "cascade_max",
+    "right": "only_micro",
+    "identical": false,
+    "mismatches": [
+      {
+        "file": "pipeline_cascade_max_r2.jsonl",
+        "case_id": "borderline_02",
+        "cascade_max": "EMERGENCY",
+        "only_micro": "DOCTOR_SOON"
+      }
+    ],
+    "llm_calls_total": 81,
+    "llm_calls_that_changed_nothing": 80
+  },
+  "posthoc": {
+    "severity_max": {
+      "repeats": 3,
+      "accuracy": {
+        "min": 0.7826,
+        "max": 0.7826,
+        "mean": 0.7826
+      },
+      "missed_emergency_worst": 1,
+      "missed_emergency_best": 1,
+      "false_emergency_worst": 6,
+      "handled_by_micro": {
+        "min": 23,
+        "max": 23,
+        "mean": 23.0
+      },
+      "fallback_count": {
+        "min": 27,
+        "max": 27,
+        "mean": 27.0
+      },
+      "llm_calls_total": 81,
+      "llm_calls_per_run": {
+        "min": 27,
+        "max": 27,
+        "mean": 27.0
+      },
+      "cost_usd_total": 0.00231597,
+      "cost_usd_per_run": {
+        "min": 0.0008,
+        "max": 0.0008,
+        "mean": 0.0008
+      },
+      "latency_mean_ms": {
+        "min": 810.7,
+        "max": 828.6,
+        "mean": 818.1
+      },
+      "latency_p50_ms": {
+        "min": 1269.0,
+        "max": 1334.0,
+        "mean": 1307.3333
+      },
+      "latency_p95_ms": {
+        "min": 1715.0,
+        "max": 1772.0,
+        "mean": 1743.6667
+      },
+      "micro_latency_p50_ms": {
+        "min": 0.5645,
+        "max": 0.7729,
+        "mean": 0.7034
+      },
+      "errors_total": 0,
+      "accuracy_by_group": {
+        "clean": {
+          "min": 0.9,
+          "max": 0.9,
+          "mean": 0.9
+        },
+        "borderline": {
+          "min": 0.6667,
+          "max": 0.6667,
+          "mean": 0.6667
+        },
+        "noisy": {
+          "min": 0.7273,
+          "max": 0.7273,
+          "mean": 0.7273
+        }
+      }
+    },
+    "no_force_escalate": {
+      "repeats": 3,
+      "accuracy": {
+        "min": 0.7391,
+        "max": 0.7391,
+        "mean": 0.7391
+      },
+      "missed_emergency_worst": 3,
+      "missed_emergency_best": 3,
+      "false_emergency_worst": 5,
+      "handled_by_micro": {
+        "min": 39,
+        "max": 39,
+        "mean": 39.0
+      },
+      "fallback_count": {
+        "min": 11,
+        "max": 11,
+        "mean": 11.0
+      },
+      "llm_calls_total": 33,
+      "llm_calls_per_run": {
+        "min": 11,
+        "max": 11,
+        "mean": 11.0
+      },
+      "cost_usd_total": 0.00091097,
+      "cost_usd_per_run": {
+        "min": 0.0003,
+        "max": 0.0003,
+        "mean": 0.0003
+      },
+      "latency_mean_ms": {
+        "min": 810.7,
+        "max": 828.6,
+        "mean": 818.1
+      },
+      "latency_p50_ms": {
+        "min": 1269.0,
+        "max": 1334.0,
+        "mean": 1307.3333
+      },
+      "latency_p95_ms": {
+        "min": 1715.0,
+        "max": 1772.0,
+        "mean": 1743.6667
+      },
+      "micro_latency_p50_ms": {
+        "min": 0.5645,
+        "max": 0.7729,
+        "mean": 0.7034
+      },
+      "errors_total": 0,
+      "accuracy_by_group": {
+        "clean": {
+          "min": 0.9,
+          "max": 0.9,
+          "mean": 0.9
+        },
+        "borderline": {
+          "min": 0.5333,
+          "max": 0.5333,
+          "mean": 0.5333
+        },
+        "noisy": {
+          "min": 0.7273,
+          "max": 0.7273,
+          "mean": 0.7273
+        }
+      }
+    }
+  },
+  "determinism": {
+    "only_micro": {
+      "runs": 3,
+      "identical": true
+    }
+  },
+  "parity": {
+    "exists": true,
+    "count": 50,
+    "expected": 50,
+    "complete": true,
+    "tolerance": 1e-06
+  },
+  "model": {
+    "exists": true,
+    "invariant_passed": true,
+    "bytes": 458755,
+    "kb": 448.0,
+    "limit_kb": 500.0,
+    "features": 5100,
+    "weight_rows": 5100,
+    "confident_min_prob": 0.5,
+    "confident_min_margin": 0.3,
+    "always_escalate_labels": [
+      "EMERGENCY"
+    ],
+    "within_budget": true
+  },
+  "training": {
+    "overlap": {
+      "train_rows": 1019,
+      "eval_cases": 50,
+      "exact_matches": [],
+      "near_duplicates": [],
+      "exact_count": 0,
+      "near_count": 0,
+      "jaccard_threshold": 0.9
+    },
+    "thresholds": {
+      "confident_min_prob": 0.5,
+      "confident_min_margin": 0.3,
+      "min_precision_on_ok": 0.95
+    },
+    "fold_validation_accuracy": 0.8676,
+    "final_model": {
+      "wide_vocabulary": 25074,
+      "final_vocabulary": 5100,
+      "wide_train_accuracy": 1.0,
+      "final_train_accuracy": 1.0,
+      "model_bytes": 458755,
+      "seconds": 65.5,
+      "budget_attempts": 1
+    },
+    "split": {
+      "train": 815,
+      "validation": 204,
+      "validation_share": 0.2
+    }
+  },
+  "gate": {
+    "mode": "cascade",
+    "checks": {
+      "missed_emergency_not_worse_than_only_llm": {
+        "passed": false,
+        "cascade": 4,
+        "only_llm": 3
+      },
+      "llm_calls_below_only_llm": {
+        "passed": true,
+        "cascade": 81,
+        "only_llm": 150
+      },
+      "accuracy_not_below_only_micro": {
+        "passed": false,
+        "cascade": 0.7609,
+        "only_micro": 0.7826
+      },
+      "parity_file_complete": {
+        "passed": true,
+        "count": 50,
+        "expected": 50
+      },
+      "model_within_500kb": {
+        "passed": true,
+        "kb": 448.0,
+        "limit_kb": 500.0
+      }
+    },
+    "passed": false
+  },
+  "gate_cascade_max": {
+    "mode": "cascade_max",
+    "checks": {
+      "missed_emergency_not_worse_than_only_llm": {
+        "passed": true,
+        "cascade": 1,
+        "only_llm": 3
+      },
+      "llm_calls_below_only_llm": {
+        "passed": true,
+        "cascade": 81,
+        "only_llm": 150
+      },
+      "accuracy_not_below_only_micro": {
+        "passed": false,
+        "cascade": 0.7609,
+        "only_micro": 0.7826
+      },
+      "parity_file_complete": {
+        "passed": true,
+        "count": 50,
+        "expected": 50
+      },
+      "model_within_500kb": {
+        "passed": true,
+        "kb": 448.0,
+        "limit_kb": 500.0
+      }
+    },
+    "passed": false,
+    "note": "справочно, код возврата не меняет. Правило слияния исправлено после первого замера, поэтому результат на том же наборе не является доказательством"
+  }
+}
