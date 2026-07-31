@@ -2,6 +2,7 @@ package com.jarvis.chat.feature.settings.presentation.model
 
 import com.jarvis.chat.feature.settings.domain.model.AiModelModel
 import com.jarvis.chat.feature.settings.domain.model.AiProviderModel
+import com.jarvis.chat.feature.settings.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.settings.domain.model.ThemeModeModel
 
 internal data class SettingsState(
@@ -9,5 +10,6 @@ internal data class SettingsState(
     val aiModel: AiModelModel = AiModelModel.FLASH,
     val aiProvider: AiProviderModel = AiProviderModel.DEEP_SEEK_CLOUD,
     val isMicroModelFirstEnabled: Boolean = true,
+    val inferenceMode: InferenceModeModel = InferenceModeModel.ONE_SHOT,
     val isSheetVisible: Boolean = false,
 )

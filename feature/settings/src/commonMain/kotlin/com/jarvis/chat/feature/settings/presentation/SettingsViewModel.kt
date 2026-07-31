@@ -4,21 +4,26 @@ import androidx.lifecycle.viewModelScope
 import com.jarvis.chat.core.viewmodel.UdfBaseViewModel
 import com.jarvis.chat.feature.settings.domain.model.AiModelModel
 import com.jarvis.chat.feature.settings.domain.model.AiProviderModel
+import com.jarvis.chat.feature.settings.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.settings.domain.model.ThemeModeModel
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiProviderUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveInferenceModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveMicroModelFirstEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveThemeModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiProviderUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.SaveInferenceModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveMicroModelFirstEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveThemeModeUseCase
 import com.jarvis.chat.feature.settings.presentation.mapper.SettingsUiMapper
 import com.jarvis.chat.feature.settings.presentation.mapper.toAiModelModel
 import com.jarvis.chat.feature.settings.presentation.mapper.toAiProviderModel
+import com.jarvis.chat.feature.settings.presentation.mapper.toInferenceModeModel
 import com.jarvis.chat.feature.settings.presentation.mapper.toThemeModeModel
 import com.jarvis.chat.feature.settings.presentation.model.AiModelUiModel
 import com.jarvis.chat.feature.settings.presentation.model.AiProviderUiModel
+import com.jarvis.chat.feature.settings.presentation.model.InferenceModeUiModel
 import com.jarvis.chat.feature.settings.presentation.model.SettingsAction
 import com.jarvis.chat.feature.settings.presentation.model.SettingsEvent
 import com.jarvis.chat.feature.settings.presentation.model.SettingsState
@@ -35,6 +40,8 @@ internal class SettingsViewModel(
     private val saveAiProviderUseCase: SaveAiProviderUseCase,
     observeMicroModelFirstEnabledUseCase: ObserveMicroModelFirstEnabledUseCase,
     private val saveMicroModelFirstEnabledUseCase: SaveMicroModelFirstEnabledUseCase,
+    observeInferenceModeUseCase: ObserveInferenceModeUseCase,
+    private val saveInferenceModeUseCase: SaveInferenceModeUseCase,
     uiMapper: SettingsUiMapper,
 ) : UdfBaseViewModel<SettingsAction, SettingsUiModel, SettingsState, SettingsEvent>(
     initialState = SettingsState(
@@ -42,6 +49,7 @@ internal class SettingsViewModel(
         aiModel = observeAiModelUseCase().value,
         aiProvider = observeAiProviderUseCase().value,
         isMicroModelFirstEnabled = observeMicroModelFirstEnabledUseCase().value,
+        inferenceMode = observeInferenceModeUseCase().value,
     ),
     uiMapper = uiMapper,
 ) {
@@ -61,6 +69,11 @@ internal class SettingsViewModel(
                 onAction(SettingsAction.Internal.MicroModelFirstChanged(enabled))
             }
         }
+        viewModelScope.launch {
+            observeInferenceModeUseCase().collect { inferenceMode ->
+                onAction(SettingsAction.Internal.InferenceModeChanged(inferenceMode))
+            }
+        }
     }
 
     override fun onAction(action: SettingsAction) {
@@ -71,10 +84,12 @@ internal class SettingsViewModel(
             is SettingsAction.Ui.AiModelSelected -> onAiModelSelected(action.aiModel)
             is SettingsAction.Ui.AiProviderSelected -> onAiProviderSelected(action.aiProvider)
             is SettingsAction.Ui.MicroModelFirstToggled -> onMicroModelFirstToggled(action.enabled)
+            is SettingsAction.Ui.InferenceModeSelected -> onInferenceModeSelected(action.inferenceMode)
             is SettingsAction.Internal.ThemeModeChanged -> onThemeModeChanged(action.themeMode)
             is SettingsAction.Internal.AiModelChanged -> onAiModelChanged(action.aiModel)
             is SettingsAction.Internal.AiProviderChanged -> onAiProviderChanged(action.aiProvider)
             is SettingsAction.Internal.MicroModelFirstChanged -> onMicroModelFirstChanged(action.enabled)
+            is SettingsAction.Internal.InferenceModeChanged -> onInferenceModeChanged(action.inferenceMode)
         }
     }
 
@@ -119,5 +134,14 @@ internal class SettingsViewModel(
 
     private fun onMicroModelFirstChanged(enabled: Boolean) {
         updateState { copy(isMicroModelFirstEnabled = enabled) }
+    }
+
+    private fun onInferenceModeSelected(inferenceMode: InferenceModeUiModel) {
+        saveInferenceModeUseCase(inferenceMode.toInferenceModeModel())
+        updateState { copy(isSheetVisible = false) }
+    }
+
+    private fun onInferenceModeChanged(inferenceMode: InferenceModeModel) {
+        updateState { copy(inferenceMode = inferenceMode) }
     }
 }

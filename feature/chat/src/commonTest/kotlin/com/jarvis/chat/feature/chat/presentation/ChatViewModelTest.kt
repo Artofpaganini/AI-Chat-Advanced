@@ -1,16 +1,24 @@
 package com.jarvis.chat.feature.chat.presentation
 
 import app.cash.turbine.test
+import com.jarvis.chat.core.micromodel.di.microModelModule
+import com.jarvis.chat.core.micromodel.domain.usecase.ClassifyMessageUseCase
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.ChatStreamChunkModel
+import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel
+import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
+import com.jarvis.chat.feature.ai.domain.repository.MultiStageAiRepository
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
 import com.jarvis.chat.feature.chat.domain.mapper.MAX_CONTEXT_MESSAGES
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionModel
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionsModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
+import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
 import com.jarvis.chat.feature.chat.domain.usecase.ClearChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.DeleteMessageUseCase
@@ -44,6 +52,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.koin.dsl.koinApplication
 
 private const val DEFAULT_SESSION_ID = "session-1"
 
@@ -659,8 +668,16 @@ class ChatViewModelTest {
     ): ChatViewModel {
         chatRepository.stored = storedMessages
         val sendMessageStreamUseCase = SendMessageStreamUseCase(repository = aiRepository)
+        val classifyMessageUseCase = koinApplication { modules(microModelModule) }.koin.get<ClassifyMessageUseCase>()
+        val microModelGateSettingProvider = MicroModelGateSettingProvider { false }
+        val sendMultiStageMessageUseCase = SendMultiStageMessageUseCase(repository = FakeMultiStageAiRepository())
+        val inferenceModeProvider = InferenceModeProvider { InferenceModeModel.ONE_SHOT }
         return ChatViewModel(
             sendMessageStreamUseCase = sendMessageStreamUseCase,
+            classifyMessageUseCase = classifyMessageUseCase,
+            microModelGateSettingProvider = microModelGateSettingProvider,
+            sendMultiStageMessageUseCase = sendMultiStageMessageUseCase,
+            inferenceModeProvider = inferenceModeProvider,
             loadChatSessionsUseCase = LoadChatSessionsUseCase(chatRepository),
             observeActiveChatSessionUseCase = ObserveActiveChatSessionUseCase(chatRepository),
             loadChatHistoryUseCase = LoadChatHistoryUseCase(chatRepository),
@@ -701,6 +718,12 @@ class ChatViewModelTest {
             error?.let { failure -> throw failure }
             chunks.forEach { chunk -> emit(ChatStreamChunkModel(text = chunk, modelId = modelId)) }
         }
+    }
+
+    private class FakeMultiStageAiRepository : MultiStageAiRepository {
+
+        override suspend fun runMultiStage(caseText: String): MultiStageResultModel =
+            error("not used in one-shot tests")
     }
 
     private class CapturingAiRepository(

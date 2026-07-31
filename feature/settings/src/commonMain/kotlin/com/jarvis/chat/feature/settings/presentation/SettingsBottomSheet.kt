@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -22,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.jarvis.chat.feature.settings.presentation.model.AiModelUiModel
 import com.jarvis.chat.feature.settings.presentation.model.AiProviderUiModel
+import com.jarvis.chat.feature.settings.presentation.model.InferenceModeUiModel
 import com.jarvis.chat.feature.settings.presentation.model.SettingsAction
 import com.jarvis.chat.feature.settings.presentation.model.ThemeModeUiModel
 import com.jarvis.chat.feature.settings.presentation.ui.SettingsDimens
@@ -40,6 +43,9 @@ private const val AI_PROVIDER_LABEL_LOCAL_MLX = "Local model"
 private const val AI_PROVIDER_LABEL_LOCAL_TRIAGE = "Local model (verified)"
 private const val MICRO_MODEL_FIRST_TITLE = "Micro-model first"
 private const val MICRO_MODEL_FIRST_DESCRIPTION = "Classify messages on-device before calling the AI"
+private const val INFERENCE_MODE_TITLE = "Inference Mode"
+private const val INFERENCE_MODE_LABEL_ONE_SHOT = "Один запрос"
+private const val INFERENCE_MODE_LABEL_MULTI_STAGE = "Три этапа"
 
 @Composable
 fun rememberSelectedThemeMode(): ThemeModeUiModel {
@@ -65,6 +71,7 @@ fun SettingsBottomSheet() {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
                     .padding(SettingsDimens.spacingMd)
                     .navigationBarsPadding(),
             ) {
@@ -86,6 +93,13 @@ fun SettingsBottomSheet() {
                 MicroModelFirstOption(
                     isEnabled = uiState.isMicroModelFirstEnabled,
                     onToggled = { enabled -> viewModel.onAction(SettingsAction.Ui.MicroModelFirstToggled(enabled)) },
+                )
+                Spacer(modifier = Modifier.height(SettingsDimens.spacingMd))
+                InferenceModeOptions(
+                    selectedInferenceMode = uiState.selectedInferenceMode,
+                    onInferenceModeSelected = { inferenceMode ->
+                        viewModel.onAction(SettingsAction.Ui.InferenceModeSelected(inferenceMode))
+                    },
                 )
             }
         }
@@ -184,6 +198,32 @@ private fun AiProviderOptions(
     }
 }
 
+@Composable
+private fun InferenceModeOptions(
+    selectedInferenceMode: InferenceModeUiModel,
+    onInferenceModeSelected: (InferenceModeUiModel) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(text = INFERENCE_MODE_TITLE, style = MaterialTheme.typography.titleMedium)
+        InferenceModeUiModel.entries.forEach { inferenceMode ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onInferenceModeSelected(inferenceMode) }
+                    .padding(vertical = SettingsDimens.spacingXs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(
+                    selected = inferenceMode == selectedInferenceMode,
+                    onClick = { onInferenceModeSelected(inferenceMode) },
+                )
+                Text(text = inferenceMode.toLabel())
+            }
+        }
+    }
+}
+
 private fun ThemeModeUiModel.toLabel(): String =
     when (this) {
         ThemeModeUiModel.SYSTEM -> THEME_LABEL_SYSTEM
@@ -202,4 +242,10 @@ private fun AiProviderUiModel.toLabel(): String =
         AiProviderUiModel.DEEP_SEEK_CLOUD -> AI_PROVIDER_LABEL_DEEP_SEEK_CLOUD
         AiProviderUiModel.LOCAL_MLX -> AI_PROVIDER_LABEL_LOCAL_MLX
         AiProviderUiModel.LOCAL_TRIAGE -> AI_PROVIDER_LABEL_LOCAL_TRIAGE
+    }
+
+private fun InferenceModeUiModel.toLabel(): String =
+    when (this) {
+        InferenceModeUiModel.ONE_SHOT -> INFERENCE_MODE_LABEL_ONE_SHOT
+        InferenceModeUiModel.MULTI_STAGE -> INFERENCE_MODE_LABEL_MULTI_STAGE
     }

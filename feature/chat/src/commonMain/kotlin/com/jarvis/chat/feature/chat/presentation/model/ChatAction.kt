@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.chat.presentation.model
 
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
+import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.RouteDecisionModel
@@ -61,6 +62,7 @@ internal sealed interface ChatAction {
             val modelId: String? = null,
             val triage: TriageModel? = null,
             val routeDecision: RouteDecisionModel? = null,
+            val multiStage: MultiStageResultModel? = null,
         ) : Internal
 
         data class ReplyCompleted(val sessionId: String) : Internal

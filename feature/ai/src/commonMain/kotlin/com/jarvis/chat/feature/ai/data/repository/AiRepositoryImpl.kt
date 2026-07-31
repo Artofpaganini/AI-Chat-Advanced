@@ -6,6 +6,7 @@ import com.jarvis.chat.feature.ai.data.mapper.toChatMessageModel
 import com.jarvis.chat.feature.ai.data.mapper.toChatMessageRequestModel
 import com.jarvis.chat.feature.ai.data.mapper.toChatStreamChunkModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
+import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.ChatStreamChunkModel
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.map
 
 internal class AiRepositoryImpl(
     private val remoteDataSource: DeepSeekRemoteDataSource,
+    private val providerConfigProvider: AiProviderConfigProvider,
 ) : AiRepository {
 
     @Suppress("TooGenericExceptionCaught", "SwallowedException")
@@ -26,7 +28,7 @@ internal class AiRepositoryImpl(
         } catch (cancellation: CancellationException) {
             throw cancellation
         } catch (throwable: Throwable) {
-            throw AiException(error = throwable.toAiErrorModel())
+            throw AiException(error = throwable.toAiErrorModel(providerConfigProvider.currentConfig()))
         }
         return response.toChatMessageModel()
     }
@@ -39,7 +41,7 @@ internal class AiRepositoryImpl(
                 if (throwable is CancellationException) {
                     throw throwable
                 }
-                throw AiException(error = throwable.toAiErrorModel())
+                throw AiException(error = throwable.toAiErrorModel(providerConfigProvider.currentConfig()))
             }
     }
 }

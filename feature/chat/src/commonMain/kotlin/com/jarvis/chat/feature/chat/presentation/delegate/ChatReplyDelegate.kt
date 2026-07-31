@@ -6,9 +6,14 @@ import com.jarvis.chat.core.micromodel.domain.model.MicroTriageStatusModel
 import com.jarvis.chat.core.micromodel.domain.usecase.ClassifyMessageUseCase
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
+import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel
+import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
+import com.jarvis.chat.feature.chat.domain.mapper.mergeRouteWithMicroRoute
 import com.jarvis.chat.feature.chat.domain.mapper.mergeWithMicroRoute
 import com.jarvis.chat.feature.chat.domain.mapper.toFallbackTriageModel
 import com.jarvis.chat.feature.chat.domain.mapper.toLocalReplyText
@@ -36,6 +41,8 @@ internal class ChatReplyDelegate(
     private val sendMessageStreamUseCase: SendMessageStreamUseCase,
     private val classifyMessageUseCase: ClassifyMessageUseCase,
     private val microModelGateSettingProvider: MicroModelGateSettingProvider,
+    private val sendMultiStageMessageUseCase: SendMultiStageMessageUseCase,
+    private val inferenceModeProvider: InferenceModeProvider,
     private val saveChatHistoryUseCase: SaveChatHistoryUseCase,
     private val viewModelScope: CoroutineScope,
     private val currentState: () -> ChatState,
@@ -112,7 +119,8 @@ internal class ChatReplyDelegate(
         textChunk: String,
         modelId: String?,
         triage: TriageModel?,
-        routeDecision: RouteDecisionModel?,
+        routeDecision: RouteDecisionModel? = null,
+        multiStage: MultiStageResultModel? = null,
     ) {
         val buffer = replyBuffers[sessionId] ?: return
         val updatedBuffer = buffer.map { message ->
@@ -122,6 +130,7 @@ internal class ChatReplyDelegate(
                     modelId = modelId ?: message.modelId,
                     triage = triage ?: message.triage,
                     routeDecision = routeDecision ?: message.routeDecision,
+                    multiStage = multiStage ?: message.multiStage,
                 )
             } else {
                 message
@@ -188,7 +197,10 @@ internal class ChatReplyDelegate(
                 if (localMicroResult != null) {
                     replyLocally(sessionId, assistantMessage.id, localMicroResult)
                 } else {
-                    replyFromCloud(sessionId, assistantMessage.id, history, microResult)
+                    when (inferenceModeProvider.currentMode()) {
+                        InferenceModeModel.ONE_SHOT -> requestStreamReply(sessionId, assistantMessage.id, history, microResult)
+                        InferenceModeModel.MULTI_STAGE -> requestMultiStageReply(sessionId, assistantMessage.id, history, microResult)
+                    }
                 }
             } catch (cancellation: CancellationException) {
                 throw cancellation
@@ -218,7 +230,7 @@ internal class ChatReplyDelegate(
         dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
     }
 
-    private suspend fun replyFromCloud(
+    private suspend fun requestStreamReply(
         sessionId: String,
         messageId: String,
         history: List<HistoryMessageModel>,
@@ -253,6 +265,39 @@ internal class ChatReplyDelegate(
                 )
             }
         ensureEmergencyVisible(sessionId, messageId, microResult)
+        dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
+    }
+
+    private suspend fun requestMultiStageReply(
+        sessionId: String,
+        messageId: String,
+        history: List<HistoryMessageModel>,
+        microResult: MicroTriageModel?,
+    ) {
+        val caseText = history.lastOrNull()?.text.orEmpty()
+        val chainResult = sendMultiStageMessageUseCase(caseText)
+        val mergedRoute = chainResult.route.mergeRouteWithMicroRoute(microResult?.route)
+        val mergedResult = chainResult.copy(route = mergedRoute)
+        val routeDecision = microResult?.let { result ->
+            RouteDecisionModel(
+                source = RouteSourceModel.CLOUD,
+                microRoute = result.route,
+                microConfidence = result.confidence,
+                elapsedMillis = result.elapsedMillis,
+                llmRouteBeforeMerge = chainResult.route,
+            )
+        }
+        dispatch(
+            ChatAction.Internal.ReplyChunkReceived(
+                sessionId = sessionId,
+                messageId = messageId,
+                textChunk = mergedResult.answerText,
+                modelId = null,
+                triage = null,
+                routeDecision = routeDecision,
+                multiStage = mergedResult,
+            ),
+        )
         dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
     }
 

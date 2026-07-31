@@ -2,6 +2,7 @@ package com.jarvis.chat.feature.settings.presentation.model
 
 import com.jarvis.chat.feature.settings.domain.model.AiModelModel
 import com.jarvis.chat.feature.settings.domain.model.AiProviderModel
+import com.jarvis.chat.feature.settings.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.settings.domain.model.ThemeModeModel
 
 internal sealed interface SettingsAction {
@@ -19,6 +20,8 @@ internal sealed interface SettingsAction {
         data class AiProviderSelected(val aiProvider: AiProviderUiModel) : Ui
 
         data class MicroModelFirstToggled(val enabled: Boolean) : Ui
+
+        data class InferenceModeSelected(val inferenceMode: InferenceModeUiModel) : Ui
     }
 
     sealed interface Internal : SettingsAction {
@@ -30,5 +33,7 @@ internal sealed interface SettingsAction {
         data class AiProviderChanged(val aiProvider: AiProviderModel) : Internal
 
         data class MicroModelFirstChanged(val enabled: Boolean) : Internal
+
+        data class InferenceModeChanged(val inferenceMode: InferenceModeModel) : Internal
     }
 }

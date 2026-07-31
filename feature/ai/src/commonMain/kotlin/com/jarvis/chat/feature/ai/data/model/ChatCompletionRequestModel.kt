@@ -14,4 +14,6 @@ internal data class ChatCompletionRequestModel(
     val temperature: Double? = null,
     @SerialName("repetition_penalty")
     val repetitionPenalty: Double? = null,
+    @SerialName("reasoning_effort")
+    val reasoningEffort: String? = null,
 )

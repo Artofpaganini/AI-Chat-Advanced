@@ -8,6 +8,8 @@ import com.jarvis.chat.feature.ai.data.model.ChatMessageResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatStreamChunkDataModel
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
+import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigModel
+import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -25,10 +27,19 @@ import kotlin.test.assertTrue
 
 class AiRepositoryImplTest {
 
+    private val testProviderConfigProvider = AiProviderConfigProvider {
+        AiProviderConfigModel(
+            baseUrl = "https://deepseek.test/",
+            modelId = "test-model",
+            systemPrompt = "test system prompt",
+            isApiKeyRequired = true,
+        )
+    }
+
     @Test
     fun sendMessage_forwardsHistoryAsRequestMessagesInSameOrder() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(reply = "ok")
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         repository.sendMessage(
             listOf(
@@ -47,7 +58,7 @@ class AiRepositoryImplTest {
     @Test
     fun sendMessage_mapsResponseToAssistantMessage() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(reply = "  answer  ")
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         val result = repository.sendMessage(
             listOf(ChatMessageModel(author = MessageAuthor.USER, text = "question")),
@@ -60,7 +71,7 @@ class AiRepositoryImplTest {
     @Test
     fun sendMessage_withEmptyHistory_stillCallsDataSource() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(reply = "hi")
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         val result = repository.sendMessage(emptyList())
 
@@ -71,7 +82,7 @@ class AiRepositoryImplTest {
     @Test
     fun sendMessage_whenDataSourceFails_throwsAiExceptionWithMappedError() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(error = IllegalStateException("network down"))
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         val error = assertFailsWith<AiException> {
             repository.sendMessage(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x")))
@@ -83,7 +94,7 @@ class AiRepositoryImplTest {
     @Test
     fun sendMessage_whenDataSourceFailsWithIoException_throwsAiExceptionWithNoConnection() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(error = IOException("network down"))
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         val error = assertFailsWith<AiException> {
             repository.sendMessage(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x")))
@@ -95,7 +106,7 @@ class AiRepositoryImplTest {
     @Test
     fun sendMessage_whenDataSourceFailsWithTimeout_throwsAiExceptionWithTimeout() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(error = HttpRequestTimeoutException(HttpRequestBuilder()))
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         val error = assertFailsWith<AiException> {
             repository.sendMessage(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x")))
@@ -107,7 +118,7 @@ class AiRepositoryImplTest {
     @Test
     fun sendMessage_whenResponseHasNoChoices_returnsEmptyText() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(reply = null)
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         val result = repository.sendMessage(
             listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x")),
@@ -119,7 +130,7 @@ class AiRepositoryImplTest {
     @Test
     fun sendMessageStream_forwardsHistoryAsRequestMessagesInSameOrder() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(chunks = listOf(ChatStreamChunkDataModel(text = "ok")))
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         repository.sendMessageStream(
             listOf(
@@ -139,7 +150,7 @@ class AiRepositoryImplTest {
         val dataSource = FakeDeepSeekRemoteDataSource(
             chunks = listOf(ChatStreamChunkDataModel(text = "Hel"), ChatStreamChunkDataModel(text = "lo")),
         )
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         val chunks = repository.sendMessageStream(
             listOf(ChatMessageModel(author = MessageAuthor.USER, text = "question")),
@@ -156,7 +167,7 @@ class AiRepositoryImplTest {
                 ChatStreamChunkDataModel(text = "lo"),
             ),
         )
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         val chunks = repository.sendMessageStream(
             listOf(ChatMessageModel(author = MessageAuthor.USER, text = "question")),
@@ -168,7 +179,7 @@ class AiRepositoryImplTest {
     @Test
     fun sendMessageStream_whenDataSourceFails_throwsAiExceptionWithMappedError() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(error = IllegalStateException("network down"))
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         val error = assertFailsWith<AiException> {
             repository.sendMessageStream(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x"))).toList()
@@ -180,7 +191,7 @@ class AiRepositoryImplTest {
     @Test
     fun sendMessageStream_onCancellation_rethrowsCancellationInsteadOfWrapping() = runTest {
         val dataSource = FakeDeepSeekRemoteDataSource(error = CancellationException("cancelled"))
-        val repository = AiRepositoryImpl(remoteDataSource = dataSource)
+        val repository = AiRepositoryImpl(remoteDataSource = dataSource, providerConfigProvider = testProviderConfigProvider)
 
         assertFailsWith<CancellationException> {
             repository.sendMessageStream(listOf(ChatMessageModel(author = MessageAuthor.USER, text = "x"))).toList()
@@ -217,5 +228,10 @@ class AiRepositoryImplTest {
             error?.let { failure -> throw failure }
             chunks.forEach { chunk -> emit(chunk) }
         }
+
+        override suspend fun requestRawCompletion(
+            messages: List<ChatMessageRequestModel>,
+            maxTokens: Int,
+        ): ChatCompletionResponseModel = requestCompletion(messages)
     }
 }

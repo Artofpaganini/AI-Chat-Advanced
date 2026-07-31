@@ -3,7 +3,9 @@ package com.jarvis.chat.feature.chat.presentation
 import androidx.lifecycle.viewModelScope
 import com.jarvis.chat.core.micromodel.domain.usecase.ClassifyMessageUseCase
 import com.jarvis.chat.core.viewmodel.UdfBaseViewModel
+import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
 import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
 import com.jarvis.chat.feature.chat.domain.usecase.ClearChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.DeleteMessageUseCase
@@ -29,6 +31,8 @@ internal class ChatViewModel(
     sendMessageStreamUseCase: SendMessageStreamUseCase,
     classifyMessageUseCase: ClassifyMessageUseCase,
     microModelGateSettingProvider: MicroModelGateSettingProvider,
+    sendMultiStageMessageUseCase: SendMultiStageMessageUseCase,
+    inferenceModeProvider: InferenceModeProvider,
     loadChatSessionsUseCase: LoadChatSessionsUseCase,
     observeActiveChatSessionUseCase: ObserveActiveChatSessionUseCase,
     loadChatHistoryUseCase: LoadChatHistoryUseCase,
@@ -47,6 +51,8 @@ internal class ChatViewModel(
         sendMessageStreamUseCase = sendMessageStreamUseCase,
         classifyMessageUseCase = classifyMessageUseCase,
         microModelGateSettingProvider = microModelGateSettingProvider,
+        sendMultiStageMessageUseCase = sendMultiStageMessageUseCase,
+        inferenceModeProvider = inferenceModeProvider,
         saveChatHistoryUseCase = saveChatHistoryUseCase,
         viewModelScope = viewModelScope,
         currentState = ::currentState,
@@ -121,6 +127,7 @@ internal class ChatViewModel(
                     modelId = action.modelId,
                     triage = action.triage,
                     routeDecision = action.routeDecision,
+                    multiStage = action.multiStage,
                 )
             is ChatAction.Internal.ReplyCompleted -> replyDelegate.onReplyCompleted(action.sessionId)
             is ChatAction.Internal.ReplyFailed -> replyDelegate.onReplyFailed(action.sessionId, action.messageId, action.error)

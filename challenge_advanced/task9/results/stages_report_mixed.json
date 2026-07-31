@@ -1,0 +1,677 @@
+{
+  "cases_paths": [
+    "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task7/data/cases.jsonl"
+  ],
+  "cases": 50,
+  "modes": {
+    "monolithic": {
+      "mode": "monolithic",
+      "runs": 3,
+      "files": [
+        "monolithic_runs.jsonl",
+        "monolithic_runs.jsonl",
+        "monolithic_runs.jsonl"
+      ],
+      "cases": 50,
+      "accuracy": {
+        "median": 0.8043,
+        "min": 0.8043,
+        "max": 0.8261
+      },
+      "missed_emergency": {
+        "median": 2,
+        "min": 1,
+        "max": 2
+      },
+      "missed_emergency_worst": 2,
+      "false_emergency": {
+        "median": 4,
+        "min": 4,
+        "max": 4
+      },
+      "false_emergency_worst": 4,
+      "stage_failures": {
+        "median": 2,
+        "min": 2,
+        "max": 2
+      },
+      "latency_p50_ms": {
+        "median": 1530,
+        "min": 1462,
+        "max": 1534
+      },
+      "latency_p95_ms": {
+        "median": 1778,
+        "min": 1762,
+        "max": 1925
+      },
+      "cost_usd": {
+        "median": 0.0016,
+        "min": 0.001595,
+        "max": 0.002176
+      },
+      "calls": {
+        "median": 50,
+        "min": 50,
+        "max": 50
+      },
+      "errors": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "expected_fail": 4,
+      "expected_fail_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "groups": {
+        "clean": {
+          "graded": 60,
+          "correct": 57,
+          "accuracy": 0.95
+        },
+        "borderline": {
+          "graded": 45,
+          "correct": 25,
+          "accuracy": 0.5556
+        },
+        "noisy": {
+          "graded": 33,
+          "correct": 30,
+          "accuracy": 0.9091
+        }
+      },
+      "group_accuracy_spread": {
+        "clean": {
+          "median": 0.95,
+          "min": 0.95,
+          "max": 0.95
+        },
+        "borderline": {
+          "median": 0.5333,
+          "min": 0.5333,
+          "max": 0.6
+        },
+        "noisy": {
+          "median": 0.9091,
+          "min": 0.9091,
+          "max": 0.9091
+        }
+      },
+      "stages": {
+        "monolithic": {
+          "calls": 150,
+          "format_failures": 6,
+          "first_failures": 0,
+          "tokens_in": 289098,
+          "tokens_out": 10487,
+          "cost_usd": 0.0053721,
+          "latency_ms": 227854
+        }
+      },
+      "violations": {
+        "W_FENCED": 6
+      },
+      "question_types": {},
+      "metrics_none": 0,
+      "metrics_with_age": 0,
+      "care_accuracy": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "care_graded": 0
+    },
+    "multistage": {
+      "mode": "multistage",
+      "runs": 3,
+      "files": [
+        "multistage_runs_r1.jsonl",
+        "multistage_runs_r2.jsonl",
+        "multistage_runs_r3.jsonl"
+      ],
+      "cases": 50,
+      "accuracy": {
+        "median": 0.7826,
+        "min": 0.7826,
+        "max": 0.8043
+      },
+      "missed_emergency": {
+        "median": 2,
+        "min": 2,
+        "max": 2
+      },
+      "missed_emergency_worst": 2,
+      "false_emergency": {
+        "median": 3,
+        "min": 3,
+        "max": 3
+      },
+      "false_emergency_worst": 3,
+      "stage_failures": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "latency_p50_ms": {
+        "median": 5800,
+        "min": 5721,
+        "max": 5807
+      },
+      "latency_p95_ms": {
+        "median": 6488,
+        "min": 6409,
+        "max": 6576
+      },
+      "cost_usd": {
+        "median": 0.006712,
+        "min": 0.006709,
+        "max": 0.008164
+      },
+      "calls": {
+        "median": 150,
+        "min": 150,
+        "max": 150
+      },
+      "errors": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "expected_fail": 4,
+      "expected_fail_handled": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "groups": {
+        "clean": {
+          "graded": 60,
+          "correct": 57,
+          "accuracy": 0.95
+        },
+        "borderline": {
+          "graded": 45,
+          "correct": 25,
+          "accuracy": 0.5556
+        },
+        "noisy": {
+          "graded": 33,
+          "correct": 27,
+          "accuracy": 0.8182
+        }
+      },
+      "group_accuracy_spread": {
+        "clean": {
+          "median": 0.95,
+          "min": 0.95,
+          "max": 0.95
+        },
+        "borderline": {
+          "median": 0.5333,
+          "min": 0.5333,
+          "max": 0.6
+        },
+        "noisy": {
+          "median": 0.8182,
+          "min": 0.8182,
+          "max": 0.8182
+        }
+      },
+      "stages": {
+        "stage1_parse": {
+          "calls": 150,
+          "format_failures": 0,
+          "first_failures": 0,
+          "tokens_in": 79548,
+          "tokens_out": 8276,
+          "cost_usd": 0.00437468,
+          "latency_ms": 226366
+        },
+        "stage2_decide": {
+          "calls": 150,
+          "format_failures": 0,
+          "first_failures": 0,
+          "tokens_in": 143411,
+          "tokens_out": 7029,
+          "cost_usd": 0.01052204,
+          "latency_ms": 282271
+        },
+        "stage3_answer": {
+          "calls": 150,
+          "format_failures": 0,
+          "first_failures": 0,
+          "tokens_in": 75574,
+          "tokens_out": 14572,
+          "cost_usd": 0.00668815,
+          "latency_ms": 346144
+        }
+      },
+      "violations": {},
+      "question_types": {
+        "CARE": 120,
+        "PARENT": 6,
+        "OTHER": 24
+      },
+      "metrics_none": 110,
+      "metrics_with_age": 0,
+      "care_accuracy": {
+        "median": 0.775,
+        "min": 0.775,
+        "max": 0.8
+      },
+      "care_graded": 120
+    }
+  },
+  "runs": {
+    "monolithic": [
+      {
+        "mode": "monolithic",
+        "path": "raw/monolithic_runs.jsonl",
+        "file": "monolithic_runs.jsonl",
+        "total": 50,
+        "route_graded": 46,
+        "correct": 37,
+        "accuracy": 0.8043,
+        "missed_emergency": 2,
+        "false_emergency": 4,
+        "expected_fail": 4,
+        "expected_fail_handled": 0,
+        "unknown_cases": 0,
+        "errors": 0,
+        "calls": 50,
+        "cost_usd": 0.002176,
+        "latency_p50_ms": 1462,
+        "latency_p95_ms": 1762,
+        "groups": {
+          "clean": {
+            "graded": 20,
+            "correct": 19,
+            "accuracy": 0.95
+          },
+          "borderline": {
+            "graded": 15,
+            "correct": 8,
+            "accuracy": 0.5333
+          },
+          "noisy": {
+            "graded": 11,
+            "correct": 10,
+            "accuracy": 0.9091
+          }
+        },
+        "stages": {
+          "monolithic": {
+            "calls": 50,
+            "format_failures": 2,
+            "first_failures": 0,
+            "tokens_in": 96366,
+            "tokens_out": 3493,
+            "cost_usd": 0.00217628,
+            "latency_ms": 72913
+          }
+        },
+        "violations": {
+          "W_FENCED": 2
+        },
+        "stage_failures": 2,
+        "question_types": {},
+        "metrics_none": 0,
+        "metrics_with_age": 0,
+        "care_graded": 0,
+        "care_accuracy": 0.0
+      },
+      {
+        "mode": "monolithic",
+        "path": "raw/r2/monolithic_runs.jsonl",
+        "file": "monolithic_runs.jsonl",
+        "total": 50,
+        "route_graded": 46,
+        "correct": 37,
+        "accuracy": 0.8043,
+        "missed_emergency": 2,
+        "false_emergency": 4,
+        "expected_fail": 4,
+        "expected_fail_handled": 0,
+        "unknown_cases": 0,
+        "errors": 0,
+        "calls": 50,
+        "cost_usd": 0.001595,
+        "latency_p50_ms": 1534,
+        "latency_p95_ms": 1925,
+        "groups": {
+          "clean": {
+            "graded": 20,
+            "correct": 19,
+            "accuracy": 0.95
+          },
+          "borderline": {
+            "graded": 15,
+            "correct": 8,
+            "accuracy": 0.5333
+          },
+          "noisy": {
+            "graded": 11,
+            "correct": 10,
+            "accuracy": 0.9091
+          }
+        },
+        "stages": {
+          "monolithic": {
+            "calls": 50,
+            "format_failures": 2,
+            "first_failures": 0,
+            "tokens_in": 96366,
+            "tokens_out": 3488,
+            "cost_usd": 0.00159539,
+            "latency_ms": 78543
+          }
+        },
+        "violations": {
+          "W_FENCED": 2
+        },
+        "stage_failures": 2,
+        "question_types": {},
+        "metrics_none": 0,
+        "metrics_with_age": 0,
+        "care_graded": 0,
+        "care_accuracy": 0.0
+      },
+      {
+        "mode": "monolithic",
+        "path": "raw/r3/monolithic_runs.jsonl",
+        "file": "monolithic_runs.jsonl",
+        "total": 50,
+        "route_graded": 46,
+        "correct": 38,
+        "accuracy": 0.8261,
+        "missed_emergency": 1,
+        "false_emergency": 4,
+        "expected_fail": 4,
+        "expected_fail_handled": 0,
+        "unknown_cases": 0,
+        "errors": 0,
+        "calls": 50,
+        "cost_usd": 0.0016,
+        "latency_p50_ms": 1530,
+        "latency_p95_ms": 1778,
+        "groups": {
+          "clean": {
+            "graded": 20,
+            "correct": 19,
+            "accuracy": 0.95
+          },
+          "borderline": {
+            "graded": 15,
+            "correct": 9,
+            "accuracy": 0.6
+          },
+          "noisy": {
+            "graded": 11,
+            "correct": 10,
+            "accuracy": 0.9091
+          }
+        },
+        "stages": {
+          "monolithic": {
+            "calls": 50,
+            "format_failures": 2,
+            "first_failures": 0,
+            "tokens_in": 96366,
+            "tokens_out": 3506,
+            "cost_usd": 0.00160043,
+            "latency_ms": 76398
+          }
+        },
+        "violations": {
+          "W_FENCED": 2
+        },
+        "stage_failures": 2,
+        "question_types": {},
+        "metrics_none": 0,
+        "metrics_with_age": 0,
+        "care_graded": 0,
+        "care_accuracy": 0.0
+      }
+    ],
+    "multistage": [
+      {
+        "mode": "multistage",
+        "path": "raw/mixed/multistage_runs_r1.jsonl",
+        "file": "multistage_runs_r1.jsonl",
+        "total": 50,
+        "route_graded": 46,
+        "correct": 36,
+        "accuracy": 0.7826,
+        "missed_emergency": 2,
+        "false_emergency": 3,
+        "expected_fail": 4,
+        "expected_fail_handled": 0,
+        "unknown_cases": 0,
+        "errors": 0,
+        "calls": 150,
+        "cost_usd": 0.008164,
+        "latency_p50_ms": 5800,
+        "latency_p95_ms": 6576,
+        "groups": {
+          "clean": {
+            "graded": 20,
+            "correct": 19,
+            "accuracy": 0.95
+          },
+          "borderline": {
+            "graded": 15,
+            "correct": 8,
+            "accuracy": 0.5333
+          },
+          "noisy": {
+            "graded": 11,
+            "correct": 9,
+            "accuracy": 0.8182
+          }
+        },
+        "stages": {
+          "stage1_parse": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 26516,
+            "tokens_out": 2769,
+            "cost_usd": 0.00222232,
+            "latency_ms": 76333
+          },
+          "stage2_decide": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 47814,
+            "tokens_out": 2361,
+            "cost_usd": 0.0035275,
+            "latency_ms": 95501
+          },
+          "stage3_answer": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 25208,
+            "tokens_out": 4861,
+            "cost_usd": 0.00241424,
+            "latency_ms": 114936
+          }
+        },
+        "violations": {},
+        "stage_failures": 0,
+        "question_types": {
+          "CARE": 40,
+          "PARENT": 2,
+          "OTHER": 8
+        },
+        "metrics_none": 37,
+        "metrics_with_age": 0,
+        "care_graded": 40,
+        "care_accuracy": 0.775
+      },
+      {
+        "mode": "multistage",
+        "path": "raw/mixed/multistage_runs_r2.jsonl",
+        "file": "multistage_runs_r2.jsonl",
+        "total": 50,
+        "route_graded": 46,
+        "correct": 37,
+        "accuracy": 0.8043,
+        "missed_emergency": 2,
+        "false_emergency": 3,
+        "expected_fail": 4,
+        "expected_fail_handled": 0,
+        "unknown_cases": 0,
+        "errors": 0,
+        "calls": 150,
+        "cost_usd": 0.006709,
+        "latency_p50_ms": 5807,
+        "latency_p95_ms": 6488,
+        "groups": {
+          "clean": {
+            "graded": 20,
+            "correct": 19,
+            "accuracy": 0.95
+          },
+          "borderline": {
+            "graded": 15,
+            "correct": 9,
+            "accuracy": 0.6
+          },
+          "noisy": {
+            "graded": 11,
+            "correct": 9,
+            "accuracy": 0.8182
+          }
+        },
+        "stages": {
+          "stage1_parse": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 26516,
+            "tokens_out": 2752,
+            "cost_usd": 0.00107576,
+            "latency_ms": 76253
+          },
+          "stage2_decide": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 47797,
+            "tokens_out": 2323,
+            "cost_usd": 0.00348704,
+            "latency_ms": 92750
+          },
+          "stage3_answer": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 25171,
+            "tokens_out": 4800,
+            "cost_usd": 0.00214609,
+            "latency_ms": 116088
+          }
+        },
+        "violations": {},
+        "stage_failures": 0,
+        "question_types": {
+          "CARE": 40,
+          "PARENT": 2,
+          "OTHER": 8
+        },
+        "metrics_none": 37,
+        "metrics_with_age": 0,
+        "care_graded": 40,
+        "care_accuracy": 0.8
+      },
+      {
+        "mode": "multistage",
+        "path": "raw/mixed/multistage_runs_r3.jsonl",
+        "file": "multistage_runs_r3.jsonl",
+        "total": 50,
+        "route_graded": 46,
+        "correct": 36,
+        "accuracy": 0.7826,
+        "missed_emergency": 2,
+        "false_emergency": 3,
+        "expected_fail": 4,
+        "expected_fail_handled": 0,
+        "unknown_cases": 0,
+        "errors": 0,
+        "calls": 150,
+        "cost_usd": 0.006712,
+        "latency_p50_ms": 5721,
+        "latency_p95_ms": 6409,
+        "groups": {
+          "clean": {
+            "graded": 20,
+            "correct": 19,
+            "accuracy": 0.95
+          },
+          "borderline": {
+            "graded": 15,
+            "correct": 8,
+            "accuracy": 0.5333
+          },
+          "noisy": {
+            "graded": 11,
+            "correct": 9,
+            "accuracy": 0.8182
+          }
+        },
+        "stages": {
+          "stage1_parse": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 26516,
+            "tokens_out": 2755,
+            "cost_usd": 0.0010766,
+            "latency_ms": 73780
+          },
+          "stage2_decide": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 47800,
+            "tokens_out": 2345,
+            "cost_usd": 0.0035075,
+            "latency_ms": 94020
+          },
+          "stage3_answer": {
+            "calls": 50,
+            "format_failures": 0,
+            "first_failures": 0,
+            "tokens_in": 25195,
+            "tokens_out": 4911,
+            "cost_usd": 0.00212782,
+            "latency_ms": 115120
+          }
+        },
+        "violations": {},
+        "stage_failures": 0,
+        "question_types": {
+          "CARE": 40,
+          "PARENT": 2,
+          "OTHER": 8
+        },
+        "metrics_none": 36,
+        "metrics_with_age": 0,
+        "care_graded": 40,
+        "care_accuracy": 0.775
+      }
+    ]
+  },
+  "hypotheses": [
+    "Гипотеза 1 (цепочка точнее на пограничных случаях, ждём прирост на группе borderline): монолит 0.5556, цепочка 0.5556 -> разницы нет.",
+    "Гипотеза 3 (цепочка устойчивее к шуму, ждём прирост на группе noisy): монолит 0.9091, цепочка 0.8182 -> не подтверждается.",
+    "Гипотеза 2 (цепочка дороже и медленнее, ждём рост стоимости примерно втрое): цена 0.006712 против 0.001600, во сколько раз дороже - 4.20; задержка p50 5800 против 1530 мс.",
+    "Гипотеза 4 (цепочка чинит дефект с показателями через QUESTION_TYPE): этап 1 сказал METRICS=none на 110 разборах, возраст утёк в показатели 0 раз; распределение QUESTION_TYPE CARE 120, OTHER 24, PARENT 6; точность на CARE 0.7750 (0.7750..0.8000)."
+  ],
+  "gate_failed": null
+}

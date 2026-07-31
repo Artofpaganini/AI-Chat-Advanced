@@ -5,6 +5,14 @@ import com.jarvis.chat.core.micromodel.domain.model.MicroTriageStatusModel
 import com.jarvis.chat.core.viewmodel.UiMapper
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import com.jarvis.chat.feature.ai.domain.model.MultiStageAnswerStepModel
+import com.jarvis.chat.feature.ai.domain.model.MultiStageDecideStepModel
+import com.jarvis.chat.feature.ai.domain.model.MultiStageDecisionModel
+import com.jarvis.chat.feature.ai.domain.model.MultiStageFactsModel
+import com.jarvis.chat.feature.ai.domain.model.MultiStageParseStepModel
+import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
+import com.jarvis.chat.feature.ai.domain.model.MultiStageStepMetaModel
+import com.jarvis.chat.feature.ai.domain.model.MultiStageViolationModel
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.ai.domain.model.TriageRouteModel
 import com.jarvis.chat.feature.ai.domain.model.TriageStatusModel
@@ -14,12 +22,15 @@ import com.jarvis.chat.feature.chat.domain.model.RouteSourceModel
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
 import com.jarvis.chat.feature.chat.presentation.model.ChatState
 import com.jarvis.chat.feature.chat.presentation.model.ChatUiModel
+import com.jarvis.chat.feature.chat.presentation.model.MultiStageStepUiModel
+import com.jarvis.chat.feature.chat.presentation.model.MultiStageUiModel
 import com.jarvis.chat.feature.chat.presentation.model.TriageRouteUiModel
 import com.jarvis.chat.feature.chat.presentation.model.TriageStatusUiModel
 import com.jarvis.chat.feature.chat.presentation.model.TriageUiModel
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import kotlin.time.Instant
 
 private const val TIME_LABEL_PAD_LENGTH = 2
@@ -41,12 +52,51 @@ private const val SESSION_SUMMARY_PREFIX = "Локально обработан�
 private const val SESSION_SUMMARY_SEPARATOR = " из "
 private const val SESSION_SUMMARY_SAVED_PREFIX = " · сэкономлено вызовов LLM: "
 private const val ERROR_MESSAGE_NO_CONNECTION = "No internet connection. Check your network and try again."
+private const val ERROR_MESSAGE_LOCAL_PROVIDER_UNREACHABLE_PREFIX = "Local provider is unreachable at "
+private const val ERROR_MESSAGE_LOCAL_PROVIDER_UNREACHABLE_SUFFIX =
+    ". Start the local server, or switch to DeepSeek Cloud in Settings."
 private const val ERROR_MESSAGE_TIMEOUT = "The request timed out. Please try again."
 private const val ERROR_MESSAGE_UNAUTHORIZED = "Authorization failed. Check your API key in settings."
 private const val ERROR_MESSAGE_RATE_LIMITED = "Too many requests. Please wait a moment and try again."
 private const val ERROR_MESSAGE_SERVER_ERROR_PREFIX = "Server error ("
 private const val ERROR_MESSAGE_SERVER_ERROR_SUFFIX = "). Please try again later."
 private const val ERROR_MESSAGE_UNKNOWN = "Something went wrong. Please try again."
+
+private const val FACT_FIELD_AGE = "AGE_MONTHS"
+private const val FACT_FIELD_SYMPTOMS = "SYMPTOMS"
+private const val FACT_FIELD_METRICS = "METRICS"
+private const val FACT_FIELD_DURATION = "DURATION"
+private const val FACT_FIELD_PARENT_STATE = "PARENT_STATE"
+private const val FACT_FIELD_QUESTION_TYPE = "QUESTION_TYPE"
+private const val FACT_NONE_VALUE = "none"
+private const val FACT_SYMPTOM_SEPARATOR = "; "
+private const val FACT_PAIR_SEPARATOR = "="
+
+private const val DECISION_FIELD_ROUTE = "ROUTE"
+private const val DECISION_FIELD_CONFIDENCE = "CONFIDENCE"
+private const val DECISION_FIELD_WHY = "WHY"
+private const val DECISION_FIELD_SEPARATOR = " | "
+
+private const val STAGE_TITLE_PARSE = "Этап 1, разбор"
+private const val STAGE_TITLE_DECIDE = "Этап 2, решение"
+private const val STAGE_TITLE_ANSWER = "Этап 3, ответ"
+
+private const val VIOLATION_LABEL_S1_PARSE = "этап 1 вернул неразбираемый формат"
+private const val VIOLATION_LABEL_S1_ROUTE_LEAKED = "этап 1 назвал маршрут, хотя решать ему запрещено"
+private const val VIOLATION_LABEL_S2_PARSE = "этап 2 вернул неразбираемый формат или маршрут вне перечисления"
+private const val VIOLATION_LABEL_S3_EMPTY = "этап 3 вернул пустой или слишком короткий текст"
+
+private const val META_LATENCY_SUFFIX = " мс"
+private const val META_SEPARATOR = " · "
+private const val META_TOKENS_SUFFIX = " ток"
+
+private const val SUMMARY_PREFIX = "Итого: "
+private const val SUMMARY_CALLS_SUFFIX = " вызовов"
+private const val SUMMARY_LATENCY_SUFFIX = " мс"
+private const val SUMMARY_COST_UNKNOWN = "цена неизвестна"
+
+private const val COST_DECIMAL_SCALE = 1_000_000L
+private const val COST_FRACTION_DIGITS = 6
 
 internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
 
@@ -90,7 +140,8 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             timeLabel = timestamp.toTimeLabel(),
             modelId = if (isFromUser) null else modelId?.takeIf { value -> value.isNotBlank() },
             triage = if (isFromUser) null else triage?.toTriageUiModel(),
-            routeBadgeText = if (isFromUser) null else routeDecision?.toRouteBadgeText(triage),
+            routeBadgeText = if (isFromUser) null else routeDecision?.toRouteBadgeText(triage?.route ?: multiStage?.route),
+            multiStage = if (isFromUser) null else multiStage?.toMultiStageUiModel(),
         )
     }
 }
@@ -103,7 +154,7 @@ private fun ChatState.toMicroModelSessionSummaryOrNull(): String? {
         "$SESSION_SUMMARY_SAVED_PREFIX$localHandledCount"
 }
 
-private fun RouteDecisionModel.toRouteBadgeText(triage: TriageModel?): String =
+private fun RouteDecisionModel.toRouteBadgeText(finalRoute: TriageRouteModel?): String =
     when (source) {
         RouteSourceModel.LOCAL ->
             "$ROUTE_BADGE_LOCAL_PREFIX$ROUTE_BADGE_SEPARATOR${microRoute.name}$ROUTE_BADGE_SEPARATOR" +
@@ -111,7 +162,7 @@ private fun RouteDecisionModel.toRouteBadgeText(triage: TriageModel?): String =
         RouteSourceModel.CLOUD -> {
             val base = "$ROUTE_BADGE_CLOUD_PREFIX$ROUTE_BADGE_SEPARATOR" +
                 "${MicroTriageStatusModel.UNSURE.name} ${microConfidence.toTwoDecimalString()}"
-            val finalRouteName = triage?.route?.name
+            val finalRouteName = finalRoute?.name
             val withFinalRoute = if (finalRouteName != null) "$base$ROUTE_BADGE_ARROW$finalRouteName" else base
             val preMergeRouteName = llmRouteBeforeMerge?.name
             when {
@@ -170,10 +221,104 @@ private fun Long.toTimeLabel(): String {
 
 private fun AiErrorModel.toErrorMessage(): String = when (this) {
     AiErrorModel.NoConnection -> ERROR_MESSAGE_NO_CONNECTION
+    is AiErrorModel.LocalProviderUnreachable ->
+        "$ERROR_MESSAGE_LOCAL_PROVIDER_UNREACHABLE_PREFIX$address$ERROR_MESSAGE_LOCAL_PROVIDER_UNREACHABLE_SUFFIX"
     AiErrorModel.Timeout -> ERROR_MESSAGE_TIMEOUT
     AiErrorModel.Unauthorized -> ERROR_MESSAGE_UNAUTHORIZED
     is AiErrorModel.BadRequest -> message
     AiErrorModel.RateLimited -> ERROR_MESSAGE_RATE_LIMITED
     is AiErrorModel.ServerError -> "$ERROR_MESSAGE_SERVER_ERROR_PREFIX$code$ERROR_MESSAGE_SERVER_ERROR_SUFFIX"
     AiErrorModel.Unknown -> ERROR_MESSAGE_UNKNOWN
+}
+
+private fun MultiStageResultModel.toMultiStageUiModel(): MultiStageUiModel =
+    MultiStageUiModel(
+        parseStep = parseStep.toParseStepUiModel(),
+        decideStep = decideStep.toDecideStepUiModel(),
+        answerStep = answerStep?.toAnswerStepUiModel(),
+        summaryLabel = toSummaryLabel(),
+    )
+
+private fun MultiStageParseStepModel.toParseStepUiModel(): MultiStageStepUiModel =
+    MultiStageStepUiModel(
+        title = STAGE_TITLE_PARSE,
+        contentLines = facts.toDisplayLines(),
+        metaLabel = meta.toMetaLabel(),
+        violationLabels = meta.violations.toViolationLabels(),
+        errorLabel = meta.errorText,
+        isOk = meta.isOk,
+    )
+
+private fun MultiStageDecideStepModel.toDecideStepUiModel(): MultiStageStepUiModel =
+    MultiStageStepUiModel(
+        title = STAGE_TITLE_DECIDE,
+        contentLines = listOf(decision.toDisplayLine()),
+        metaLabel = meta.toMetaLabel(),
+        violationLabels = meta.violations.toViolationLabels(),
+        errorLabel = meta.errorText,
+        isOk = meta.isOk,
+    )
+
+private fun MultiStageAnswerStepModel.toAnswerStepUiModel(): MultiStageStepUiModel =
+    MultiStageStepUiModel(
+        title = STAGE_TITLE_ANSWER,
+        contentLines = emptyList(),
+        metaLabel = meta.toMetaLabel(),
+        violationLabels = meta.violations.toViolationLabels(),
+        errorLabel = meta.errorText,
+        isOk = meta.isOk,
+    )
+
+private fun MultiStageFactsModel.toDisplayLines(): List<String> {
+    val symptomsValue = if (symptoms.isEmpty()) FACT_NONE_VALUE else symptoms.joinToString(FACT_SYMPTOM_SEPARATOR)
+    return listOf(
+        "$FACT_FIELD_AGE$FACT_PAIR_SEPARATOR${ageMonths?.toString() ?: FACT_NONE_VALUE}",
+        "$FACT_FIELD_SYMPTOMS$FACT_PAIR_SEPARATOR$symptomsValue",
+        "$FACT_FIELD_METRICS$FACT_PAIR_SEPARATOR${metrics.ifBlank { FACT_NONE_VALUE }}",
+        "$FACT_FIELD_DURATION$FACT_PAIR_SEPARATOR${duration.ifBlank { FACT_NONE_VALUE }}",
+        "$FACT_FIELD_PARENT_STATE$FACT_PAIR_SEPARATOR${parentState.ifBlank { FACT_NONE_VALUE }}",
+        "$FACT_FIELD_QUESTION_TYPE$FACT_PAIR_SEPARATOR${questionType.name}",
+    )
+}
+
+private fun MultiStageDecisionModel.toDisplayLine(): String {
+    val routeValue = route?.name ?: FACT_NONE_VALUE
+    return "$DECISION_FIELD_ROUTE$FACT_PAIR_SEPARATOR$routeValue$DECISION_FIELD_SEPARATOR" +
+        "$DECISION_FIELD_CONFIDENCE$FACT_PAIR_SEPARATOR$confidence$DECISION_FIELD_SEPARATOR" +
+        "$DECISION_FIELD_WHY$FACT_PAIR_SEPARATOR$why"
+}
+
+private fun MultiStageStepMetaModel.toMetaLabel(): String {
+    val promptTokensValue = promptTokens
+    val completionTokensValue = completionTokens
+    val tokensLabel = if (promptTokensValue != null && completionTokensValue != null) {
+        "${promptTokensValue + completionTokensValue}$META_TOKENS_SUFFIX"
+    } else {
+        null
+    }
+    return listOfNotNull("$latencyMs$META_LATENCY_SUFFIX", tokensLabel).joinToString(META_SEPARATOR)
+}
+
+private fun List<MultiStageViolationModel>.toViolationLabels(): List<String> =
+    map { violation ->
+        val label = when (violation) {
+            MultiStageViolationModel.S1_PARSE -> VIOLATION_LABEL_S1_PARSE
+            MultiStageViolationModel.S1_ROUTE_LEAKED -> VIOLATION_LABEL_S1_ROUTE_LEAKED
+            MultiStageViolationModel.S2_PARSE -> VIOLATION_LABEL_S2_PARSE
+            MultiStageViolationModel.S3_EMPTY -> VIOLATION_LABEL_S3_EMPTY
+        }
+        "${violation.name}: $label"
+    }
+
+private fun MultiStageResultModel.toSummaryLabel(): String {
+    val costLabel = totalCostUsd?.toCostLabel() ?: SUMMARY_COST_UNKNOWN
+    return "$SUMMARY_PREFIX$totalCalls$SUMMARY_CALLS_SUFFIX$META_SEPARATOR" +
+        "$totalLatencyMs$SUMMARY_LATENCY_SUFFIX$META_SEPARATOR$costLabel"
+}
+
+private fun Double.toCostLabel(): String {
+    val scaled = (this * COST_DECIMAL_SCALE).roundToLong()
+    val whole = scaled / COST_DECIMAL_SCALE
+    val fraction = (scaled % COST_DECIMAL_SCALE).toString().padStart(COST_FRACTION_DIGITS, '0')
+    return "$$whole.$fraction"
 }

@@ -30,6 +30,17 @@ internal fun TriageModel.mergeWithMicroRoute(microRoute: MicroTriageRouteModel?)
         }
     }
 
+internal fun TriageRouteModel?.mergeRouteWithMicroRoute(microRoute: MicroTriageRouteModel?): TriageRouteModel? =
+    if (microRoute == null) {
+        this
+    } else {
+        val llmSeverity = this?.toSeverityOrNull()
+        val microSeverity = microRoute.toSeverity()
+        val shouldOverrideWithMicro = microRoute == MicroTriageRouteModel.EMERGENCY ||
+            (llmSeverity != null && llmSeverity < microSeverity)
+        if (shouldOverrideWithMicro) microRoute.toTriageRouteModel() else this
+    }
+
 internal fun MicroTriageModel.toFallbackTriageModel(): TriageModel =
     TriageModel(
         route = route.toTriageRouteModel(),

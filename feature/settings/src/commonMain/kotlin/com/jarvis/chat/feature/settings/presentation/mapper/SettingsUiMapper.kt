@@ -12,6 +12,7 @@ internal class SettingsUiMapper : UiMapper<SettingsState, SettingsUiModel> {
             selectedAiModel = state.aiModel.toAiModelUiModel(),
             selectedAiProvider = state.aiProvider.toAiProviderUiModel(),
             isMicroModelFirstEnabled = state.isMicroModelFirstEnabled,
+            selectedInferenceMode = state.inferenceMode.toInferenceModeUiModel(),
             isSheetVisible = state.isSheetVisible,
         )
 }

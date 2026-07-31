@@ -1,5 +1,6 @@
 package com.jarvis.chat.feature.chat.presentation.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.font.FontWeight
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
+import com.jarvis.chat.feature.chat.presentation.model.MultiStageStepUiModel
+import com.jarvis.chat.feature.chat.presentation.model.MultiStageUiModel
 import com.jarvis.chat.feature.chat.presentation.model.TriageRouteUiModel
 import com.jarvis.chat.feature.chat.presentation.model.TriageStatusUiModel
 import com.jarvis.chat.feature.chat.presentation.model.TriageUiModel
@@ -53,6 +56,9 @@ private const val TRIAGE_CONFIDENCE_SUFFIX = "%"
 private const val TRIAGE_UNSURE_WARNING = "Не стоит полностью доверять этому ответу"
 private const val TRIAGE_FAIL_WARNING = "Ассистент отказался отвечать"
 private const val TRIAGE_CRISIS_WARNING = "Кризисная ситуация, нужно немедленное внимание"
+private const val MULTI_STAGE_EXPAND_LABEL = "Показать 3 этапа ▾"
+private const val MULTI_STAGE_COLLAPSE_LABEL = "Скрыть этапы ▴"
+private const val MULTI_STAGE_ERROR_PREFIX = "Ошибка: "
 
 @Composable
 internal fun MessageBubble(
@@ -133,6 +139,9 @@ internal fun MessageBubble(
                 }
                 message.triage?.let { triage ->
                     TriageInfo(triage = triage)
+                }
+                message.multiStage?.let { multiStage ->
+                    MultiStageInfo(multiStage = multiStage)
                 }
                 MessageActions(
                     message = message,
@@ -304,6 +313,68 @@ private fun TriageInfoBody(triage: TriageUiModel, routeColor: Color, mutedColor:
         style = MaterialTheme.typography.labelSmall,
         color = mutedColor,
     )
+}
+
+@Composable
+private fun MultiStageInfo(multiStage: MultiStageUiModel, modifier: Modifier = Modifier) {
+    var isExpanded by remember { mutableStateOf(false) }
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = if (isExpanded) MULTI_STAGE_COLLAPSE_LABEL else MULTI_STAGE_EXPAND_LABEL,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable { isExpanded = !isExpanded },
+        )
+        if (isExpanded) {
+            MultiStageStepInfo(step = multiStage.parseStep)
+            MultiStageStepInfo(step = multiStage.decideStep)
+            multiStage.answerStep?.let { answerStep -> MultiStageStepInfo(step = answerStep) }
+            Text(
+                text = multiStage.summaryLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun MultiStageStepInfo(step: MultiStageStepUiModel, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.padding(vertical = ChatDimens.spacingXs)) {
+        Text(
+            text = step.title,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Bold,
+        )
+        step.contentLines.forEach { line ->
+            Text(
+                text = line,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Text(
+            text = step.metaLabel,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        step.errorLabel?.let { errorLabel ->
+            Text(
+                text = "$MULTI_STAGE_ERROR_PREFIX$errorLabel",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+        step.violationLabels.forEach { violationLabel ->
+            Text(
+                text = violationLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+    }
 }
 
 @Composable
