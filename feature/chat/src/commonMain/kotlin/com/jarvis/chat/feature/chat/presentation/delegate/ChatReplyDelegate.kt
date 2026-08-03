@@ -20,11 +20,13 @@ import com.jarvis.chat.feature.ai.domain.usecase.CheckInputGuardUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.CheckOutputGuardUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
+import com.jarvis.chat.feature.chat.domain.mapper.extractRouteFromAnswerText
 import com.jarvis.chat.feature.chat.domain.mapper.mergeRouteWithMicroRoute
 import com.jarvis.chat.feature.chat.domain.mapper.mergeWithMicroRoute
 import com.jarvis.chat.feature.chat.domain.mapper.toFallbackTriageModel
 import com.jarvis.chat.feature.chat.domain.mapper.toLocalReplyText
 import com.jarvis.chat.feature.chat.domain.mapper.toRequestContext
+import com.jarvis.chat.feature.chat.domain.mapper.toTextEstimatedTriageModel
 import com.jarvis.chat.feature.chat.domain.mapper.toTriageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
@@ -318,7 +320,7 @@ internal class ChatReplyDelegate(
                     ),
                 )
             }
-        ensureEmergencyVisible(sessionId, messageId, microResult)
+        applyPostStreamVerdict(sessionId, messageId, microResult)
         dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
     }
 
@@ -353,6 +355,28 @@ internal class ChatReplyDelegate(
             ),
         )
         dispatch(ChatAction.Internal.ReplyCompleted(sessionId))
+    }
+
+    private fun applyPostStreamVerdict(sessionId: String, messageId: String, microResult: MicroTriageModel?) {
+        val bufferedMessage = replyBuffers[sessionId]?.find { message -> message.id == messageId } ?: return
+        if (bufferedMessage.triage != null) {
+            return
+        }
+        val extractedRoute = bufferedMessage.text.extractRouteFromAnswerText()
+        if (extractedRoute != null) {
+            val mergedRoute = extractedRoute.mergeRouteWithMicroRoute(microResult?.route) ?: extractedRoute
+            dispatch(
+                ChatAction.Internal.ReplyChunkReceived(
+                    sessionId = sessionId,
+                    messageId = messageId,
+                    textChunk = "",
+                    modelId = null,
+                    triage = mergedRoute.toTextEstimatedTriageModel(),
+                ),
+            )
+            return
+        }
+        ensureEmergencyVisible(sessionId, messageId, microResult)
     }
 
     private fun ensureEmergencyVisible(sessionId: String, messageId: String, microResult: MicroTriageModel?) {

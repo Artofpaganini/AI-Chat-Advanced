@@ -43,7 +43,7 @@ fun initKoin(appConfig: AppConfig) {
                             AiProviderTypeModel.CLOUD_DEEP_SEEK -> AiProviderConfigModel(
                                 baseUrl = appConfig.deepSeekBaseUrl,
                                 modelId = observeAiModelUseCase().value.toDeepSeekModelId(),
-                                systemPrompt = DeepSeekDefaults.SYSTEM_PROMPT,
+                                systemPrompt = DeepSeekDefaults.LOCAL_SYSTEM_PROMPT,
                                 isApiKeyRequired = true,
                                 adapterPath = null,
                                 maxTokens = null,
