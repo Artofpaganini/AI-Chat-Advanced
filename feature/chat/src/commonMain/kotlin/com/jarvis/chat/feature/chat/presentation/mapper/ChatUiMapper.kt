@@ -1,5 +1,3 @@
-@file:Suppress("TooManyFunctions")
-
 package com.jarvis.chat.feature.chat.presentation.mapper
 
 import com.jarvis.chat.core.micromodel.domain.model.MicroTriageRouteModel
@@ -54,23 +52,6 @@ private const val SESSION_SUMMARY_PREFIX = "Локально обработан�
 private const val SESSION_SUMMARY_SEPARATOR = " из "
 private const val SESSION_SUMMARY_SAVED_PREFIX = " · сэкономлено вызовов LLM: "
 
-private const val INPUT_GUARD_BADGE_TEXT = "Слой защиты L0: вход заблокирован фильтром нормализации"
-private const val OUTPUT_GUARD_BADGE_PREFIX = "Слой защиты L3: ответ скрыт, причина - "
-private const val OUTPUT_GUARD_REASON_SEPARATOR = ", "
-private const val OUTPUT_GUARD_REASON_LEAK_MARKERS = "утечка системного промпта"
-private const val OUTPUT_GUARD_REASON_SAFETY_BYPASS_DOSAGE = "дозировка, привязанная к ребёнку"
-private const val OUTPUT_GUARD_REASON_SAFETY_BYPASS_DIAGNOSIS = "диагноз ребёнку"
-private const val OUTPUT_GUARD_REASON_SAFETY_BYPASS_DISCOURAGE_DOCTOR = "отговор от обращения к врачу"
-private const val OUTPUT_GUARD_REASON_SAFETY_BYPASS_OTHER = "обход правил детской безопасности"
-private const val OUTPUT_GUARD_REASON_PII = "персональные данные"
-private const val OUTPUT_GUARD_REASON_SUSPICIOUS_URL = "подозрительная ссылка"
-private const val OUTPUT_GUARD_REASON_PERSONA_BREAK = "признаки смены личности"
-private const val OUTPUT_GUARD_REASON_UNKNOWN = "неизвестная причина"
-
-private const val INJECTION_GUARD_SUMMARY_PREFIX = "Защита от инъекций - отбито атак: "
-private const val INJECTION_GUARD_SUMMARY_INPUT_PREFIX = " (вход: "
-private const val INJECTION_GUARD_SUMMARY_OUTPUT_PREFIX = ", выход: "
-private const val INJECTION_GUARD_SUMMARY_SUFFIX = ")"
 private const val ERROR_MESSAGE_NO_CONNECTION = "No internet connection. Check your network and try again."
 private const val ERROR_MESSAGE_LOCAL_PROVIDER_UNREACHABLE_PREFIX = "Local provider is unreachable at "
 private const val ERROR_MESSAGE_LOCAL_PROVIDER_UNREACHABLE_SUFFIX =
@@ -146,7 +127,7 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
                 !state.isFavoritesFilterActive,
             isFavoritesEmptyState = state.isFavoritesFilterActive && visibleMessages.isEmpty(),
             microModelSessionSummary = state.toMicroModelSessionSummaryOrNull(),
-            injectionGuardSessionSummary = state.toInjectionGuardSessionSummary(),
+            injectionGuardSessionSummary = state.toInjectionGuardSessionSummaryOrNull(),
         )
     }
 
@@ -165,7 +146,7 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             triage = if (isFromUser) null else triage?.toTriageUiModel(),
             routeBadgeText = if (isFromUser) null else routeDecision?.toRouteBadgeText(triage?.route ?: multiStage?.route),
             multiStage = if (isFromUser) null else multiStage?.toMultiStageUiModel(),
-            inputGuardBadgeText = if (inputGuardBlocked) INPUT_GUARD_BADGE_TEXT else null,
+            inputGuardBadgeText = inputGuardBadgeTextOrNull(inputGuardBlocked),
             outputGuardBadgeText = outputGuardReasons.toOutputGuardBadgeTextOrNull(),
         )
     }
@@ -178,37 +159,6 @@ private fun ChatState.toMicroModelSessionSummaryOrNull(): String? {
     return "$SESSION_SUMMARY_PREFIX$localHandledCount$SESSION_SUMMARY_SEPARATOR$totalRoutedCount" +
         "$SESSION_SUMMARY_SAVED_PREFIX$localHandledCount"
 }
-
-private fun ChatState.toInjectionGuardSessionSummary(): String? {
-    val blockedTotal = blockedInputCount + blockedOutputCount
-    return if (blockedTotal > 0) {
-        "$INJECTION_GUARD_SUMMARY_PREFIX$blockedTotal$INJECTION_GUARD_SUMMARY_INPUT_PREFIX$blockedInputCount" +
-            "$INJECTION_GUARD_SUMMARY_OUTPUT_PREFIX$blockedOutputCount$INJECTION_GUARD_SUMMARY_SUFFIX"
-    } else {
-        null
-    }
-}
-
-private fun List<String>.toOutputGuardBadgeTextOrNull(): String? {
-    if (isEmpty()) {
-        return null
-    }
-    val labels = map { reason -> reason.toOutputGuardReasonLabel() }
-    return "$OUTPUT_GUARD_BADGE_PREFIX${labels.joinToString(OUTPUT_GUARD_REASON_SEPARATOR)}"
-}
-
-private fun String.toOutputGuardReasonLabel(): String =
-    when {
-        this == "leak_markers" -> OUTPUT_GUARD_REASON_LEAK_MARKERS
-        this == "safety_bypass_dosage_tied_to_child" -> OUTPUT_GUARD_REASON_SAFETY_BYPASS_DOSAGE
-        this == "safety_bypass_diagnosis" -> OUTPUT_GUARD_REASON_SAFETY_BYPASS_DIAGNOSIS
-        this == "safety_bypass_discourage_doctor" -> OUTPUT_GUARD_REASON_SAFETY_BYPASS_DISCOURAGE_DOCTOR
-        startsWith("safety_bypass_") -> OUTPUT_GUARD_REASON_SAFETY_BYPASS_OTHER
-        this == "pii" -> OUTPUT_GUARD_REASON_PII
-        this == "suspicious_url" -> OUTPUT_GUARD_REASON_SUSPICIOUS_URL
-        this == "persona_break" -> OUTPUT_GUARD_REASON_PERSONA_BREAK
-        else -> OUTPUT_GUARD_REASON_UNKNOWN
-    }
 
 private fun RouteDecisionModel.toRouteBadgeText(finalRoute: TriageRouteModel?): String =
     when (source) {
