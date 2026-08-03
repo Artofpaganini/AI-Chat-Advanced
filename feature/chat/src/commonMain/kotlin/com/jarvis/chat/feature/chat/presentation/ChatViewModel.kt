@@ -3,7 +3,10 @@ package com.jarvis.chat.feature.chat.presentation
 import androidx.lifecycle.viewModelScope
 import com.jarvis.chat.core.micromodel.domain.usecase.ClassifyMessageUseCase
 import com.jarvis.chat.core.viewmodel.UdfBaseViewModel
+import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
+import com.jarvis.chat.feature.ai.domain.usecase.CheckInputGuardUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.CheckOutputGuardUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
 import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
@@ -33,6 +36,9 @@ internal class ChatViewModel(
     microModelGateSettingProvider: MicroModelGateSettingProvider,
     sendMultiStageMessageUseCase: SendMultiStageMessageUseCase,
     inferenceModeProvider: InferenceModeProvider,
+    aiProviderConfigProvider: AiProviderConfigProvider,
+    checkInputGuardUseCase: CheckInputGuardUseCase,
+    checkOutputGuardUseCase: CheckOutputGuardUseCase,
     loadChatSessionsUseCase: LoadChatSessionsUseCase,
     observeActiveChatSessionUseCase: ObserveActiveChatSessionUseCase,
     loadChatHistoryUseCase: LoadChatHistoryUseCase,
@@ -53,6 +59,9 @@ internal class ChatViewModel(
         microModelGateSettingProvider = microModelGateSettingProvider,
         sendMultiStageMessageUseCase = sendMultiStageMessageUseCase,
         inferenceModeProvider = inferenceModeProvider,
+        aiProviderConfigProvider = aiProviderConfigProvider,
+        checkInputGuardUseCase = checkInputGuardUseCase,
+        checkOutputGuardUseCase = checkOutputGuardUseCase,
         saveChatHistoryUseCase = saveChatHistoryUseCase,
         viewModelScope = viewModelScope,
         currentState = ::currentState,

@@ -14,4 +14,6 @@ internal data class HistoryMessageModel(
     val triage: TriageModel? = null,
     val routeDecision: RouteDecisionModel? = null,
     val multiStage: MultiStageResultModel? = null,
+    val inputGuardBlocked: Boolean = false,
+    val outputGuardReasons: List<String> = emptyList(),
 )

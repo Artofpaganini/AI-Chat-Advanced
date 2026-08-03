@@ -191,7 +191,7 @@ private fun parseAge(value: String?): Pair<Int?, Boolean> {
 
 private fun parseSymptoms(value: String?): List<String> {
     if (value == null || isNoneValue(value)) return emptyList()
-    val parts = value.split(MultiStageDefaults.SYMPTOM_SEPARATOR).map { part -> cleanValue(part) }
+    val parts = value.split(MultiStageDefaults.SYMPTOM_SEPARATOR).map { part -> sanitizeStageValue(cleanValue(part)) }
     val symptoms = parts
         .filter { part -> part.isNotEmpty() && !isNoneValue(part) }
         .map { part -> clipValue(part, MultiStageDefaults.MAX_SYMPTOM_CHARS) }
@@ -200,10 +200,7 @@ private fun parseSymptoms(value: String?): List<String> {
 
 private fun parseFreeField(value: String?, limit: Int): String {
     if (value == null || isNoneValue(value)) return MultiStageDefaults.NONE_VALUE
-    val cleaned = cleanValue(value)
-        .split(Regex("\\s+"))
-        .filter { part -> part.isNotEmpty() }
-        .joinToString(" ")
+    val cleaned = sanitizeStageValue(cleanValue(value))
     if (cleaned.isEmpty()) return MultiStageDefaults.NONE_VALUE
     return clipValue(cleaned, limit)
 }

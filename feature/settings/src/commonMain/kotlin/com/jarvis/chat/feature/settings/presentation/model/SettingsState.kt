@@ -11,5 +11,6 @@ internal data class SettingsState(
     val aiProvider: AiProviderModel = AiProviderModel.DEEP_SEEK_CLOUD,
     val isMicroModelFirstEnabled: Boolean = true,
     val inferenceMode: InferenceModeModel = InferenceModeModel.ONE_SHOT,
+    val isInjectionGuardEnabled: Boolean = true,
     val isSheetVisible: Boolean = false,
 )

@@ -4,13 +4,20 @@ import com.jarvis.chat.core.micromodel.domain.model.MicroTriageModel
 import com.jarvis.chat.core.micromodel.domain.model.MicroTriageRouteModel
 import com.jarvis.chat.core.micromodel.domain.model.MicroTriageStatusModel
 import com.jarvis.chat.core.micromodel.domain.usecase.ClassifyMessageUseCase
+import com.jarvis.chat.feature.ai.di.DeepSeekDefaults
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
+import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
+import com.jarvis.chat.feature.ai.domain.model.GuardTargetModel
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
+import com.jarvis.chat.feature.ai.domain.model.InputGuardResultModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
+import com.jarvis.chat.feature.ai.domain.model.OutputGuardResultModel
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
+import com.jarvis.chat.feature.ai.domain.usecase.CheckInputGuardUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.CheckOutputGuardUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
 import com.jarvis.chat.feature.chat.domain.mapper.mergeRouteWithMicroRoute
@@ -43,6 +50,9 @@ internal class ChatReplyDelegate(
     private val microModelGateSettingProvider: MicroModelGateSettingProvider,
     private val sendMultiStageMessageUseCase: SendMultiStageMessageUseCase,
     private val inferenceModeProvider: InferenceModeProvider,
+    private val aiProviderConfigProvider: AiProviderConfigProvider,
+    private val checkInputGuardUseCase: CheckInputGuardUseCase,
+    private val checkOutputGuardUseCase: CheckOutputGuardUseCase,
     private val saveChatHistoryUseCase: SaveChatHistoryUseCase,
     private val viewModelScope: CoroutineScope,
     private val currentState: () -> ChatState,
@@ -54,6 +64,7 @@ internal class ChatReplyDelegate(
     private val replyJobs = mutableMapOf<String, Job>()
     private val replyBuffers = mutableMapOf<String, List<HistoryMessageModel>>()
     private val activeAssistantMessageIds = mutableMapOf<String, String>()
+    private val guardTargets = mutableMapOf<String, GuardTargetModel>()
 
     fun liveMessagesOrNull(sessionId: String): List<HistoryMessageModel>? = replyBuffers[sessionId]
 
@@ -66,6 +77,24 @@ internal class ChatReplyDelegate(
             return
         }
         val userMessage = createMessage(author = MessageAuthor.USER, text = text)
+        val guardResult = checkInputGuardUseCase(text)
+        if (guardResult is InputGuardResultModel.Blocked) {
+            val guardMessage = createMessage(author = MessageAuthor.ASSISTANT, text = guardResult.reason)
+                .copy(inputGuardBlocked = true)
+            val history = currentState().messages + userMessage + guardMessage
+            updateState {
+                copy(
+                    messages = history,
+                    inputText = "",
+                    error = null,
+                    lastSentText = text,
+                    blockedInputCount = blockedInputCount + 1,
+                )
+            }
+            postEvent(ChatEvent.ScrollToBottom)
+            persist(sessionId, history)
+            return
+        }
         val history = currentState().messages + userMessage
         updateState {
             copy(
@@ -101,6 +130,7 @@ internal class ChatReplyDelegate(
         replyJobs.remove(sessionId)?.cancel()
         val messageId = activeAssistantMessageIds.remove(sessionId)
         replyBuffers.remove(sessionId)
+        guardTargets.remove(sessionId)
         val pendingMessage = messageId?.let { id -> currentState().messages.find { message -> message.id == id } }
         val history = if (pendingMessage != null && pendingMessage.text.isEmpty()) {
             currentState().messages.withoutMessage(pendingMessage.id)
@@ -144,19 +174,42 @@ internal class ChatReplyDelegate(
 
     fun onReplyCompleted(sessionId: String) {
         replyJobs.remove(sessionId)
-        activeAssistantMessageIds.remove(sessionId)
-        val finalMessages = replyBuffers.remove(sessionId) ?: return
+        val assistantMessageId = activeAssistantMessageIds.remove(sessionId)
+        val guardTarget = guardTargets.remove(sessionId) ?: GuardTargetModel.JARVIS
+        val bufferedMessages = replyBuffers.remove(sessionId) ?: return
+        val finalMessages = bufferedMessages.applyOutputGuardIfNeeded(assistantMessageId, guardTarget)
         if (sessionId == currentState().activeSessionId) {
-            updateState { copy(isLoading = false, error = null) }
+            updateState { copy(isLoading = false, error = null, messages = finalMessages) }
             postEvent(ChatEvent.ScrollToBottom)
         }
         persist(sessionId, finalMessages)
+    }
+
+    private fun List<HistoryMessageModel>.applyOutputGuardIfNeeded(
+        assistantMessageId: String?,
+        target: GuardTargetModel,
+    ): List<HistoryMessageModel> {
+        val guardResult = find { message -> message.id == assistantMessageId }
+            ?.takeIf { message -> message.text.isNotBlank() }
+            ?.let { message -> checkOutputGuardUseCase(message.text, target) }
+        if (guardResult !is OutputGuardResultModel.Blocked) {
+            return this
+        }
+        updateState { copy(blockedOutputCount = blockedOutputCount + 1) }
+        return map { message ->
+            if (message.id == assistantMessageId) {
+                message.copy(text = guardResult.fallbackMessage, outputGuardReasons = guardResult.reasons)
+            } else {
+                message
+            }
+        }
     }
 
     fun onReplyFailed(sessionId: String, messageId: String, error: AiErrorModel) {
         replyJobs.remove(sessionId)
         activeAssistantMessageIds.remove(sessionId)
         replyBuffers.remove(sessionId)
+        guardTargets.remove(sessionId)
         if (sessionId == currentState().activeSessionId) {
             val history = currentState().messages.withoutMessage(messageId)
             updateState {
@@ -188,6 +241,7 @@ internal class ChatReplyDelegate(
                     null
                 }
                 val localMicroResult = microResult?.takeIf { result -> result.status == MicroTriageStatusModel.OK }
+                guardTargets[sessionId] = currentGuardTarget(isLocalMicroReply = localMicroResult != null)
                 updateState {
                     copy(
                         totalRoutedCount = totalRoutedCount + 1,
@@ -325,6 +379,14 @@ internal class ChatReplyDelegate(
             ),
         )
     }
+
+    private fun currentGuardTarget(isLocalMicroReply: Boolean): GuardTargetModel =
+        when {
+            isLocalMicroReply -> GuardTargetModel.ALVA
+            inferenceModeProvider.currentMode() == InferenceModeModel.MULTI_STAGE -> GuardTargetModel.ALVA
+            aiProviderConfigProvider.currentConfig().systemPrompt == DeepSeekDefaults.LOCAL_SYSTEM_PROMPT -> GuardTargetModel.ALVA
+            else -> GuardTargetModel.JARVIS
+        }
 
     private fun persist(sessionId: String, messages: List<HistoryMessageModel>) {
         viewModelScope.launch {

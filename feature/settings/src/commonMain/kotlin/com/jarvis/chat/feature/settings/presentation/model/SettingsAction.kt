@@ -22,6 +22,8 @@ internal sealed interface SettingsAction {
         data class MicroModelFirstToggled(val enabled: Boolean) : Ui
 
         data class InferenceModeSelected(val inferenceMode: InferenceModeUiModel) : Ui
+
+        data class InjectionGuardToggled(val enabled: Boolean) : Ui
     }
 
     sealed interface Internal : SettingsAction {
@@ -35,5 +37,7 @@ internal sealed interface SettingsAction {
         data class MicroModelFirstChanged(val enabled: Boolean) : Internal
 
         data class InferenceModeChanged(val inferenceMode: InferenceModeModel) : Internal
+
+        data class InjectionGuardChanged(val enabled: Boolean) : Internal
     }
 }

@@ -13,4 +13,6 @@ internal data class ChatMessageUiModel(
     val triage: TriageUiModel?,
     val routeBadgeText: String?,
     val multiStage: MultiStageUiModel?,
+    val inputGuardBadgeText: String?,
+    val outputGuardBadgeText: String?,
 )

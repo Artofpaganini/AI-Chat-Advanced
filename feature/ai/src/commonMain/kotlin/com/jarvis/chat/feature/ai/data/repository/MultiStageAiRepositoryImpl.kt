@@ -1,8 +1,10 @@
 package com.jarvis.chat.feature.ai.data.repository
 
 import com.jarvis.chat.feature.ai.data.datasource.DeepSeekRemoteDataSource
+import com.jarvis.chat.feature.ai.data.mapper.childRedFlagWordsMissingFromSymptoms
 import com.jarvis.chat.feature.ai.data.mapper.costUsdOrNull
 import com.jarvis.chat.feature.ai.data.mapper.emptyMultiStageFacts
+import com.jarvis.chat.feature.ai.data.mapper.escapeBoundaryMarkers
 import com.jarvis.chat.feature.ai.data.mapper.parseStage1Facts
 import com.jarvis.chat.feature.ai.data.mapper.parseStage2Decision
 import com.jarvis.chat.feature.ai.data.mapper.toDeepSeekPriceModelOrNull
@@ -17,6 +19,7 @@ import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
 import com.jarvis.chat.feature.ai.domain.model.MultiStageStageModel
 import com.jarvis.chat.feature.ai.domain.model.MultiStageStepMetaModel
 import com.jarvis.chat.feature.ai.domain.model.MultiStageViolationModel
+import com.jarvis.chat.feature.ai.domain.model.TriageRouteModel
 import com.jarvis.chat.feature.ai.domain.repository.MultiStageAiRepository
 import kotlinx.coroutines.CancellationException
 import kotlin.time.TimeSource
@@ -44,18 +47,26 @@ internal class MultiStageAiRepositoryImpl(
 
         val parseCall = callStage(
             systemPrompt = MultiStageDefaults.STAGE1_SYSTEM_PROMPT,
-            userContent = MultiStageDefaults.stage1UserContent(caseText),
+            userContent = MultiStageDefaults.stage1UserContent(caseText.escapeBoundaryMarkers()),
             maxTokens = MultiStageDefaults.STAGE1_MAX_TOKENS,
         )
         val parseOutcome = parseStage1Facts(parseCall.text)
         val parseOk = parseCall.errorText == null &&
-            MultiStageViolationModel.S1_PARSE !in parseOutcome.violations
+            MultiStageViolationModel.S1_PARSE !in parseOutcome.violations &&
+            MultiStageViolationModel.S1_ROUTE_LEAKED !in parseOutcome.violations
+        val redFlagMismatch = childRedFlagWordsMissingFromSymptoms(caseText, parseOutcome.facts)
+        val parseViolations = if (redFlagMismatch) {
+            parseOutcome.violations + MultiStageViolationModel.S1_REDFLAG_MISMATCH
+        } else {
+            parseOutcome.violations
+        }
+        val parseTrusted = parseOk && !redFlagMismatch
         val parseStep = MultiStageParseStepModel(
             facts = parseOutcome.facts,
-            meta = parseCall.toMeta(violations = parseOutcome.violations, isOk = parseOk),
+            meta = parseCall.toMeta(violations = parseViolations, isOk = parseTrusted),
         )
         val factsForDecision = if (parseOk) parseOutcome.facts else emptyMultiStageFacts()
-        var failedStage: MultiStageStageModel? = if (!parseOk) MultiStageStageModel.PARSE else null
+        var failedStage: MultiStageStageModel? = if (!parseTrusted) MultiStageStageModel.PARSE else null
 
         val decideCall = callStage(
             systemPrompt = MultiStageDefaults.STAGE2_SYSTEM_PROMPT,
@@ -72,7 +83,7 @@ internal class MultiStageAiRepositoryImpl(
             failedStage = MultiStageStageModel.DECIDE
         }
 
-        if (!decideOk) {
+        if (!decideOk && !redFlagMismatch) {
             return MultiStageResultModel(
                 parseStep = parseStep,
                 decideStep = decideStep,
@@ -86,12 +97,17 @@ internal class MultiStageAiRepositoryImpl(
             )
         }
 
-        val route = requireNotNull(decideOutcome.decision.route)
+        val route = if (redFlagMismatch) TriageRouteModel.EMERGENCY else requireNotNull(decideOutcome.decision.route)
+        val why = if (redFlagMismatch) {
+            MultiStageDefaults.REDFLAG_ESCALATION_WHY
+        } else {
+            decideOutcome.decision.why.ifBlank { MultiStageDefaults.NONE_VALUE }
+        }
         val answerCall = callStage(
             systemPrompt = MultiStageDefaults.STAGE3_SYSTEM_PROMPT,
             userContent = MultiStageDefaults.stage3UserContent(
                 route = route.name,
-                why = decideOutcome.decision.why.ifBlank { MultiStageDefaults.NONE_VALUE },
+                why = why,
                 facts = factsForDecision.toFormattedFacts(),
             ),
             maxTokens = MultiStageDefaults.STAGE3_MAX_TOKENS,

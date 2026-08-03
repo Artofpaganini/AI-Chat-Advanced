@@ -6,5 +6,6 @@ internal data class SettingsUiModel(
     val selectedAiProvider: AiProviderUiModel,
     val isMicroModelFirstEnabled: Boolean,
     val selectedInferenceMode: InferenceModeUiModel,
+    val isInjectionGuardEnabled: Boolean,
     val isSheetVisible: Boolean,
 )

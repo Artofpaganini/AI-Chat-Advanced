@@ -46,6 +46,9 @@ private const val MICRO_MODEL_FIRST_DESCRIPTION = "Classify messages on-device b
 private const val INFERENCE_MODE_TITLE = "Inference Mode"
 private const val INFERENCE_MODE_LABEL_ONE_SHOT = "Один запрос"
 private const val INFERENCE_MODE_LABEL_MULTI_STAGE = "Три этапа"
+private const val INJECTION_GUARD_TITLE = "Защита от инъекций"
+private const val INJECTION_GUARD_DESCRIPTION =
+    "Проверяет вход на закодированные команды и вычищает утечки из ответа"
 
 @Composable
 fun rememberSelectedThemeMode(): ThemeModeUiModel {
@@ -101,8 +104,27 @@ fun SettingsBottomSheet() {
                         viewModel.onAction(SettingsAction.Ui.InferenceModeSelected(inferenceMode))
                     },
                 )
+                Spacer(modifier = Modifier.height(SettingsDimens.spacingMd))
+                InjectionGuardOption(
+                    isEnabled = uiState.isInjectionGuardEnabled,
+                    onToggled = { enabled -> viewModel.onAction(SettingsAction.Ui.InjectionGuardToggled(enabled)) },
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun InjectionGuardOption(isEnabled: Boolean, onToggled: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = INJECTION_GUARD_TITLE, style = MaterialTheme.typography.titleMedium)
+            Text(text = INJECTION_GUARD_DESCRIPTION, style = MaterialTheme.typography.bodySmall)
+        }
+        Switch(checked = isEnabled, onCheckedChange = onToggled)
     }
 }
 

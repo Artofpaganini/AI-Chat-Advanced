@@ -9,11 +9,13 @@ import com.jarvis.chat.feature.settings.domain.model.ThemeModeModel
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiProviderUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveInferenceModeUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveInjectionGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveMicroModelFirstEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveThemeModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiProviderUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveInferenceModeUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.SaveInjectionGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveMicroModelFirstEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveThemeModeUseCase
 import com.jarvis.chat.feature.settings.presentation.mapper.SettingsUiMapper
@@ -42,6 +44,8 @@ internal class SettingsViewModel(
     private val saveMicroModelFirstEnabledUseCase: SaveMicroModelFirstEnabledUseCase,
     observeInferenceModeUseCase: ObserveInferenceModeUseCase,
     private val saveInferenceModeUseCase: SaveInferenceModeUseCase,
+    observeInjectionGuardEnabledUseCase: ObserveInjectionGuardEnabledUseCase,
+    private val saveInjectionGuardEnabledUseCase: SaveInjectionGuardEnabledUseCase,
     uiMapper: SettingsUiMapper,
 ) : UdfBaseViewModel<SettingsAction, SettingsUiModel, SettingsState, SettingsEvent>(
     initialState = SettingsState(
@@ -50,6 +54,7 @@ internal class SettingsViewModel(
         aiProvider = observeAiProviderUseCase().value,
         isMicroModelFirstEnabled = observeMicroModelFirstEnabledUseCase().value,
         inferenceMode = observeInferenceModeUseCase().value,
+        isInjectionGuardEnabled = observeInjectionGuardEnabledUseCase().value,
     ),
     uiMapper = uiMapper,
 ) {
@@ -74,6 +79,11 @@ internal class SettingsViewModel(
                 onAction(SettingsAction.Internal.InferenceModeChanged(inferenceMode))
             }
         }
+        viewModelScope.launch {
+            observeInjectionGuardEnabledUseCase().collect { enabled ->
+                onAction(SettingsAction.Internal.InjectionGuardChanged(enabled))
+            }
+        }
     }
 
     override fun onAction(action: SettingsAction) {
@@ -85,11 +95,13 @@ internal class SettingsViewModel(
             is SettingsAction.Ui.AiProviderSelected -> onAiProviderSelected(action.aiProvider)
             is SettingsAction.Ui.MicroModelFirstToggled -> onMicroModelFirstToggled(action.enabled)
             is SettingsAction.Ui.InferenceModeSelected -> onInferenceModeSelected(action.inferenceMode)
+            is SettingsAction.Ui.InjectionGuardToggled -> onInjectionGuardToggled(action.enabled)
             is SettingsAction.Internal.ThemeModeChanged -> onThemeModeChanged(action.themeMode)
             is SettingsAction.Internal.AiModelChanged -> onAiModelChanged(action.aiModel)
             is SettingsAction.Internal.AiProviderChanged -> onAiProviderChanged(action.aiProvider)
             is SettingsAction.Internal.MicroModelFirstChanged -> onMicroModelFirstChanged(action.enabled)
             is SettingsAction.Internal.InferenceModeChanged -> onInferenceModeChanged(action.inferenceMode)
+            is SettingsAction.Internal.InjectionGuardChanged -> onInjectionGuardChanged(action.enabled)
         }
     }
 
@@ -143,5 +155,13 @@ internal class SettingsViewModel(
 
     private fun onInferenceModeChanged(inferenceMode: InferenceModeModel) {
         updateState { copy(inferenceMode = inferenceMode) }
+    }
+
+    private fun onInjectionGuardToggled(enabled: Boolean) {
+        saveInjectionGuardEnabledUseCase(enabled)
+    }
+
+    private fun onInjectionGuardChanged(enabled: Boolean) {
+        updateState { copy(isInjectionGuardEnabled = enabled) }
     }
 }

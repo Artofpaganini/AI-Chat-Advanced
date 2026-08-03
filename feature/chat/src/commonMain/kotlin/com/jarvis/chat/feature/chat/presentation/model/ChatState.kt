@@ -16,4 +16,6 @@ internal data class ChatState(
     val speakingMessageId: String? = null,
     val localHandledCount: Int = 0,
     val totalRoutedCount: Int = 0,
+    val blockedInputCount: Int = 0,
+    val blockedOutputCount: Int = 0,
 )

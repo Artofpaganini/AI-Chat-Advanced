@@ -150,6 +150,9 @@ internal fun ChatContent(
                         uiState.microModelSessionSummary?.let { summary ->
                             Text(text = summary, style = MaterialTheme.typography.labelSmall)
                         }
+                        uiState.injectionGuardSessionSummary?.let { summary ->
+                            Text(text = summary, style = MaterialTheme.typography.labelSmall)
+                        }
                     }
                 },
                 actions = {

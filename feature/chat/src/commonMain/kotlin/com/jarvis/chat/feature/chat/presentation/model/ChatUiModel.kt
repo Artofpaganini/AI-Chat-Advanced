@@ -15,4 +15,5 @@ internal data class ChatUiModel(
     val isEmptyState: Boolean,
     val isFavoritesEmptyState: Boolean,
     val microModelSessionSummary: String?,
+    val injectionGuardSessionSummary: String?,
 )
