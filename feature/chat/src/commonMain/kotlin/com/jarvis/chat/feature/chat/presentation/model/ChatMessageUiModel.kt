@@ -15,4 +15,5 @@ internal data class ChatMessageUiModel(
     val multiStage: MultiStageUiModel?,
     val inputGuardBadgeText: String?,
     val outputGuardBadgeText: String?,
+    val isImportedUnverifiedAssistant: Boolean,
 )

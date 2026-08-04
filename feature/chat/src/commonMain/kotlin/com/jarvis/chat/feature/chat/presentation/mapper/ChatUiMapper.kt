@@ -148,6 +148,7 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             multiStage = if (isFromUser) null else multiStage?.toMultiStageUiModel(),
             inputGuardBadgeText = inputGuardBadgeTextOrNull(inputGuardBlocked),
             outputGuardBadgeText = outputGuardReasons.toOutputGuardBadgeTextOrNull(),
+            isImportedUnverifiedAssistant = isImportedUnverifiedAssistant,
         )
     }
 }

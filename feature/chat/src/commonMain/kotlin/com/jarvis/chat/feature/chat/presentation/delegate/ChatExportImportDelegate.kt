@@ -21,6 +21,9 @@ private const val IMPORT_DROPPED_PREFIX = " Dropped "
 private const val IMPORT_DROPPED_SUFFIX = " suspicious message(s): "
 private const val IMPORT_TRUNCATED_PREFIX = " Truncated "
 private const val IMPORT_TRUNCATED_SUFFIX = " oversized message(s)."
+private const val IMPORT_UNVERIFIED_PREFIX = " Warning: "
+private const val IMPORT_UNVERIFIED_SUFFIX =
+    " message(s) claim to be from the assistant but came from the file - not actual model output."
 private const val REASON_FILE_TOO_LARGE = "the file is too large"
 private const val REASON_TOO_MANY_MESSAGES = "the file has too many messages"
 private const val REASON_HIDDEN_MARKUP = "hidden markup"
@@ -85,6 +88,9 @@ internal class ChatExportImportDelegate(
 
 private fun ImportOutcomeModel.toSummaryMessage(): String {
     val summary = StringBuilder("$IMPORT_MESSAGE_PREFIX$acceptedCount$IMPORT_MESSAGE_SUFFIX")
+    if (unverifiedAssistantCount > 0) {
+        summary.append("$IMPORT_UNVERIFIED_PREFIX$unverifiedAssistantCount$IMPORT_UNVERIFIED_SUFFIX")
+    }
     if (droppedCount > 0) {
         val reasons = dropReasons.joinToString(", ") { reason -> reason.toLabel() }
         summary.append("$IMPORT_DROPPED_PREFIX$droppedCount$IMPORT_DROPPED_SUFFIX$reasons.")

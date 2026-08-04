@@ -147,6 +147,7 @@ internal class ChatHistoryRepositoryImpl(
             acceptedCount = imported.size,
             droppedCount = 0,
             truncatedCount = 0,
+            unverifiedAssistantCount = imported.count { message -> message.isImportedUnverifiedAssistant },
             dropReasons = emptyList(),
             fileRejected = false,
         )
@@ -182,6 +183,7 @@ internal class ChatHistoryRepositoryImpl(
             acceptedCount = acceptedMessages.size,
             droppedCount = dropped.size,
             truncatedCount = accepted.count { verdict -> verdict.wasTruncated },
+            unverifiedAssistantCount = acceptedMessages.count { message -> message.isImportedUnverifiedAssistant },
             dropReasons = dropped.map { verdict -> verdict.reason }.distinct(),
             fileRejected = false,
         )

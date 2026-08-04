@@ -366,6 +366,29 @@ class ChatUiMapperTest {
         assertNull(uiMessage.triage)
     }
 
+    @Test
+    fun map_importedUnverifiedAssistantMessage_marksUiModelForBadgeRendering() {
+        val state = ChatState(
+            messages = listOf(
+                assistantMessage(id = "a1", text = "answer", isFavorite = false)
+                    .copy(isImportedUnverifiedAssistant = true),
+            ),
+        )
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertTrue(uiMessage.isImportedUnverifiedAssistant)
+    }
+
+    @Test
+    fun map_genuineAssistantMessage_leavesUnverifiedFlagFalse() {
+        val state = ChatState(messages = listOf(assistantMessage(id = "a1", text = "answer", isFavorite = false)))
+
+        val uiMessage = mapper.map(state).messages.single()
+
+        assertFalse(uiMessage.isImportedUnverifiedAssistant)
+    }
+
     private fun testTriage(): TriageModel =
         TriageModel(
             route = TriageRouteModel.EMERGENCY,

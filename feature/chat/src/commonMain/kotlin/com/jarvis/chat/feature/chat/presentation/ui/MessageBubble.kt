@@ -59,6 +59,8 @@ private const val TRIAGE_CRISIS_WARNING = "Кризисная ситуация, 
 private const val MULTI_STAGE_EXPAND_LABEL = "Показать 3 этапа ▾"
 private const val MULTI_STAGE_COLLAPSE_LABEL = "Скрыть этапы ▴"
 private const val MULTI_STAGE_ERROR_PREFIX = "Ошибка: "
+private const val IMPORTED_UNVERIFIED_ASSISTANT_WARNING =
+    "Это не ответ ассистента - сообщение взято из импортированного файла"
 
 @Composable
 internal fun MessageBubble(
@@ -114,6 +116,9 @@ internal fun MessageBubble(
                 modifier = Modifier.padding(ChatDimens.spacingSm),
                 horizontalAlignment = Alignment.Start,
             ) {
+                if (message.isImportedUnverifiedAssistant) {
+                    ImportedUnverifiedAssistantBanner(modifier = Modifier.padding(bottom = ChatDimens.spacingXs))
+                }
                 MarkdownText(
                     text = message.text,
                     style = MaterialTheme.typography.bodyLarge,
@@ -260,6 +265,24 @@ private fun MessageActions(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ImportedUnverifiedAssistantBanner(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        shape = MaterialTheme.shapes.small,
+    ) {
+        Text(
+            text = IMPORTED_UNVERIFIED_ASSISTANT_WARNING,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(ChatDimens.spacingXs),
+        )
     }
 }
 

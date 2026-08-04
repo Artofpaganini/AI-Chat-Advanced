@@ -5,6 +5,7 @@ internal data class ImportOutcomeModel(
     val acceptedCount: Int,
     val droppedCount: Int,
     val truncatedCount: Int,
+    val unverifiedAssistantCount: Int = 0,
     val dropReasons: List<ImportRejectionReasonModel>,
     val fileRejected: Boolean,
     val fileRejectionReason: ImportRejectionReasonModel? = null,
