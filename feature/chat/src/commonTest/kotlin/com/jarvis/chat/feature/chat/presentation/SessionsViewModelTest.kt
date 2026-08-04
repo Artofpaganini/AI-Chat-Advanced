@@ -3,6 +3,7 @@ package com.jarvis.chat.feature.chat.presentation
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionModel
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionsModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
+import com.jarvis.chat.feature.chat.domain.model.ImportOutcomeModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
 import com.jarvis.chat.feature.chat.domain.usecase.CreateChatSessionUseCase
@@ -222,5 +223,14 @@ private class FakeChatHistoryRepository(
         json: String,
         strategy: ImportStrategy,
         current: List<HistoryMessageModel>,
-    ): List<HistoryMessageModel> = emptyList()
+        isProtectionEnabled: Boolean,
+        isTextAllowed: (String) -> Boolean,
+    ): ImportOutcomeModel = ImportOutcomeModel(
+        messages = emptyList(),
+        acceptedCount = 0,
+        droppedCount = 0,
+        truncatedCount = 0,
+        dropReasons = emptyList(),
+        fileRejected = false,
+    )
 }

@@ -1,0 +1,1172 @@
+{
+  "raw_dir": "task12/raw/run_20260804_173743",
+  "documents_total": 30,
+  "documents_split": {
+    "dev": 21,
+    "holdout": 9
+  },
+  "by_defense": {
+    "none": {
+      "repeats": 3,
+      "documents_per_repeat": 30,
+      "attack_success_rate": {
+        "min": 0.3333,
+        "max": 0.4,
+        "mean": 0.3667
+      },
+      "by_vector": {
+        "V1_SUMMARY": {
+          "min": 0.1,
+          "max": 0.3,
+          "mean": 0.1667,
+          "evaluable_total": 30
+        },
+        "V2_ANALYST": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 30
+        },
+        "V3_SEARCH": {
+          "min": 0.9,
+          "max": 1.0,
+          "mean": 0.9333,
+          "evaluable_total": 30
+        }
+      },
+      "by_hiding": {
+        "H1_COMMENT": {
+          "min": 0.1667,
+          "max": 0.3333,
+          "mean": 0.2778,
+          "evaluable_total": 18
+        },
+        "H2_ZEROWIDTH": {
+          "min": 0.3333,
+          "max": 0.5,
+          "mean": 0.3889,
+          "evaluable_total": 18
+        },
+        "H3_INVISIBLE": {
+          "min": 0.0,
+          "max": 0.3333,
+          "mean": 0.2222,
+          "evaluable_total": 9
+        },
+        "H4_FAKE_ROLE": {
+          "min": 0.3333,
+          "max": 0.5833,
+          "mean": 0.4444,
+          "evaluable_total": 36
+        },
+        "H5_MARKDOWN": {
+          "min": 0.3333,
+          "max": 0.3333,
+          "mean": 0.3333,
+          "evaluable_total": 9
+        }
+      },
+      "by_split": {
+        "dev": {
+          "min": 0.3333,
+          "max": 0.381,
+          "mean": 0.3651,
+          "evaluable_total": 63
+        },
+        "holdout": {
+          "min": 0.3333,
+          "max": 0.4444,
+          "mean": 0.3703,
+          "evaluable_total": 27
+        }
+      },
+      "by_vector_hiding": {
+        "V1_SUMMARY": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.5,
+            "mean": 0.1667,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.0,
+            "max": 0.75,
+            "mean": 0.3333,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V2_ANALYST": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V3_SEARCH": {
+          "H1_COMMENT": {
+            "min": 0.5,
+            "max": 1.0,
+            "mean": 0.8333,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 1.0,
+            "mean": 0.6667,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 3
+          }
+        }
+      },
+      "detectors_total": {
+        "INJECTED_LINE": 5,
+        "PROMPT_OVERRIDE": 0,
+        "FALSE_FACT": 28,
+        "CONTEXT_POISONED": 1,
+        "CLEAN": 57
+      },
+      "cost_usd_total": 0.00660204,
+      "cost_usd_per_repeat": {
+        "min": 0.0022,
+        "max": 0.0022,
+        "mean": 0.0022
+      },
+      "latency_mean_ms": 3854.9,
+      "errors_total": 0,
+      "calls_total": 90
+    },
+    "d1_sanitize": {
+      "repeats": 3,
+      "documents_per_repeat": 30,
+      "attack_success_rate": {
+        "min": 0.2667,
+        "max": 0.3333,
+        "mean": 0.3111
+      },
+      "by_vector": {
+        "V1_SUMMARY": {
+          "min": 0.1,
+          "max": 0.3,
+          "mean": 0.2333,
+          "evaluable_total": 30
+        },
+        "V2_ANALYST": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 30
+        },
+        "V3_SEARCH": {
+          "min": 0.7,
+          "max": 0.7,
+          "mean": 0.7,
+          "evaluable_total": 30
+        }
+      },
+      "by_hiding": {
+        "H1_COMMENT": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 18
+        },
+        "H2_ZEROWIDTH": {
+          "min": 0.3333,
+          "max": 0.5,
+          "mean": 0.4444,
+          "evaluable_total": 18
+        },
+        "H3_INVISIBLE": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 9
+        },
+        "H4_FAKE_ROLE": {
+          "min": 0.4167,
+          "max": 0.5,
+          "mean": 0.4722,
+          "evaluable_total": 36
+        },
+        "H5_MARKDOWN": {
+          "min": 0.3333,
+          "max": 0.3333,
+          "mean": 0.3333,
+          "evaluable_total": 9
+        }
+      },
+      "by_split": {
+        "dev": {
+          "min": 0.2381,
+          "max": 0.2857,
+          "mean": 0.2698,
+          "evaluable_total": 63
+        },
+        "holdout": {
+          "min": 0.3333,
+          "max": 0.4444,
+          "mean": 0.4074,
+          "evaluable_total": 27
+        }
+      },
+      "by_vector_hiding": {
+        "V1_SUMMARY": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.5,
+            "mean": 0.3333,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.25,
+            "max": 0.5,
+            "mean": 0.4167,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V2_ANALYST": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V3_SEARCH": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 3
+          }
+        }
+      },
+      "detectors_total": {
+        "INJECTED_LINE": 7,
+        "PROMPT_OVERRIDE": 0,
+        "FALSE_FACT": 21,
+        "CONTEXT_POISONED": 4,
+        "CLEAN": 62
+      },
+      "cost_usd_total": 0.00661897,
+      "cost_usd_per_repeat": {
+        "min": 0.002,
+        "max": 0.0024,
+        "mean": 0.0022
+      },
+      "latency_mean_ms": 3822.1,
+      "errors_total": 0,
+      "calls_total": 90
+    },
+    "d2_boundary": {
+      "repeats": 3,
+      "documents_per_repeat": 30,
+      "attack_success_rate": {
+        "min": 0.3,
+        "max": 0.3333,
+        "mean": 0.3111
+      },
+      "by_vector": {
+        "V1_SUMMARY": {
+          "min": 0.1,
+          "max": 0.2,
+          "mean": 0.1667,
+          "evaluable_total": 30
+        },
+        "V2_ANALYST": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 30
+        },
+        "V3_SEARCH": {
+          "min": 0.7,
+          "max": 0.8,
+          "mean": 0.7667,
+          "evaluable_total": 30
+        }
+      },
+      "by_hiding": {
+        "H1_COMMENT": {
+          "min": 0.3333,
+          "max": 0.3333,
+          "mean": 0.3333,
+          "evaluable_total": 18
+        },
+        "H2_ZEROWIDTH": {
+          "min": 0.5,
+          "max": 0.5,
+          "mean": 0.5,
+          "evaluable_total": 18
+        },
+        "H3_INVISIBLE": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 9
+        },
+        "H4_FAKE_ROLE": {
+          "min": 0.3333,
+          "max": 0.4167,
+          "mean": 0.3611,
+          "evaluable_total": 36
+        },
+        "H5_MARKDOWN": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 9
+        }
+      },
+      "by_split": {
+        "dev": {
+          "min": 0.3333,
+          "max": 0.381,
+          "mean": 0.3492,
+          "evaluable_total": 63
+        },
+        "holdout": {
+          "min": 0.2222,
+          "max": 0.2222,
+          "mean": 0.2222,
+          "evaluable_total": 27
+        }
+      },
+      "by_vector_hiding": {
+        "V1_SUMMARY": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.5,
+            "max": 0.5,
+            "mean": 0.5,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.0,
+            "max": 0.25,
+            "mean": 0.1667,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V2_ANALYST": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V3_SEARCH": {
+          "H1_COMMENT": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.75,
+            "max": 1.0,
+            "mean": 0.9167,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        }
+      },
+      "detectors_total": {
+        "INJECTED_LINE": 5,
+        "PROMPT_OVERRIDE": 0,
+        "FALSE_FACT": 22,
+        "CONTEXT_POISONED": 1,
+        "CLEAN": 62
+      },
+      "cost_usd_total": 0.00740053,
+      "cost_usd_per_repeat": {
+        "min": 0.0022,
+        "max": 0.003,
+        "mean": 0.0025
+      },
+      "latency_mean_ms": 3981.2,
+      "errors_total": 0,
+      "calls_total": 90
+    },
+    "d3_output": {
+      "repeats": 3,
+      "documents_per_repeat": 30,
+      "attack_success_rate": {
+        "min": 0.3,
+        "max": 0.3333,
+        "mean": 0.3222
+      },
+      "by_vector": {
+        "V1_SUMMARY": {
+          "min": 0.2,
+          "max": 0.3,
+          "mean": 0.2333,
+          "evaluable_total": 30
+        },
+        "V2_ANALYST": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 30
+        },
+        "V3_SEARCH": {
+          "min": 0.7,
+          "max": 0.8,
+          "mean": 0.7333,
+          "evaluable_total": 30
+        }
+      },
+      "by_hiding": {
+        "H1_COMMENT": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 18
+        },
+        "H2_ZEROWIDTH": {
+          "min": 0.5,
+          "max": 0.5,
+          "mean": 0.5,
+          "evaluable_total": 18
+        },
+        "H3_INVISIBLE": {
+          "min": 0.0,
+          "max": 0.3333,
+          "mean": 0.1111,
+          "evaluable_total": 9
+        },
+        "H4_FAKE_ROLE": {
+          "min": 0.4167,
+          "max": 0.5,
+          "mean": 0.4445,
+          "evaluable_total": 36
+        },
+        "H5_MARKDOWN": {
+          "min": 0.3333,
+          "max": 0.3333,
+          "mean": 0.3333,
+          "evaluable_total": 9
+        }
+      },
+      "by_split": {
+        "dev": {
+          "min": 0.2857,
+          "max": 0.3333,
+          "mean": 0.3016,
+          "evaluable_total": 63
+        },
+        "holdout": {
+          "min": 0.3333,
+          "max": 0.4444,
+          "mean": 0.3703,
+          "evaluable_total": 27
+        }
+      },
+      "by_vector_hiding": {
+        "V1_SUMMARY": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.5,
+            "max": 0.5,
+            "mean": 0.5,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.25,
+            "max": 0.5,
+            "mean": 0.3333,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V2_ANALYST": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V3_SEARCH": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 1.0,
+            "mean": 0.3333,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "evaluable_total": 3
+          }
+        }
+      },
+      "detectors_total": {
+        "INJECTED_LINE": 7,
+        "PROMPT_OVERRIDE": 0,
+        "FALSE_FACT": 22,
+        "CONTEXT_POISONED": 3,
+        "CLEAN": 61
+      },
+      "cost_usd_total": 0.0064982,
+      "cost_usd_per_repeat": {
+        "min": 0.0021,
+        "max": 0.0022,
+        "mean": 0.0022
+      },
+      "latency_mean_ms": 3655.1,
+      "errors_total": 0,
+      "calls_total": 90
+    },
+    "d4_provenance": {
+      "repeats": 3,
+      "documents_per_repeat": 30,
+      "attack_success_rate": {
+        "min": 0.2,
+        "max": 0.2333,
+        "mean": 0.2111
+      },
+      "by_vector": {
+        "V1_SUMMARY": {
+          "min": 0.2,
+          "max": 0.3,
+          "mean": 0.2333,
+          "evaluable_total": 30
+        },
+        "V2_ANALYST": {
+          "min": 0.0,
+          "max": 0.1,
+          "mean": 0.0333,
+          "evaluable_total": 30
+        },
+        "V3_SEARCH": {
+          "min": 0.3,
+          "max": 0.4,
+          "mean": 0.3667,
+          "evaluable_total": 30
+        }
+      },
+      "by_hiding": {
+        "H1_COMMENT": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 18
+        },
+        "H2_ZEROWIDTH": {
+          "min": 0.0,
+          "max": 0.1667,
+          "mean": 0.1111,
+          "evaluable_total": 18
+        },
+        "H3_INVISIBLE": {
+          "min": 0.0,
+          "max": 0.3333,
+          "mean": 0.1111,
+          "evaluable_total": 9
+        },
+        "H4_FAKE_ROLE": {
+          "min": 0.3333,
+          "max": 0.5,
+          "mean": 0.4167,
+          "evaluable_total": 36
+        },
+        "H5_MARKDOWN": {
+          "min": 0.0,
+          "max": 0.3333,
+          "mean": 0.1111,
+          "evaluable_total": 9
+        }
+      },
+      "by_split": {
+        "dev": {
+          "min": 0.1429,
+          "max": 0.1905,
+          "mean": 0.1588,
+          "evaluable_total": 63
+        },
+        "holdout": {
+          "min": 0.2222,
+          "max": 0.4444,
+          "mean": 0.3333,
+          "evaluable_total": 27
+        }
+      },
+      "by_vector_hiding": {
+        "V1_SUMMARY": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.5,
+            "mean": 0.3333,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.25,
+            "max": 0.5,
+            "mean": 0.4167,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V2_ANALYST": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.0,
+            "max": 0.25,
+            "mean": 0.0833,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V3_SEARCH": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 1.0,
+            "mean": 0.3333,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.75,
+            "max": 0.75,
+            "mean": 0.75,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 1.0,
+            "mean": 0.3333,
+            "evaluable_total": 3
+          }
+        }
+      },
+      "detectors_total": {
+        "INJECTED_LINE": 7,
+        "PROMPT_OVERRIDE": 0,
+        "FALSE_FACT": 10,
+        "CONTEXT_POISONED": 4,
+        "CLEAN": 71
+      },
+      "cost_usd_total": 0.00783504,
+      "cost_usd_per_repeat": {
+        "min": 0.0022,
+        "max": 0.0034,
+        "mean": 0.0026
+      },
+      "latency_mean_ms": 4065.0,
+      "errors_total": 0,
+      "calls_total": 90
+    },
+    "all": {
+      "repeats": 3,
+      "documents_per_repeat": 30,
+      "attack_success_rate": {
+        "min": 0.0667,
+        "max": 0.1,
+        "mean": 0.0778
+      },
+      "by_vector": {
+        "V1_SUMMARY": {
+          "min": 0.1,
+          "max": 0.2,
+          "mean": 0.1333,
+          "evaluable_total": 30
+        },
+        "V2_ANALYST": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 30
+        },
+        "V3_SEARCH": {
+          "min": 0.1,
+          "max": 0.1,
+          "mean": 0.1,
+          "evaluable_total": 30
+        }
+      },
+      "by_hiding": {
+        "H1_COMMENT": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 18
+        },
+        "H2_ZEROWIDTH": {
+          "min": 0.0,
+          "max": 0.1667,
+          "mean": 0.0556,
+          "evaluable_total": 18
+        },
+        "H3_INVISIBLE": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 9
+        },
+        "H4_FAKE_ROLE": {
+          "min": 0.1667,
+          "max": 0.1667,
+          "mean": 0.1667,
+          "evaluable_total": 36
+        },
+        "H5_MARKDOWN": {
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "evaluable_total": 9
+        }
+      },
+      "by_split": {
+        "dev": {
+          "min": 0.0476,
+          "max": 0.0952,
+          "mean": 0.0635,
+          "evaluable_total": 63
+        },
+        "holdout": {
+          "min": 0.1111,
+          "max": 0.1111,
+          "mean": 0.1111,
+          "evaluable_total": 27
+        }
+      },
+      "by_vector_hiding": {
+        "V1_SUMMARY": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.5,
+            "mean": 0.1667,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.25,
+            "max": 0.25,
+            "mean": 0.25,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V2_ANALYST": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        },
+        "V3_SEARCH": {
+          "H1_COMMENT": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H2_ZEROWIDTH": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 6
+          },
+          "H3_INVISIBLE": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          },
+          "H4_FAKE_ROLE": {
+            "min": 0.25,
+            "max": 0.25,
+            "mean": 0.25,
+            "evaluable_total": 12
+          },
+          "H5_MARKDOWN": {
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "evaluable_total": 3
+          }
+        }
+      },
+      "detectors_total": {
+        "INJECTED_LINE": 4,
+        "PROMPT_OVERRIDE": 0,
+        "FALSE_FACT": 3,
+        "CONTEXT_POISONED": 1,
+        "CLEAN": 83
+      },
+      "cost_usd_total": 0.00785932,
+      "cost_usd_per_repeat": {
+        "min": 0.0023,
+        "max": 0.0031,
+        "mean": 0.0026
+      },
+      "latency_mean_ms": 4000.8,
+      "errors_total": 0,
+      "calls_total": 90
+    }
+  },
+  "secret_scan": {
+    "clean": true,
+    "hits": []
+  },
+  "gate": {
+    "checks": {
+      "all_vectors_present": {
+        "passed": true
+      },
+      "min_repeats_present": {
+        "passed": true,
+        "repeats": 3
+      },
+      "error_rate_below_10pct": {
+        "passed": true,
+        "error_rate": 0.0
+      },
+      "detectors_not_stuck": {
+        "passed": true
+      },
+      "no_secret_like_string_in_raw": {
+        "passed": true,
+        "hits": []
+      }
+    },
+    "passed": true
+  },
+  "gate_defense": "none"
+}

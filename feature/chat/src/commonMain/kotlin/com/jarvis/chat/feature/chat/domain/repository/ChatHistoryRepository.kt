@@ -3,6 +3,7 @@ package com.jarvis.chat.feature.chat.domain.repository
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionModel
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionsModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
+import com.jarvis.chat.feature.chat.domain.model.ImportOutcomeModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
 import kotlinx.coroutines.flow.StateFlow
 
@@ -33,5 +34,7 @@ internal interface ChatHistoryRepository {
         json: String,
         strategy: ImportStrategy,
         current: List<HistoryMessageModel>,
-    ): List<HistoryMessageModel>
+        isProtectionEnabled: Boolean,
+        isTextAllowed: (String) -> Boolean,
+    ): ImportOutcomeModel
 }

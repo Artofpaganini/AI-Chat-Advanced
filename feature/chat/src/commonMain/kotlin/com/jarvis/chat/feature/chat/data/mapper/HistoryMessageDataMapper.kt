@@ -21,6 +21,7 @@ internal fun HistoryMessageModel.toChatMessageDataModel(): ChatMessageDataModel 
         timestamp = timestamp,
         modelId = modelId,
         triage = triage?.toTriageDataModel(),
+        isImportedUnverifiedAssistant = isImportedUnverifiedAssistant,
     )
 
 internal fun List<HistoryMessageModel>.toChatHistoryDataModel(): ChatHistoryDataModel =

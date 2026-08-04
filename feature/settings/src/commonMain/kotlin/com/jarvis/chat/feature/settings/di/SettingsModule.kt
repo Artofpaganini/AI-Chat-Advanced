@@ -6,6 +6,8 @@ import com.jarvis.chat.feature.settings.data.datasource.AiProviderSettingsLocalD
 import com.jarvis.chat.feature.settings.data.datasource.AiProviderSettingsLocalDataSourceImpl
 import com.jarvis.chat.feature.settings.data.datasource.InferenceModeSettingsLocalDataSource
 import com.jarvis.chat.feature.settings.data.datasource.InferenceModeSettingsLocalDataSourceImpl
+import com.jarvis.chat.feature.settings.data.datasource.ImportGuardLocalDataSource
+import com.jarvis.chat.feature.settings.data.datasource.ImportGuardLocalDataSourceImpl
 import com.jarvis.chat.feature.settings.data.datasource.InjectionGuardLocalDataSource
 import com.jarvis.chat.feature.settings.data.datasource.InjectionGuardLocalDataSourceImpl
 import com.jarvis.chat.feature.settings.data.datasource.MicroModelFirstLocalDataSource
@@ -15,24 +17,28 @@ import com.jarvis.chat.feature.settings.data.datasource.ThemeSettingsLocalDataSo
 import com.jarvis.chat.feature.settings.data.repository.AiModelSettingsRepositoryImpl
 import com.jarvis.chat.feature.settings.data.repository.AiProviderSettingsRepositoryImpl
 import com.jarvis.chat.feature.settings.data.repository.InferenceModeSettingsRepositoryImpl
+import com.jarvis.chat.feature.settings.data.repository.ImportGuardSettingsRepositoryImpl
 import com.jarvis.chat.feature.settings.data.repository.InjectionGuardSettingsRepositoryImpl
 import com.jarvis.chat.feature.settings.data.repository.MicroModelFirstSettingsRepositoryImpl
 import com.jarvis.chat.feature.settings.data.repository.ThemeSettingsRepositoryImpl
 import com.jarvis.chat.feature.settings.domain.repository.AiModelSettingsRepository
 import com.jarvis.chat.feature.settings.domain.repository.AiProviderSettingsRepository
 import com.jarvis.chat.feature.settings.domain.repository.InferenceModeSettingsRepository
+import com.jarvis.chat.feature.settings.domain.repository.ImportGuardSettingsRepository
 import com.jarvis.chat.feature.settings.domain.repository.InjectionGuardSettingsRepository
 import com.jarvis.chat.feature.settings.domain.repository.MicroModelFirstSettingsRepository
 import com.jarvis.chat.feature.settings.domain.repository.ThemeSettingsRepository
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiProviderUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveInferenceModeUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveImportGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveInjectionGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveMicroModelFirstEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveThemeModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiProviderUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveInferenceModeUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.SaveImportGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveInjectionGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveMicroModelFirstEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveThemeModeUseCase
@@ -72,6 +78,10 @@ val settingsModule: Module = module {
     singleOf(::InjectionGuardSettingsRepositoryImpl) bind InjectionGuardSettingsRepository::class
     factoryOf(::ObserveInjectionGuardEnabledUseCase)
     factoryOf(::SaveInjectionGuardEnabledUseCase)
+    singleOf(::ImportGuardLocalDataSourceImpl) bind ImportGuardLocalDataSource::class
+    singleOf(::ImportGuardSettingsRepositoryImpl) bind ImportGuardSettingsRepository::class
+    factoryOf(::ObserveImportGuardEnabledUseCase)
+    factoryOf(::SaveImportGuardEnabledUseCase)
     factoryOf(::SettingsUiMapper)
     viewModelOf(::SettingsViewModel)
 }

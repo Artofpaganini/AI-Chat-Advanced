@@ -24,6 +24,8 @@ internal sealed interface SettingsAction {
         data class InferenceModeSelected(val inferenceMode: InferenceModeUiModel) : Ui
 
         data class InjectionGuardToggled(val enabled: Boolean) : Ui
+
+        data class ImportGuardToggled(val enabled: Boolean) : Ui
     }
 
     sealed interface Internal : SettingsAction {
@@ -39,5 +41,7 @@ internal sealed interface SettingsAction {
         data class InferenceModeChanged(val inferenceMode: InferenceModeModel) : Internal
 
         data class InjectionGuardChanged(val enabled: Boolean) : Internal
+
+        data class ImportGuardChanged(val enabled: Boolean) : Internal
     }
 }

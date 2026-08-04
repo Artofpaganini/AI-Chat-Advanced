@@ -11,4 +11,5 @@ internal data class ChatMessageDataModel(
     val timestamp: Long = 0L,
     val modelId: String? = null,
     val triage: TriageDataModel? = null,
+    val isImportedUnverifiedAssistant: Boolean = false,
 )

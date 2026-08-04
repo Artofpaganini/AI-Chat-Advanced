@@ -14,6 +14,7 @@ internal class SettingsUiMapper : UiMapper<SettingsState, SettingsUiModel> {
             isMicroModelFirstEnabled = state.isMicroModelFirstEnabled,
             selectedInferenceMode = state.inferenceMode.toInferenceModeUiModel(),
             isInjectionGuardEnabled = state.isInjectionGuardEnabled,
+            isImportGuardEnabled = state.isImportGuardEnabled,
             isSheetVisible = state.isSheetVisible,
         )
 }

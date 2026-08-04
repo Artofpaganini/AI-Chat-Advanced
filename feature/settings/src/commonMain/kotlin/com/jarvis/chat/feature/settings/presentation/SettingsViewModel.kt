@@ -8,12 +8,14 @@ import com.jarvis.chat.feature.settings.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.settings.domain.model.ThemeModeModel
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiProviderUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveImportGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveInferenceModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveInjectionGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveMicroModelFirstEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveThemeModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveAiProviderUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.SaveImportGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveInferenceModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveInjectionGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.SaveMicroModelFirstEnabledUseCase
@@ -46,6 +48,8 @@ internal class SettingsViewModel(
     private val saveInferenceModeUseCase: SaveInferenceModeUseCase,
     observeInjectionGuardEnabledUseCase: ObserveInjectionGuardEnabledUseCase,
     private val saveInjectionGuardEnabledUseCase: SaveInjectionGuardEnabledUseCase,
+    observeImportGuardEnabledUseCase: ObserveImportGuardEnabledUseCase,
+    private val saveImportGuardEnabledUseCase: SaveImportGuardEnabledUseCase,
     uiMapper: SettingsUiMapper,
 ) : UdfBaseViewModel<SettingsAction, SettingsUiModel, SettingsState, SettingsEvent>(
     initialState = SettingsState(
@@ -55,6 +59,7 @@ internal class SettingsViewModel(
         isMicroModelFirstEnabled = observeMicroModelFirstEnabledUseCase().value,
         inferenceMode = observeInferenceModeUseCase().value,
         isInjectionGuardEnabled = observeInjectionGuardEnabledUseCase().value,
+        isImportGuardEnabled = observeImportGuardEnabledUseCase().value,
     ),
     uiMapper = uiMapper,
 ) {
@@ -84,6 +89,11 @@ internal class SettingsViewModel(
                 onAction(SettingsAction.Internal.InjectionGuardChanged(enabled))
             }
         }
+        viewModelScope.launch {
+            observeImportGuardEnabledUseCase().collect { enabled ->
+                onAction(SettingsAction.Internal.ImportGuardChanged(enabled))
+            }
+        }
     }
 
     override fun onAction(action: SettingsAction) {
@@ -96,12 +106,14 @@ internal class SettingsViewModel(
             is SettingsAction.Ui.MicroModelFirstToggled -> onMicroModelFirstToggled(action.enabled)
             is SettingsAction.Ui.InferenceModeSelected -> onInferenceModeSelected(action.inferenceMode)
             is SettingsAction.Ui.InjectionGuardToggled -> onInjectionGuardToggled(action.enabled)
+            is SettingsAction.Ui.ImportGuardToggled -> onImportGuardToggled(action.enabled)
             is SettingsAction.Internal.ThemeModeChanged -> onThemeModeChanged(action.themeMode)
             is SettingsAction.Internal.AiModelChanged -> onAiModelChanged(action.aiModel)
             is SettingsAction.Internal.AiProviderChanged -> onAiProviderChanged(action.aiProvider)
             is SettingsAction.Internal.MicroModelFirstChanged -> onMicroModelFirstChanged(action.enabled)
             is SettingsAction.Internal.InferenceModeChanged -> onInferenceModeChanged(action.inferenceMode)
             is SettingsAction.Internal.InjectionGuardChanged -> onInjectionGuardChanged(action.enabled)
+            is SettingsAction.Internal.ImportGuardChanged -> onImportGuardChanged(action.enabled)
         }
     }
 
@@ -163,5 +175,13 @@ internal class SettingsViewModel(
 
     private fun onInjectionGuardChanged(enabled: Boolean) {
         updateState { copy(isInjectionGuardEnabled = enabled) }
+    }
+
+    private fun onImportGuardToggled(enabled: Boolean) {
+        saveImportGuardEnabledUseCase(enabled)
+    }
+
+    private fun onImportGuardChanged(enabled: Boolean) {
+        updateState { copy(isImportGuardEnabled = enabled) }
     }
 }

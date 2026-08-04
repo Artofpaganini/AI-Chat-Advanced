@@ -142,7 +142,7 @@ internal class ChatViewModel(
             is ChatAction.Internal.ReplyFailed -> replyDelegate.onReplyFailed(action.sessionId, action.messageId, action.error)
             is ChatAction.Internal.Exported -> exportImportDelegate.onExported(action.filePath)
             is ChatAction.Internal.ExportFailed -> exportImportDelegate.onExportFailed()
-            is ChatAction.Internal.Imported -> exportImportDelegate.onImported(action.messages)
+            is ChatAction.Internal.Imported -> exportImportDelegate.onImported(action.outcome)
             is ChatAction.Internal.ImportFailed -> exportImportDelegate.onImportFailed()
             is ChatAction.Internal.HistoryCleared -> historyDelegate.onHistoryCleared()
             is ChatAction.Internal.ClearHistoryFailed -> historyDelegate.onClearHistoryFailed()

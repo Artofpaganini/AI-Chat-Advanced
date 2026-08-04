@@ -27,6 +27,8 @@ import com.jarvis.chat.feature.chat.domain.mapper.MAX_CONTEXT_MESSAGES
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionModel
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionsModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
+import com.jarvis.chat.feature.chat.domain.model.ImportGuardSettingProvider
+import com.jarvis.chat.feature.chat.domain.model.ImportOutcomeModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
 import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
@@ -788,7 +790,11 @@ class ChatViewModelTest {
             clearChatHistoryUseCase = ClearChatHistoryUseCase(chatRepository),
             deleteMessageUseCase = DeleteMessageUseCase(chatRepository),
             exportChatHistoryUseCase = ExportChatHistoryUseCase(chatRepository),
-            importChatHistoryUseCase = ImportChatHistoryUseCase(chatRepository),
+            importChatHistoryUseCase = ImportChatHistoryUseCase(
+                repository = chatRepository,
+                checkInputGuardUseCase = checkInputGuardUseCase,
+                importGuardSettingProvider = ImportGuardSettingProvider { true },
+            ),
             uiMapper = ChatUiMapper(),
         )
     }
@@ -1008,11 +1014,20 @@ class ChatViewModelTest {
             json: String,
             strategy: ImportStrategy,
             current: List<HistoryMessageModel>,
-        ): List<HistoryMessageModel> {
+            isProtectionEnabled: Boolean,
+            isTextAllowed: (String) -> Boolean,
+        ): ImportOutcomeModel {
             importError?.let { failure -> throw failure }
             lastImportStrategy = strategy
             messagesBySession[sessionId] = importResult
-            return importResult
+            return ImportOutcomeModel(
+                messages = importResult,
+                acceptedCount = importResult.size,
+                droppedCount = 0,
+                truncatedCount = 0,
+                dropReasons = emptyList(),
+                fileRejected = false,
+            )
         }
     }
 }

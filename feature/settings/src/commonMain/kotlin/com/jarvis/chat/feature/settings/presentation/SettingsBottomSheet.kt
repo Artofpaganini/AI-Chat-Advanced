@@ -49,6 +49,9 @@ private const val INFERENCE_MODE_LABEL_MULTI_STAGE = "Три этапа"
 private const val INJECTION_GUARD_TITLE = "Защита от инъекций"
 private const val INJECTION_GUARD_DESCRIPTION =
     "Проверяет вход на закодированные команды и вычищает утечки из ответа"
+private const val IMPORT_GUARD_TITLE = "Защита импорта"
+private const val IMPORT_GUARD_DESCRIPTION =
+    "Проверяет и очищает импортированную историю чата от скрытых инструкций и подделанных ролей"
 
 @Composable
 fun rememberSelectedThemeMode(): ThemeModeUiModel {
@@ -109,8 +112,27 @@ fun SettingsBottomSheet() {
                     isEnabled = uiState.isInjectionGuardEnabled,
                     onToggled = { enabled -> viewModel.onAction(SettingsAction.Ui.InjectionGuardToggled(enabled)) },
                 )
+                Spacer(modifier = Modifier.height(SettingsDimens.spacingMd))
+                ImportGuardOption(
+                    isEnabled = uiState.isImportGuardEnabled,
+                    onToggled = { enabled -> viewModel.onAction(SettingsAction.Ui.ImportGuardToggled(enabled)) },
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun ImportGuardOption(isEnabled: Boolean, onToggled: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = IMPORT_GUARD_TITLE, style = MaterialTheme.typography.titleMedium)
+            Text(text = IMPORT_GUARD_DESCRIPTION, style = MaterialTheme.typography.bodySmall)
+        }
+        Switch(checked = isEnabled, onCheckedChange = onToggled)
     }
 }
 

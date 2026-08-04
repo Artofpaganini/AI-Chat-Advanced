@@ -1,9 +1,15 @@
 package com.jarvis.chat.feature.chat.domain.usecase
 
+import com.jarvis.chat.feature.ai.domain.model.InjectionGuardSettingProvider
+import com.jarvis.chat.feature.ai.domain.model.InputGuardResultModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
+import com.jarvis.chat.feature.ai.domain.repository.InputGuardRepository
+import com.jarvis.chat.feature.ai.domain.usecase.CheckInputGuardUseCase
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionModel
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionsModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
+import com.jarvis.chat.feature.chat.domain.model.ImportGuardSettingProvider
+import com.jarvis.chat.feature.chat.domain.model.ImportOutcomeModel
 import com.jarvis.chat.feature.chat.domain.model.ImportStrategy
 import com.jarvis.chat.feature.chat.domain.repository.ChatHistoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,19 +76,29 @@ class ChatHistoryUseCasesTest {
         val merged = listOf(message(id = "m1"), message(id = "m2"))
         val repository = FakeChatHistoryRepository(importResult = merged)
 
-        val result = ImportChatHistoryUseCase(repository)
+        val result = importChatHistoryUseCase(repository)
             .invoke(sessionId = TEST_SESSION_ID, json = "{}", strategy = ImportStrategy.MERGE, current = emptyList())
 
-        assertEquals(merged, result.getOrNull())
+        assertEquals(merged, result.getOrNull()?.messages)
         assertEquals(ImportStrategy.MERGE, repository.lastImportStrategy)
         assertEquals(TEST_SESSION_ID, repository.lastImportSessionId)
+    }
+
+    @Test
+    fun import_forwardsProtectionToggleFromSettingProvider() = runTest {
+        val repository = FakeChatHistoryRepository()
+
+        importChatHistoryUseCase(repository, isImportGuardEnabled = false)
+            .invoke(sessionId = TEST_SESSION_ID, json = "{}", strategy = ImportStrategy.MERGE, current = emptyList())
+
+        assertEquals(false, repository.lastImportProtectionEnabled)
     }
 
     @Test
     fun import_onRepositoryFailure_returnsFailure() = runTest {
         val repository = FakeChatHistoryRepository(shouldFail = true)
 
-        val result = ImportChatHistoryUseCase(repository)
+        val result = importChatHistoryUseCase(repository)
             .invoke(sessionId = TEST_SESSION_ID, json = "broken", strategy = ImportStrategy.REPLACE, current = emptyList())
 
         assertTrue(result.isFailure)
@@ -177,6 +193,24 @@ class ChatHistoryUseCasesTest {
             isFavorite = false,
             timestamp = TEST_TIMESTAMP,
         )
+
+    private fun importChatHistoryUseCase(
+        repository: ChatHistoryRepository,
+        isImportGuardEnabled: Boolean = true,
+    ): ImportChatHistoryUseCase =
+        ImportChatHistoryUseCase(
+            repository = repository,
+            checkInputGuardUseCase = CheckInputGuardUseCase(
+                repository = FakeInputGuardRepository(),
+                injectionGuardSettingProvider = InjectionGuardSettingProvider { true },
+            ),
+            importGuardSettingProvider = ImportGuardSettingProvider { isImportGuardEnabled },
+        )
+
+    private class FakeInputGuardRepository : InputGuardRepository {
+
+        override fun checkInput(rawText: String): InputGuardResultModel = InputGuardResultModel.Allowed
+    }
 }
 
 private const val TEST_TIMESTAMP = 1_700_000_000_000L
@@ -195,6 +229,8 @@ private class FakeChatHistoryRepository(
     var lastImportStrategy: ImportStrategy? = null
         private set
     var lastImportSessionId: String? = null
+        private set
+    var lastImportProtectionEnabled: Boolean? = null
         private set
     var lastSwitchedSessionId: String? = null
         private set
@@ -253,12 +289,22 @@ private class FakeChatHistoryRepository(
         json: String,
         strategy: ImportStrategy,
         current: List<HistoryMessageModel>,
-    ): List<HistoryMessageModel> {
+        isProtectionEnabled: Boolean,
+        isTextAllowed: (String) -> Boolean,
+    ): ImportOutcomeModel {
         failIfRequested()
         lastImportStrategy = strategy
         lastImportSessionId = sessionId
+        lastImportProtectionEnabled = isProtectionEnabled
         messagesBySession[sessionId] = importResult
-        return importResult
+        return ImportOutcomeModel(
+            messages = importResult,
+            acceptedCount = importResult.size,
+            droppedCount = 0,
+            truncatedCount = 0,
+            dropReasons = emptyList(),
+            fileRejected = false,
+        )
     }
 
     private fun failIfRequested() {

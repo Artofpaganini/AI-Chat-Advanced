@@ -16,4 +16,5 @@ internal data class HistoryMessageModel(
     val multiStage: MultiStageResultModel? = null,
     val inputGuardBlocked: Boolean = false,
     val outputGuardReasons: List<String> = emptyList(),
+    val isImportedUnverifiedAssistant: Boolean = false,
 )

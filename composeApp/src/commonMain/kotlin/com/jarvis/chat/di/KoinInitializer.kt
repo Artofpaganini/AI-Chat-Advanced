@@ -12,6 +12,7 @@ import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel as AiInference
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
 import com.jarvis.chat.feature.ai.domain.model.InjectionGuardSettingProvider
 import com.jarvis.chat.feature.chat.di.chatModule
+import com.jarvis.chat.feature.chat.domain.model.ImportGuardSettingProvider
 import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
 import com.jarvis.chat.feature.settings.di.settingsModule
 import com.jarvis.chat.feature.settings.domain.model.AiModelModel
@@ -19,6 +20,7 @@ import com.jarvis.chat.feature.settings.domain.model.AiProviderModel
 import com.jarvis.chat.feature.settings.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiModelUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveAiProviderUseCase
+import com.jarvis.chat.feature.settings.domain.usecase.ObserveImportGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveInferenceModeUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveInjectionGuardEnabledUseCase
 import com.jarvis.chat.feature.settings.domain.usecase.ObserveMicroModelFirstEnabledUseCase
@@ -88,6 +90,10 @@ fun initKoin(appConfig: AppConfig) {
                 single<InjectionGuardSettingProvider> {
                     val observeInjectionGuardEnabledUseCase: ObserveInjectionGuardEnabledUseCase = get()
                     InjectionGuardSettingProvider { observeInjectionGuardEnabledUseCase().value }
+                }
+                single<ImportGuardSettingProvider> {
+                    val observeImportGuardEnabledUseCase: ObserveImportGuardEnabledUseCase = get()
+                    ImportGuardSettingProvider { observeImportGuardEnabledUseCase().value }
                 }
             },
             chatModule(storageDirectoryPath = appConfig.filesDirectoryPath),

@@ -6,7 +6,7 @@ import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
 
 private const val AUTHOR_ASSISTANT = "ASSISTANT"
 
-internal fun ChatMessageDataModel.toHistoryMessageModel(): HistoryMessageModel =
+internal fun ChatMessageDataModel.toHistoryMessageModel(isImported: Boolean = false): HistoryMessageModel =
     HistoryMessageModel(
         id = id,
         author = if (author == AUTHOR_ASSISTANT) MessageAuthor.ASSISTANT else MessageAuthor.USER,
@@ -15,4 +15,5 @@ internal fun ChatMessageDataModel.toHistoryMessageModel(): HistoryMessageModel =
         timestamp = timestamp,
         modelId = modelId,
         triage = triage?.toTriageModel(),
+        isImportedUnverifiedAssistant = author == AUTHOR_ASSISTANT && (isImported || isImportedUnverifiedAssistant),
     )

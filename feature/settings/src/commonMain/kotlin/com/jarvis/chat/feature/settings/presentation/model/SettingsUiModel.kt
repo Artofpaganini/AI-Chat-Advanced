@@ -7,5 +7,6 @@ internal data class SettingsUiModel(
     val isMicroModelFirstEnabled: Boolean,
     val selectedInferenceMode: InferenceModeUiModel,
     val isInjectionGuardEnabled: Boolean,
+    val isImportGuardEnabled: Boolean,
     val isSheetVisible: Boolean,
 )

@@ -12,5 +12,6 @@ internal data class SettingsState(
     val isMicroModelFirstEnabled: Boolean = true,
     val inferenceMode: InferenceModeModel = InferenceModeModel.ONE_SHOT,
     val isInjectionGuardEnabled: Boolean = true,
+    val isImportGuardEnabled: Boolean = true,
     val isSheetVisible: Boolean = false,
 )

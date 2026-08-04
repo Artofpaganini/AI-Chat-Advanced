@@ -4,6 +4,7 @@ import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.chat.domain.model.HistoryMessageModel
+import com.jarvis.chat.feature.chat.domain.model.ImportOutcomeModel
 import com.jarvis.chat.feature.chat.domain.model.RouteDecisionModel
 
 internal sealed interface ChatAction {
@@ -73,7 +74,7 @@ internal sealed interface ChatAction {
 
         data object ExportFailed : Internal
 
-        data class Imported(val messages: List<HistoryMessageModel>) : Internal
+        data class Imported(val outcome: ImportOutcomeModel) : Internal
 
         data object ImportFailed : Internal
 
