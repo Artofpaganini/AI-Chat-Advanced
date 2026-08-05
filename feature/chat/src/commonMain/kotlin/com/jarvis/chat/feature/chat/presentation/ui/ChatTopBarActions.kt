@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.chat.presentation.ui
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FactCheck
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
@@ -18,6 +19,7 @@ private const val EXPORT_CONTENT_DESCRIPTION = "Export chat history"
 private const val IMPORT_CONTENT_DESCRIPTION = "Import chat history"
 private const val CLEAR_HISTORY_CONTENT_DESCRIPTION = "Clear chat history"
 private const val SETTINGS_CONTENT_DESCRIPTION = "Open settings"
+private const val GATEWAY_AUDIT_CONTENT_DESCRIPTION = "Open gateway audit log"
 
 @Composable
 internal fun ChatTopBarActions(
@@ -28,6 +30,7 @@ internal fun ChatTopBarActions(
     onImportClick: () -> Unit,
     onClearHistoryClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onGatewayAuditClick: () -> Unit,
 ) {
     IconButton(onClick = onSessionsClick) {
         Icon(
@@ -62,6 +65,12 @@ internal fun ChatTopBarActions(
         Icon(
             imageVector = Icons.Filled.Delete,
             contentDescription = CLEAR_HISTORY_CONTENT_DESCRIPTION,
+        )
+    }
+    IconButton(onClick = onGatewayAuditClick) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.FactCheck,
+            contentDescription = GATEWAY_AUDIT_CONTENT_DESCRIPTION,
         )
     }
     IconButton(onClick = onSettingsClick) {

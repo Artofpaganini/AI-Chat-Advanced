@@ -1,5 +1,7 @@
 package com.jarvis.chat.feature.chat.domain.model
 
+import com.jarvis.chat.feature.ai.domain.model.GatewayOutputTruncationModel
+import com.jarvis.chat.feature.ai.domain.model.GatewaySignalModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
@@ -17,4 +19,6 @@ internal data class HistoryMessageModel(
     val inputGuardBlocked: Boolean = false,
     val outputGuardReasons: List<String> = emptyList(),
     val isImportedUnverifiedAssistant: Boolean = false,
+    val gatewaySignal: GatewaySignalModel? = null,
+    val gatewayOutputTruncation: GatewayOutputTruncationModel? = null,
 )

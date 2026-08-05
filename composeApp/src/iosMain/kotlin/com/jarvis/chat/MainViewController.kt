@@ -2,6 +2,7 @@ package com.jarvis.chat
 
 import androidx.compose.ui.window.ComposeUIViewController
 import com.jarvis.chat.di.initKoin
+import com.jarvis.chat.feature.ai.di.DeepSeekDefaults
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
@@ -16,6 +17,7 @@ fun mainViewController(): UIViewController {
             deepSeekApiKey = "",
             deepSeekBaseUrl = DEEPSEEK_BASE_URL,
             filesDirectoryPath = resolveDocumentsDirectoryPath(),
+            gatewayBaseUrl = DeepSeekDefaults.GATEWAY_BASE_URL,
         ),
     )
     return ComposeUIViewController { App() }

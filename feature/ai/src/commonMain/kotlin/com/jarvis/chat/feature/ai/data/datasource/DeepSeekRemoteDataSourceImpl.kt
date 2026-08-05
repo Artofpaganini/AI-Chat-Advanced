@@ -1,9 +1,11 @@
 package com.jarvis.chat.feature.ai.data.datasource
 
+import com.jarvis.chat.feature.ai.data.mapper.toGatewaySignalResponseModelOrNull
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionRequestModel
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatMessageRequestModel
 import com.jarvis.chat.feature.ai.data.model.ChatStreamChunkDataModel
+import com.jarvis.chat.feature.ai.data.model.GatewaySignalResponseModel
 import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigModel
 import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
@@ -25,6 +27,7 @@ import io.ktor.http.contentType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
 private const val COMPLETIONS_PATH = "chat/completions"
@@ -71,7 +74,9 @@ internal class DeepSeekRemoteDataSourceImpl(
             setBody(requestBody)
             timeout { socketTimeoutMillis = STREAM_SOCKET_TIMEOUT_INFINITE_MILLIS }
         }.execute { response ->
-            emitAll(completionStreamChunkFlow(channel = response.bodyAsChannel(), json = json))
+            val gatewaySignal = response.headers.toGatewaySignalResponseModelOrNull()
+            val chunkFlow = completionStreamChunkFlow(channel = response.bodyAsChannel(), json = json)
+            emitAll(chunkFlow.attachGatewaySignal(gatewaySignal))
         }
     }
 
@@ -96,6 +101,15 @@ internal class DeepSeekRemoteDataSourceImpl(
             setBody(requestBody)
         }.body()
     }
+
+    private fun Flow<ChatStreamChunkDataModel>.attachGatewaySignal(
+        gatewaySignal: GatewaySignalResponseModel?,
+    ): Flow<ChatStreamChunkDataModel> =
+        if (gatewaySignal == null) {
+            this
+        } else {
+            map { chunk -> chunk.copy(gatewaySignal = gatewaySignal) }
+        }
 
     private fun HttpRequestBuilder.applyAuthHeader(providerConfig: AiProviderConfigModel) {
         if (providerConfig.isApiKeyRequired) {

@@ -2,18 +2,24 @@ package com.jarvis.chat.feature.ai.di
 
 import com.jarvis.chat.feature.ai.data.datasource.DeepSeekRemoteDataSource
 import com.jarvis.chat.feature.ai.data.datasource.DeepSeekRemoteDataSourceImpl
+import com.jarvis.chat.feature.ai.data.datasource.GatewayRemoteDataSource
+import com.jarvis.chat.feature.ai.data.datasource.GatewayRemoteDataSourceImpl
 import com.jarvis.chat.feature.ai.data.repository.AiRepositoryImpl
+import com.jarvis.chat.feature.ai.data.repository.GatewayRepositoryImpl
 import com.jarvis.chat.feature.ai.data.repository.InputGuardRepositoryImpl
 import com.jarvis.chat.feature.ai.data.repository.MultiStageAiRepositoryImpl
 import com.jarvis.chat.feature.ai.data.repository.OutputGuardRepositoryImpl
 import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekPromptConfigModel
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
+import com.jarvis.chat.feature.ai.domain.repository.GatewayRepository
 import com.jarvis.chat.feature.ai.domain.repository.InputGuardRepository
 import com.jarvis.chat.feature.ai.domain.repository.MultiStageAiRepository
 import com.jarvis.chat.feature.ai.domain.repository.OutputGuardRepository
 import com.jarvis.chat.feature.ai.domain.usecase.CheckInputGuardUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.CheckOutputGuardUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.GetGatewayAuditUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.GetGatewayStatsUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
@@ -45,7 +51,9 @@ val aiModule: Module = module {
         DeepSeekPromptConfigModel(systemPrompt = providerConfigProvider.currentConfig().systemPrompt)
     }
     singleOf(::DeepSeekRemoteDataSourceImpl) bind DeepSeekRemoteDataSource::class
+    singleOf(::GatewayRemoteDataSourceImpl) bind GatewayRemoteDataSource::class
     singleOf(::AiRepositoryImpl) bind AiRepository::class
+    singleOf(::GatewayRepositoryImpl) bind GatewayRepository::class
     singleOf(::MultiStageAiRepositoryImpl) bind MultiStageAiRepository::class
     singleOf(::InputGuardRepositoryImpl) bind InputGuardRepository::class
     singleOf(::OutputGuardRepositoryImpl) bind OutputGuardRepository::class
@@ -54,6 +62,8 @@ val aiModule: Module = module {
     factoryOf(::SendMultiStageMessageUseCase)
     factoryOf(::CheckInputGuardUseCase)
     factoryOf(::CheckOutputGuardUseCase)
+    factoryOf(::GetGatewayAuditUseCase)
+    factoryOf(::GetGatewayStatsUseCase)
 }
 
 private const val DEEP_SEEK_REQUEST_TIMEOUT_MILLIS = 90_000L
@@ -85,7 +95,7 @@ private fun provideDeepSeekHttpClient(json: Json): HttpClient {
                     Napier.d(tag = DEEP_SEEK_HTTP_LOG_TAG) { message }
                 }
             }
-            level = LogLevel.ALL
+            level = LogLevel.HEADERS
             sanitizeHeader { header -> header == HttpHeaders.Authorization }
         }
         defaultRequest {

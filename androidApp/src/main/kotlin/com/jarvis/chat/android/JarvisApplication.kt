@@ -13,6 +13,8 @@ class JarvisApplication : Application() {
             deepSeekBaseUrl = DEEPSEEK_BASE_URL,
             filesDirectoryPath = filesDir.absolutePath,
             localModelBaseUrl = BuildConfig.LOCAL_MODEL_BASE_URL,
+            triageBaseUrl = BuildConfig.TRIAGE_BASE_URL,
+            gatewayBaseUrl = BuildConfig.GATEWAY_BASE_URL,
         )
         initKoin(appConfig)
     }

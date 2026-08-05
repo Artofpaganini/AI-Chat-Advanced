@@ -49,8 +49,18 @@ private const val SPEECH_PLAYBACK_FAILED_MESSAGE = "Speech playback failed."
 private const val SCROLL_TO_BOTTOM_TARGET_INDEX = Int.MAX_VALUE
 
 @Composable
-fun ChatScreen(onSettingsClick: () -> Unit, onSessionsClick: () -> Unit, modifier: Modifier = Modifier) {
-    ChatContent(onSettingsClick = onSettingsClick, onSessionsClick = onSessionsClick, modifier = modifier)
+fun ChatScreen(
+    onSettingsClick: () -> Unit,
+    onSessionsClick: () -> Unit,
+    onGatewayAuditClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ChatContent(
+        onSettingsClick = onSettingsClick,
+        onSessionsClick = onSessionsClick,
+        onGatewayAuditClick = onGatewayAuditClick,
+        modifier = modifier,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +68,7 @@ fun ChatScreen(onSettingsClick: () -> Unit, onSessionsClick: () -> Unit, modifie
 internal fun ChatContent(
     onSettingsClick: () -> Unit,
     onSessionsClick: () -> Unit,
+    onGatewayAuditClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ChatViewModel = koinViewModel(),
 ) {
@@ -145,15 +156,7 @@ internal fun ChatContent(
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
-                        Text(text = TITLE)
-                        uiState.microModelSessionSummary?.let { summary ->
-                            Text(text = summary, style = MaterialTheme.typography.labelSmall)
-                        }
-                        uiState.injectionGuardSessionSummary?.let { summary ->
-                            Text(text = summary, style = MaterialTheme.typography.labelSmall)
-                        }
-                    }
+                    Text(text = TITLE)
                 },
                 actions = {
                     ChatTopBarActions(
@@ -164,6 +167,7 @@ internal fun ChatContent(
                         onImportClick = importJsonFile,
                         onClearHistoryClick = { viewModel.onAction(ChatAction.Ui.ClearHistoryClicked) },
                         onSettingsClick = onSettingsClick,
+                        onGatewayAuditClick = onGatewayAuditClick,
                     )
                 },
             )

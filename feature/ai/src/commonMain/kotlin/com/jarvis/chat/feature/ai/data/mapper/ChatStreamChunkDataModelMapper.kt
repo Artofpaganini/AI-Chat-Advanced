@@ -8,4 +8,6 @@ internal fun ChatStreamChunkDataModel.toChatStreamChunkModel(): ChatStreamChunkM
         text = text,
         modelId = modelId,
         triage = triage?.toTriageModel(),
+        gatewaySignal = gatewaySignal?.toGatewaySignalModel(),
+        outputTruncation = outputTruncation?.toGatewayOutputTruncationModel(),
     )

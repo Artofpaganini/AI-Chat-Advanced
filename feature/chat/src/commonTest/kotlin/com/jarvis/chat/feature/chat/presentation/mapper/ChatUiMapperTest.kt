@@ -437,7 +437,7 @@ private val ALL_AI_ERROR_VARIANTS = listOf(
     AiErrorModel.Timeout,
     AiErrorModel.Unauthorized,
     AiErrorModel.BadRequest(message = TEST_BAD_REQUEST_MESSAGE),
-    AiErrorModel.RateLimited,
+    AiErrorModel.RateLimited(retryAfterSeconds = null),
     AiErrorModel.ServerError(code = TEST_SERVER_ERROR_CODE),
     AiErrorModel.Unknown,
 )

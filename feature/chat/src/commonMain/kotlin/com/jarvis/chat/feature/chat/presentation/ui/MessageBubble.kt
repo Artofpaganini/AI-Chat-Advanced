@@ -119,6 +119,12 @@ internal fun MessageBubble(
                 if (message.isImportedUnverifiedAssistant) {
                     ImportedUnverifiedAssistantBanner(modifier = Modifier.padding(bottom = ChatDimens.spacingXs))
                 }
+                if (message.gatewaySignal?.isBannerVisible == true) {
+                    GatewayVerdictBanner(
+                        text = message.gatewaySignal.bannerText,
+                        modifier = Modifier.padding(bottom = ChatDimens.spacingXs),
+                    )
+                }
                 MarkdownText(
                     text = message.text,
                     style = MaterialTheme.typography.bodyLarge,
@@ -156,6 +162,25 @@ internal fun MessageBubble(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold,
+                    )
+                }
+                message.gatewaySignal?.let { gatewaySignal ->
+                    gatewaySignal.shortVerdictLabel?.let { shortVerdictLabel ->
+                        Text(
+                            text = shortVerdictLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (gatewaySignal.isShortVerdictWarning) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.tertiary
+                            },
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Text(
+                        text = gatewaySignal.costTokensLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 message.triage?.let { triage ->
@@ -278,6 +303,24 @@ private fun ImportedUnverifiedAssistantBanner(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = IMPORTED_UNVERIFIED_ASSISTANT_WARNING,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(ChatDimens.spacingXs),
+        )
+    }
+}
+
+@Composable
+private fun GatewayVerdictBanner(text: String, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        shape = MaterialTheme.shapes.small,
+    ) {
+        Text(
+            text = text,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onErrorContainer,
             fontWeight = FontWeight.Bold,

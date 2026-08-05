@@ -4,4 +4,5 @@ enum class AiProviderUiModel {
     DEEP_SEEK_CLOUD,
     LOCAL_MLX,
     LOCAL_TRIAGE,
+    GATEWAY,
 }

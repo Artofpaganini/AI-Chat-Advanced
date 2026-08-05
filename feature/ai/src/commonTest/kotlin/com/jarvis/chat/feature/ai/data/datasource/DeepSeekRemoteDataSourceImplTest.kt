@@ -13,6 +13,7 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.HttpRequestData
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
@@ -291,6 +292,64 @@ class DeepSeekRemoteDataSourceImplTest {
     }
 
     @Test
+    fun requestCompletionStream_onMaskedGatewayHeaders_carriesVerdictAndReasonsThrough() = runTest {
+        val sseBody = buildString {
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"Hi\"}}]}\n\n")
+            append("data: [DONE]\n\n")
+        }
+        val gatewayHeaders = headersOf(
+            "X-Gateway-Verdict" to listOf("masked"),
+            "X-Gateway-Reasons" to listOf("card,email,secret_in_history"),
+            "X-Gateway-Masked-Count" to listOf("2"),
+            "X-Gateway-Tokens-In" to listOf("1375"),
+            "X-Gateway-Tokens-Out" to listOf("462"),
+            "X-Gateway-Cost-Usd" to listOf("0.000322"),
+        )
+        val dataSource = dataSourceReturning(body = sseBody, gatewayHeaders = gatewayHeaders)
+
+        val chunk = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList().last()
+
+        assertEquals("masked", chunk.gatewaySignal?.verdict)
+        assertEquals(listOf("card", "email", "secret_in_history"), chunk.gatewaySignal?.reasons)
+        assertEquals(2, chunk.gatewaySignal?.maskedCount)
+        assertEquals(1375, chunk.gatewaySignal?.tokensIn)
+        assertEquals(462, chunk.gatewaySignal?.tokensOut)
+        assertEquals(0.000322, chunk.gatewaySignal?.costUsd)
+    }
+
+    @Test
+    fun requestCompletionStream_onBlockedInputGatewayHeaders_carriesVerdictThrough() = runTest {
+        val sseBody = buildString {
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"blocked\"}}]}\n\n")
+            append("data: [DONE]\n\n")
+        }
+        val gatewayHeaders = headersOf(
+            "X-Gateway-Verdict" to listOf("blocked_input"),
+            "X-Gateway-Reasons" to listOf("aws_access_key"),
+        )
+        val dataSource = dataSourceReturning(body = sseBody, gatewayHeaders = gatewayHeaders)
+
+        val chunk = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList().last()
+
+        assertEquals("blocked_input", chunk.gatewaySignal?.verdict)
+        assertEquals(listOf("aws_access_key"), chunk.gatewaySignal?.reasons)
+    }
+
+    @Test
+    fun requestCompletionStream_onRateLimitedGatewayHeaders_carriesVerdictThrough() = runTest {
+        val sseBody = buildString {
+            append("data: {\"choices\":[{\"delta\":{\"content\":\"slow down\"}}]}\n\n")
+            append("data: [DONE]\n\n")
+        }
+        val gatewayHeaders = headersOf("X-Gateway-Verdict" to listOf("rate_limited"))
+        val dataSource = dataSourceReturning(body = sseBody, gatewayHeaders = gatewayHeaders)
+
+        val chunk = dataSource.requestCompletionStream(listOf(userMessage("hello"))).toList().last()
+
+        assertEquals("rate_limited", chunk.gatewaySignal?.verdict)
+    }
+
+    @Test
     fun requestCompletionStream_on4xxError_throwsClientRequestException() = runTest {
         val client = HttpClient(
             MockEngine { respondError(HttpStatusCode.Unauthorized) },
@@ -328,6 +387,7 @@ class DeepSeekRemoteDataSourceImplTest {
         promptConfig: DeepSeekPromptConfigModel = testPromptConfig,
         modelProvider: DeepSeekModelProvider = testModelProvider,
         providerConfigProvider: AiProviderConfigProvider? = null,
+        gatewayHeaders: Headers = Headers.Empty,
     ): DeepSeekRemoteDataSourceImpl {
         val client = HttpClient(
             MockEngine { request ->
@@ -335,7 +395,10 @@ class DeepSeekRemoteDataSourceImplTest {
                 respond(
                     content = body,
                     status = HttpStatusCode.OK,
-                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                    headers = Headers.build {
+                        append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                        appendAll(gatewayHeaders)
+                    },
                 )
             },
         ) {

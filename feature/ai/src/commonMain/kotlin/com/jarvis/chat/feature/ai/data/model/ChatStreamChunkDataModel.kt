@@ -4,4 +4,6 @@ internal data class ChatStreamChunkDataModel(
     val text: String,
     val modelId: String? = null,
     val triage: TriageResponseModel? = null,
+    val gatewaySignal: GatewaySignalResponseModel? = null,
+    val outputTruncation: GatewayOutputTruncationResponseModel? = null,
 )

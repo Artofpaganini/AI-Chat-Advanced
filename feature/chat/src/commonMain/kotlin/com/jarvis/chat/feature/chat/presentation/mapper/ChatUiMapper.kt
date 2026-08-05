@@ -58,7 +58,9 @@ private const val ERROR_MESSAGE_LOCAL_PROVIDER_UNREACHABLE_SUFFIX =
     ". Start the local server, or switch to DeepSeek Cloud in Settings."
 private const val ERROR_MESSAGE_TIMEOUT = "The request timed out. Please try again."
 private const val ERROR_MESSAGE_UNAUTHORIZED = "Authorization failed. Check your API key in settings."
-private const val ERROR_MESSAGE_RATE_LIMITED = "Too many requests. Please wait a moment and try again."
+private const val ERROR_MESSAGE_RATE_LIMITED_FALLBACK = "Too many requests. Please wait a moment and try again."
+private const val ERROR_MESSAGE_RATE_LIMITED_PREFIX = "Too many requests. Please wait "
+private const val ERROR_MESSAGE_RATE_LIMITED_SUFFIX = " seconds and try again."
 private const val ERROR_MESSAGE_SERVER_ERROR_PREFIX = "Server error ("
 private const val ERROR_MESSAGE_SERVER_ERROR_SUFFIX = "). Please try again later."
 private const val ERROR_MESSAGE_UNKNOWN = "Something went wrong. Please try again."
@@ -149,6 +151,7 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             inputGuardBadgeText = inputGuardBadgeTextOrNull(inputGuardBlocked),
             outputGuardBadgeText = outputGuardReasons.toOutputGuardBadgeTextOrNull(),
             isImportedUnverifiedAssistant = isImportedUnverifiedAssistant,
+            gatewaySignal = gatewaySignal?.toGatewaySignalUiModel(outputTruncation = gatewayOutputTruncation),
         )
     }
 }
@@ -233,7 +236,9 @@ private fun AiErrorModel.toErrorMessage(): String = when (this) {
     AiErrorModel.Timeout -> ERROR_MESSAGE_TIMEOUT
     AiErrorModel.Unauthorized -> ERROR_MESSAGE_UNAUTHORIZED
     is AiErrorModel.BadRequest -> message
-    AiErrorModel.RateLimited -> ERROR_MESSAGE_RATE_LIMITED
+    is AiErrorModel.RateLimited -> retryAfterSeconds?.let { seconds ->
+        "$ERROR_MESSAGE_RATE_LIMITED_PREFIX$seconds$ERROR_MESSAGE_RATE_LIMITED_SUFFIX"
+    } ?: ERROR_MESSAGE_RATE_LIMITED_FALLBACK
     is AiErrorModel.ServerError -> "$ERROR_MESSAGE_SERVER_ERROR_PREFIX$code$ERROR_MESSAGE_SERVER_ERROR_SUFFIX"
     AiErrorModel.Unknown -> ERROR_MESSAGE_UNKNOWN
 }

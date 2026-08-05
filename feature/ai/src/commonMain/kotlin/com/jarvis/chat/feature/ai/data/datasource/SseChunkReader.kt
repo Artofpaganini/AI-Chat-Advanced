@@ -3,6 +3,7 @@ package com.jarvis.chat.feature.ai.data.datasource
 import com.jarvis.chat.feature.ai.data.mapper.toChatStreamChunkDataModelOrNull
 import com.jarvis.chat.feature.ai.data.model.ChatCompletionChunkResponseModel
 import com.jarvis.chat.feature.ai.data.model.ChatStreamChunkDataModel
+import com.jarvis.chat.feature.ai.data.model.GatewayOutputTruncationResponseModel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readLine
 import kotlinx.coroutines.flow.Flow
@@ -46,9 +47,14 @@ private suspend fun FlowCollector<ChatStreamChunkDataModel>.emitSseLine(line: St
     when (val event = parseSseLine(line)) {
         SseEvent.Done -> true
         is SseEvent.Data -> {
-            event.payload.decodeChunkOrNull(json)
-                ?.toChatStreamChunkDataModelOrNull()
-                ?.let { chunk -> emit(chunk) }
+            val truncation = event.payload.decodeOutputTruncationOrNull(json)
+            if (truncation != null) {
+                emit(ChatStreamChunkDataModel(text = "", outputTruncation = truncation))
+            } else {
+                event.payload.decodeChunkOrNull(json)
+                    ?.toChatStreamChunkDataModelOrNull()
+                    ?.let { chunk -> emit(chunk) }
+            }
             false
         }
         null -> false
@@ -58,6 +64,15 @@ private suspend fun FlowCollector<ChatStreamChunkDataModel>.emitSseLine(line: St
 private fun String.decodeChunkOrNull(json: Json): ChatCompletionChunkResponseModel? =
     try {
         json.decodeFromString(ChatCompletionChunkResponseModel.serializer(), this)
+    } catch (malformed: SerializationException) {
+        null
+    }
+
+@Suppress("SwallowedException")
+private fun String.decodeOutputTruncationOrNull(json: Json): GatewayOutputTruncationResponseModel? =
+    try {
+        val candidate = json.decodeFromString(GatewayOutputTruncationResponseModel.serializer(), this)
+        candidate.takeIf { model -> model.verdict.isNotEmpty() }
     } catch (malformed: SerializationException) {
         null
     }

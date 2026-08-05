@@ -8,6 +8,7 @@ import com.jarvis.chat.feature.ai.domain.model.AiProviderTypeModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelIdModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelProvider
+import com.jarvis.chat.feature.ai.domain.model.GatewayConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel as AiInferenceModeModel
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
 import com.jarvis.chat.feature.ai.domain.model.InjectionGuardSettingProvider
@@ -27,6 +28,8 @@ import com.jarvis.chat.feature.settings.domain.usecase.ObserveMicroModelFirstEna
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
+
+private const val GATEWAY_API_VERSION_PATH_SEGMENT = "v1/"
 
 fun initKoin(appConfig: AppConfig) {
     if (KoinPlatform.getKoinOrNull() != null) {
@@ -72,8 +75,21 @@ fun initKoin(appConfig: AppConfig) {
                                 temperature = null,
                                 repetitionPenalty = null,
                             )
+                            AiProviderTypeModel.GATEWAY -> AiProviderConfigModel(
+                                baseUrl = appConfig.gatewayBaseUrl,
+                                modelId = observeAiModelUseCase().value.toDeepSeekModelId(),
+                                systemPrompt = DeepSeekDefaults.LOCAL_SYSTEM_PROMPT,
+                                isApiKeyRequired = false,
+                                adapterPath = null,
+                                maxTokens = null,
+                                temperature = null,
+                                repetitionPenalty = null,
+                            )
                         }
                     }
+                }
+                single<GatewayConfigProvider> {
+                    GatewayConfigProvider { appConfig.gatewayBaseUrl.removeSuffix(GATEWAY_API_VERSION_PATH_SEGMENT) }
                 }
                 single<DeepSeekModelProvider> {
                     val providerConfigProvider: AiProviderConfigProvider = get()
@@ -113,6 +129,7 @@ private fun AiProviderModel.toAiProviderType(): AiProviderTypeModel =
         AiProviderModel.DEEP_SEEK_CLOUD -> AiProviderTypeModel.CLOUD_DEEP_SEEK
         AiProviderModel.LOCAL_MLX -> AiProviderTypeModel.LOCAL_MLX
         AiProviderModel.LOCAL_TRIAGE -> AiProviderTypeModel.LOCAL_TRIAGE
+        AiProviderModel.GATEWAY -> AiProviderTypeModel.GATEWAY
     }
 
 private fun InferenceModeModel.toAiInferenceModeModel(): AiInferenceModeModel =

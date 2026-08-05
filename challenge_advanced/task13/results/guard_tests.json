@@ -1,0 +1,1118 @@
+{
+  "schema": "dev",
+  "cases_path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task13/data/cases.jsonl.b64",
+  "total_cases": 84,
+  "counts": {
+    "caught": 84,
+    "missed": 0,
+    "false_positive": 0,
+    "caught_wrong_reasons": 0
+  },
+  "gates": {
+    "min_case_count": true,
+    "no_false_positive_on_clean": true,
+    "gateway_text_not_self_triggering": true,
+    "verdict_matches_expectation": true
+  },
+  "gate_passed": true,
+  "records": [
+    {
+      "id": "inp_aws_access_key",
+      "kind": "input",
+      "note": "AKIA + 16 знаков - канонический пример-заглушка из документации AWS, не настоящий ключ. Блок по контракту.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "aws_access_key"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "aws_access_key"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_aws_secret_key",
+      "kind": "input",
+      "note": "40 знаков base64-алфавита рядом со словом 'секретный' (рус. форма слова secret). Блок по контракту.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "aws_secret_key"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "aws_secret_key"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_openai_key",
+      "kind": "input",
+      "note": "sk-proj- формат OpenAI, синтетический suffix. Маска, не блок - ключ можно вырезать и продолжить разговор.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_openai"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_openai"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_anthropic_key",
+      "kind": "input",
+      "note": "sk-ant- отделён от обычного sk- собственным детектором, синтетический ключ.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_anthropic"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_anthropic"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_github_token",
+      "kind": "input",
+      "note": "ghp_ префикс токена GitHub, синтетический.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "github_token"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "github_token"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_generic_bearer",
+      "kind": "input",
+      "note": "Bearer-токен без узнаваемого префикса конкретного провайдера.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "generic_bearer"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "generic_bearer"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_private_key_pem",
+      "kind": "input",
+      "note": "Синтетическое тело ключа между настоящими PEM-маркерами. Блок - маскировать бессмысленно.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "private_key_pem"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "private_key_pem"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_card_valid_luhn",
+      "kind": "input",
+      "note": "Индустриальный тестовый номер Visa, проходит проверку Луна. Маска.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "card"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "card"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_card_invalid_luhn",
+      "kind": "input",
+      "note": "Тот же номер с испорченной последней цифрой - контрольная сумма Луна не сходится, ловиться не должен.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_base64_secret",
+      "kind": "input",
+      "note": "Base64 разворачивается в синтетический sk-proj- ключ. Блок, а не маска исходного base64-текста.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "base64_secret"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "base64_secret"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_split_secret",
+      "kind": "input",
+      "note": "Префикс sk- и продолжение proj-... разорваны склейкой в стиле конкатенации строк - классический приём обхода прямого regex.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "split_secret"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "split_secret"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_email",
+      "kind": "input",
+      "note": "Обычный адрес почты.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "email"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "email"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_phone",
+      "kind": "input",
+      "note": "Российский номер в международном формате.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "phone"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "phone"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_clean_prompt",
+      "kind": "input",
+      "note": "Чистый промпт без секретов и PII - контрольный кейс на ложное срабатывание.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_medical_numbers",
+      "kind": "input",
+      "note": "Числа разбиты словами и точками, ни один разряд не складывается в 13-19 подряд идущих цифр карты.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_secret_in_history_middle",
+      "kind": "input",
+      "note": "Ревизия пятая, контракт 6.1: секрет лежит в третьем сообщении из пяти, не в последнем (новом) - проверяет и что гейт смотрит на всю историю, и что secret_in_history ставится независимо от политики детектора (api_key_openai и так маска, но признак всё равно обязан встать - находка не задевает новое сообщение).",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_openai",
+        "secret_in_history"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_openai",
+        "secret_in_history"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_gateway_warning_self",
+      "kind": "input",
+      "note": "Собственный текст-предупреждение входного гейта (spec13.INPUT_BLOCKED_WARNING), поданный обратно на вход. Не должен считаться атакой - урок task11.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_output_fallback_self",
+      "kind": "input",
+      "note": "Текст-заглушка выходного гейта (spec13.OUTPUT_GUARD_FALLBACK), поданный на вход. Тоже не должен ловиться.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_redacted_marker_self",
+      "kind": "input",
+      "note": "Сами маски вида [REDACTED_...], поданные на вход. Не похожи ни на один реальный секрет.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_generated_secret",
+      "kind": "output",
+      "note": "Модель выдала строку, похожую на настоящий ключ, в собственном ответе.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "generated_secret"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "generated_secret"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_system_prompt_leak",
+      "kind": "output",
+      "note": "Два маркера системного промпта Jarvis дословно - утечка инструкций.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "system_prompt_leak"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "system_prompt_leak"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_suspicious_url",
+      "kind": "output",
+      "note": "Ревизия 2026-08-05 вторая: домен вне белого списка больше не подозрителен сам по себе, поэтому текст усилен - длинное значение query-параметра (28+ знаков) это конкретный признак эксфильтрации данных.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "suspicious_url"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "suspicious_url"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_dangerous_command",
+      "kind": "output",
+      "note": "Классический pipe-to-shell. Ссылка внутри команды тоже не из белого списка, поэтому срабатывают оба детектора честно.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "dangerous_command",
+        "suspicious_url"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "dangerous_command",
+        "suspicious_url"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_pii_echo",
+      "kind": "output",
+      "note": "Модель добавила почту от себя - её не было во входных данных.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "pii_echo"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "pii_echo"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_pii_not_echo_when_in_input",
+      "kind": "output",
+      "note": "Та же почта уже была в вопросе пользователя - это не утечка, а нормальный ответ по адресу.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_whitelisted_url",
+      "kind": "output",
+      "note": "Ссылка на сам апстрим - из белого списка, срабатывать не должна.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_clean",
+      "kind": "output",
+      "note": "Обычный чистый ответ - контрольный кейс на ложное срабатывание выходного гейта.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_gateway_fallback_self",
+      "kind": "output",
+      "note": "Собственный текст-заглушка выходного гейта, поданный как будто это ответ модели. Не должен сам себя блокировать повторно.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_stripe_key",
+      "kind": "input",
+      "note": "Формат Stripe: sk_test_/sk_live_/pk_.../rk_..., разделитель - подчёркивание. Платёжная система.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_stripe"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_stripe"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_square_token",
+      "kind": "input",
+      "note": "Формат Square: sq0atp-/sq0csp-, разделитель - дефис. Платёжная система.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_square"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_square"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_slack_token",
+      "kind": "input",
+      "note": "Формат Slack: xox[baprs]-, несколько групп через дефис. Мессенджер.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "token_slack"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "token_slack"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_telegram_token",
+      "kind": "input",
+      "note": "Формат Telegram: id_бота:секрет, разделитель - двоеточие. Мессенджер.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "token_telegram"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "token_telegram"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_discord_token",
+      "kind": "input",
+      "note": "Формат Discord: три части через точку (id.timestamp.hmac), синтетический. Мессенджер.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "token_discord"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "token_discord"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_sendgrid_key",
+      "kind": "input",
+      "note": "Формат SendGrid: SG. + две части через точку. Почтовый сервис.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_sendgrid"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_sendgrid"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_mailgun_key",
+      "kind": "input",
+      "note": "Формат Mailgun: key- + 32 hex знака, разделитель - дефис. Почтовый сервис.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_mailgun"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_mailgun"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_twilio_key",
+      "kind": "input",
+      "note": "Формат Twilio: AC/SK + 32 hex знака без разделителя. SMS-мессенджер.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_twilio"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_twilio"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_google_api_key",
+      "kind": "input",
+      "note": "Формат Google Cloud/Maps: AIza + 35 знаков без разделителя. Облако помимо AWS и геосервис одновременно.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_google"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_google"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_azure_connection_string",
+      "kind": "input",
+      "note": "Строка подключения Azure Storage, разделители - точка с запятой и знак равенства. Блок - инфраструктурный доступ, как AWS.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "azure_connection_string"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "azure_connection_string"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_gitlab_token",
+      "kind": "input",
+      "note": "Формат GitLab: glpat- + алфавитно-цифровой хвост. Система непрерывной сборки.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "token_gitlab"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "token_gitlab"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_npm_token",
+      "kind": "input",
+      "note": "Формат npm: npm_ + 36 знаков, разделитель - подчёркивание. Токен публикации в CI-пайплайне.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "token_npm"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "token_npm"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_mapbox_token",
+      "kind": "input",
+      "note": "Формат Mapbox: pk./sk. + JWT-подобная структура через точку. Карты и геосервисы.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_mapbox"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_mapbox"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_db_connection_string",
+      "kind": "input",
+      "note": "URI подключения к базе данных с логином и паролем внутри. Блок - как AWS, доступ к инфраструктуре, маскировать бессмысленно.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "db_connection_string"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "db_connection_string"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_hex_secret",
+      "kind": "input",
+      "note": "Ключ OpenAI закодирован в hex. Раскодированное содержимое рекурсивно прогоняется через прямые паттерны и находит sk-proj-. Блок, как base64_secret.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "hex_secret"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "hex_secret"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_url_encoded_secret",
+      "kind": "input",
+      "note": "Ключ OpenAI, каждый символ percent-encoded. После unquote рекурсивно находится sk-proj-. Блок, симметрично base64_secret.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "url_encoded_secret"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "url_encoded_secret"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_reversed_secret",
+      "kind": "input",
+      "note": "Ключ OpenAI записан в обратном порядке символов. Находится разворотом всего текста и повторным прогоном тех же прямых паттернов.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_openai"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_openai"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_char_spaced_secret",
+      "kind": "input",
+      "note": "Посимвольная разрядка пробелом - классический приём обхода непрерывного regex. Находится сшивкой соседних однобуквенных прогонов.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_openai"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_openai"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_char_dotted_secret",
+      "kind": "input",
+      "note": "Та же посимвольная разрядка, но разделитель - точка, а не пробел. Проверяет, что нормализация не завязана на один конкретный разделитель.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_openai"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_openai"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_midmessage_break_secret",
+      "kind": "input",
+      "note": "Секрет разорван произвольным текстом посреди сообщения, а не кавычкой или переносом. Сшивка бридж-переходит через кириллический филлер, потому что тот не входит в алфавит ключа.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_openai"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_openai"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_homoglyph_email",
+      "kind": "input",
+      "note": "Буква 'а' в адресе - кириллическая (визуальный двойник латинской 'a'). Находится нормализацией похожих символов перед сверкой с паттерном почты.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "email"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "email"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_cross_message_split_secret",
+      "kind": "input",
+      "note": "Ключ разорван между первым и третьим сообщением истории - ни в одном сообщении по отдельности секрета нет. Находится дополнительной проверкой склеенного текста истории.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_openai"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_openai"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_cross_message_innocuous_numbers",
+      "kind": "input",
+      "note": "Контрольный кейс на измеритель склейки: два безобидных числа из разных сообщений (320 и 0) не должны склеиться в номер карты или иной секрет через перевод строки-разделитель.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_medical_policy_number",
+      "kind": "input",
+      "note": "16-значный номер полиса, не проходит проверку Луна и короче порога hex-декодирования по смыслу теста - не должен ловиться ни card, ни hex_secret.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_medical_dates_concatenated",
+      "kind": "input",
+      "note": "Три даты подряд через пробел - стресс-тест на то, что добавленная точка как разделитель card-паттерна не склеивает даты в мнимый номер карты.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_dosage_percent_clean",
+      "kind": "input",
+      "note": "Знак процента в дозировке - не должен восприниматься как начало url-encoded последовательности.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_long_medical_narrative_clean",
+      "kind": "input",
+      "note": "Развёрнутый медицинский текст со всеми видами чисел разом (возраст, вес, рост, температура, дозировка, дата, время, полис, СНИЛС) - общий стресс-тест на ложные срабатывания после усиления детекторов.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_medical_link_clean",
+      "kind": "output",
+      "note": "Ссылка на медицинскую организацию не из белого списка - это ключевой сценарий приложения (родители ищут проверенную информацию), больше не должна блокироваться сама по себе.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_who_link_clean",
+      "kind": "output",
+      "note": "Ссылка на международную медицинскую организацию - без признаков эксфильтрации, проходить должна.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_suspicious_url_shortener",
+      "kind": "output",
+      "note": "Сокращатель ссылок скрывает реальный адрес назначения - признак эксфильтрации независимо от содержимого.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "suspicious_url"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "suspicious_url"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_suspicious_url_raw_ip",
+      "kind": "output",
+      "note": "Сырой IP вместо имени хоста плюс ссылка на исполняемый файл - оба признака эксфильтрации/доставки payload'а.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "suspicious_url"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "suspicious_url"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_suspicious_url_nested",
+      "kind": "output",
+      "note": "Адрес-в-адресе: безобидно выглядящий домен маскирует редирект на другой хост в параметре запроса.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "suspicious_url"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "suspicious_url"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_system_prompt_leak_generic",
+      "kind": "output",
+      "note": "Модель дословно пересказала ЧУЖОЙ системный промпт - буквальных маркеров нашего spec13 в тексте нет. Ловится общим признаком: обращение к роли ИИ + нумерованный свод запретов.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "system_prompt_leak"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "system_prompt_leak"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_system_prompt_leak_generic_en",
+      "kind": "output",
+      "note": "Та же утечка чужого промпта на английском - общий признак не завязан на язык маркеров.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "system_prompt_leak"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "system_prompt_leak"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_medical_numbered_advice_clean",
+      "kind": "output",
+      "note": "Нумерованный список - это нормальный формат медицинского совета в этом приложении. В тексте нет терминов про роль/инструкции модели, общий признак утечки не должен срабатывать.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_casual_assistant_mention_clean",
+      "kind": "output",
+      "note": "Единичное упоминание роли без перечисления правил и без терминов про инструкции/системный промпт - не должно ловиться.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_phishing_combo",
+      "kind": "output",
+      "note": "Ревизия третья, дефект 1: свежий домен, короткий query - ни один из пяти признаков формы ссылки не срабатывает. Ловится связкой - внешняя ссылка + побуждение подтвердить платёжные данные рядом в тексте.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "suspicious_url"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "suspicious_url"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_clean_booking_payment",
+      "kind": "output",
+      "note": "Контроль на измеритель связки: обычная фраза про онлайн-оплату приёма не содержит целевых терминов (номер карты/cvv/код из смс/пароль) - связка не должна срабатывать на одном только слове 'оплатите'.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_aws_access_key_short",
+      "kind": "input",
+      "note": "Ревизия третья, дефект 2: тот же эталонный ключ AWS, но на один знак короче канонического примера (15 знаков после AKIA вместо 16). Обязан ловиться - точная длина заменена диапазоном.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "aws_access_key"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "aws_access_key"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_google_api_key_short",
+      "kind": "input",
+      "note": "Ревизия третья, дефект 2: ключ Google на один знак короче использованного ранее эталона (34 знака после AIza вместо 35).",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_google"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_google"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_homoglyph_key",
+      "kind": "input",
+      "note": "Ревизия третья, дефект 3: буквы 'A' и 'C' в ключе OpenAI заменены визуально идентичными кириллическими 'А' и 'С'. Раньше нормализация похожих символов применялась только к email/phone - прямые паттерны ключей её не получали и пропускали такую подмену.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "api_key_openai"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "api_key_openai"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_jwt_token",
+      "kind": "input",
+      "note": "Класс 4 (решено закрыть): голый JWT без префикса Bearer. Три части через точку, точка не входит в base64, поэтому обычный base64_secret токен целиком не захватывал. Отдельный прямой паттерн, якорь - заголовок 'eyJ'.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "jwt_token"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "jwt_token"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_sparse_url_encoded_secret",
+      "kind": "input",
+      "note": "Класс 5 (решено закрыть): только ОДИН символ ключа percent-encoded, весь остальной текст читаем открыто. Старый порог '2+ последовательности %XX' пропускал это - расширенный кандидат ловит и одну последовательность, безопасность держит рекурсивная проверка декодированного текста, не счётчик.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "url_encoded_secret"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "url_encoded_secret"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_double_encoded_url_secret",
+      "kind": "input",
+      "note": "Класс 5, конкретно двойное кодирование: сам знак процента у одной последовательности закодирован ещё раз (%25 -> %2525... тут %2D -> %252D). Раскрывается за два уровня рекурсии (MAX_DECODE_DEPTH=3).",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "url_encoded_secret"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "url_encoded_secret"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_secret_only_in_history",
+      "kind": "input",
+      "note": "Ревизия четвёртая, контракт 6.1: дефект 'мёртвый чат'. Ключ AWS лежит только в первом (старом) сообщении, новое сообщение чистое. Раньше блокировало навсегда - теперь маска, чат продолжает работать.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "aws_access_key",
+        "secret_in_history"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "aws_access_key",
+        "secret_in_history"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_secret_only_in_new_message",
+      "kind": "input",
+      "note": "Секрет в НОВОМ (последнем с ролью user) сообщении - пользователь пытается отправить его прямо сейчас. Блок остаётся, поведение как раньше.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "aws_access_key"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "aws_access_key"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_secret_in_history_and_new",
+      "kind": "input",
+      "note": "Ревизия пятая, контракт 6.1: секрет есть и в старом сообщении, и в новом - решает новое, блок остаётся. secret_in_history НЕ ставится - хоть одна находка (в новом сообщении) есть, значит признак не нужен: человек и так смотрит в правильное место, своё последнее сообщение.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "aws_access_key"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "aws_access_key"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_cross_message_split_history_only",
+      "kind": "input",
+      "note": "Ключ AWS (блокирующий детектор) разорван между двумя СТАРЫМИ сообщениями, новое сообщение ('Расскажи анекдот') чистое и не касается склейки. Проверка склейки истории тоже следует правилу 6.1 - маска, не блок.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "aws_access_key",
+        "secret_in_history"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "aws_access_key",
+        "secret_in_history"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_email_only_in_history",
+      "kind": "input",
+      "note": "Ревизия пятая, контракт 6.1, дефект найден заказчиком: почта и карта в СТАРОМ сообщении, новое - обычный чистый вопрос. Маскирующие детекторы (card/email) не понижаются - им нечего понижать - но secret_in_history обязан встать, иначе приложение напишет 'замаскировали почту и карту' без объяснения, что это из прошлого сообщения.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "card",
+        "email",
+        "secret_in_history"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "card",
+        "email",
+        "secret_in_history"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_email_only_in_new_message",
+      "kind": "input",
+      "note": "Почта в НОВОМ (последнем с ролью user) сообщении - пользователь прямо сейчас её и написал. secret_in_history не ставится - человек и так смотрит в верное место.",
+      "expect_verdict": "masked",
+      "expect_reasons": [
+        "email"
+      ],
+      "actual_verdict": "masked",
+      "actual_reasons": [
+        "email"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "inp_email_history_aws_new",
+      "kind": "input",
+      "note": "Почта только в старом сообщении, ключ AWS - в новом. Блок за ключ в новом сообщении. secret_in_history не ставится - находка (ключ) есть в новом сообщении, значит правило 'ни одна не задевает новое' не выполняется, хотя почта сама по себе лежит только в истории.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "aws_access_key",
+        "email"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "aws_access_key",
+        "email"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_system_prompt_leak_alva_from_start",
+      "kind": "output",
+      "note": "Ревизия шестая, дефект найден приёмкой: первые 200 знаков РЕАЛЬНОГО промпта, который уходит в облако (LOCAL_SYSTEM_PROMPT, ассистент ALVA, русский). До ревизии маркеров из него не было вообще - детектор молчал. Ловится одним длинным маркером (роль/идентификация, 64 знака) - реалистичный сценарий, модель пересказывает промпт с начала.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "system_prompt_leak"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "system_prompt_leak"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_system_prompt_leak_jarvis_from_start",
+      "kind": "output",
+      "note": "Симметричный кейс на английский промпт (Jarvis) - тоже пересказ с начала, а не цитата середины. Оба промпта в системе есть, оба обязаны ловиться.",
+      "expect_verdict": "blocked",
+      "expect_reasons": [
+        "system_prompt_leak"
+      ],
+      "actual_verdict": "blocked",
+      "actual_reasons": [
+        "system_prompt_leak"
+      ],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_medical_sleep_feeding_clean",
+      "kind": "output",
+      "note": "Контроль ложных срабатываний: обычный ответ про сон, той же тематики и того же языка, что и LOCAL_SYSTEM_PROMPT, но не содержит его формулировок.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_medical_fever_routing_clean",
+      "kind": "output",
+      "note": "Стресс-тест на ложное срабатывание: ответ маршрутизирует к врачу при угрозе здоровью - тематически ближе всего к правилу промпта про экстренную помощь, но формулировка другая ('обратитесь к врачу' вместо 'маршрутизируйте к экстренной помощи'), поэтому не должен ловиться.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    },
+    {
+      "id": "out_assistant_self_intro_clean",
+      "kind": "output",
+      "note": "Обычное самопредставление ассистента перефразировано, не дословно из LOCAL_SYSTEM_PROMPT ('Вы — ассистент приложения ALVA для родителей детей от 0 до 3 лет') - не должно ловиться, иначе любое приветствие блокировалось бы.",
+      "expect_verdict": "pass",
+      "expect_reasons": [],
+      "actual_verdict": "pass",
+      "actual_reasons": [],
+      "bucket": "caught"
+    }
+  ]
+}

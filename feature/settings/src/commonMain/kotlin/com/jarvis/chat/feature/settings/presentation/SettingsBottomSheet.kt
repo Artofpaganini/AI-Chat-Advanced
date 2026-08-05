@@ -41,6 +41,7 @@ private const val AI_PROVIDER_TITLE = "AI Provider"
 private const val AI_PROVIDER_LABEL_DEEP_SEEK_CLOUD = "DeepSeek Cloud"
 private const val AI_PROVIDER_LABEL_LOCAL_MLX = "Local model"
 private const val AI_PROVIDER_LABEL_LOCAL_TRIAGE = "Local model (verified)"
+private const val AI_PROVIDER_LABEL_GATEWAY = "Gateway (guarded)"
 private const val MICRO_MODEL_FIRST_TITLE = "Micro-model first"
 private const val MICRO_MODEL_FIRST_DESCRIPTION = "Classify messages on-device before calling the AI"
 private const val INFERENCE_MODE_TITLE = "Inference Mode"
@@ -286,6 +287,7 @@ private fun AiProviderUiModel.toLabel(): String =
         AiProviderUiModel.DEEP_SEEK_CLOUD -> AI_PROVIDER_LABEL_DEEP_SEEK_CLOUD
         AiProviderUiModel.LOCAL_MLX -> AI_PROVIDER_LABEL_LOCAL_MLX
         AiProviderUiModel.LOCAL_TRIAGE -> AI_PROVIDER_LABEL_LOCAL_TRIAGE
+        AiProviderUiModel.GATEWAY -> AI_PROVIDER_LABEL_GATEWAY
     }
 
 private fun InferenceModeUiModel.toLabel(): String =

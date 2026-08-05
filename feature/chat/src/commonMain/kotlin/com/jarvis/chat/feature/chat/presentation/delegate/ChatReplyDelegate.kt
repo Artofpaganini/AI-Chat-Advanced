@@ -8,6 +8,8 @@ import com.jarvis.chat.feature.ai.di.DeepSeekDefaults
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
 import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
+import com.jarvis.chat.feature.ai.domain.model.GatewayOutputTruncationModel
+import com.jarvis.chat.feature.ai.domain.model.GatewaySignalModel
 import com.jarvis.chat.feature.ai.domain.model.GuardTargetModel
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
@@ -153,6 +155,8 @@ internal class ChatReplyDelegate(
         triage: TriageModel?,
         routeDecision: RouteDecisionModel? = null,
         multiStage: MultiStageResultModel? = null,
+        gatewaySignal: GatewaySignalModel? = null,
+        gatewayOutputTruncation: GatewayOutputTruncationModel? = null,
     ) {
         val buffer = replyBuffers[sessionId] ?: return
         val updatedBuffer = buffer.map { message ->
@@ -163,6 +167,8 @@ internal class ChatReplyDelegate(
                     triage = triage ?: message.triage,
                     routeDecision = routeDecision ?: message.routeDecision,
                     multiStage = multiStage ?: message.multiStage,
+                    gatewaySignal = gatewaySignal ?: message.gatewaySignal,
+                    gatewayOutputTruncation = gatewayOutputTruncation ?: message.gatewayOutputTruncation,
                 )
             } else {
                 message
@@ -317,6 +323,8 @@ internal class ChatReplyDelegate(
                         modelId = chunk.modelId,
                         triage = mergedTriage,
                         routeDecision = mergedRouteDecision,
+                        gatewaySignal = chunk.gatewaySignal,
+                        gatewayOutputTruncation = chunk.outputTruncation,
                     ),
                 )
             }

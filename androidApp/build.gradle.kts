@@ -15,6 +15,12 @@ val deepSeekApiKey: String = localProperties.getProperty("DEEPSEEK_API_KEY").orE
 val defaultLocalModelBaseUrl = "http://10.0.2.2:8080/"
 val localModelBaseUrl: String =
     localProperties.getProperty("LOCAL_MODEL_BASE_URL") ?: defaultLocalModelBaseUrl
+val defaultTriageBaseUrl = "http://10.0.2.2:8090/v1/"
+val triageBaseUrl: String =
+    localProperties.getProperty("TRIAGE_BASE_URL") ?: defaultTriageBaseUrl
+val defaultGatewayBaseUrl = "http://10.0.2.2:8091/v1/"
+val gatewayBaseUrl: String =
+    localProperties.getProperty("GATEWAY_BASE_URL") ?: defaultGatewayBaseUrl
 
 android {
     namespace = "com.jarvis.chat.android"
@@ -29,6 +35,8 @@ android {
         versionName = libs.versions.versionName.get()
         buildConfigField("String", "DEEPSEEK_API_KEY", "\"$deepSeekApiKey\"")
         buildConfigField("String", "LOCAL_MODEL_BASE_URL", "\"$localModelBaseUrl\"")
+        buildConfigField("String", "TRIAGE_BASE_URL", "\"$triageBaseUrl\"")
+        buildConfigField("String", "GATEWAY_BASE_URL", "\"$gatewayBaseUrl\"")
     }
 
     flavorDimensions += "environment"

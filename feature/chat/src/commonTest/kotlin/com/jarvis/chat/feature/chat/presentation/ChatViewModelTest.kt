@@ -7,6 +7,8 @@ import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigModel
 import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.ChatStreamChunkModel
+import com.jarvis.chat.feature.ai.domain.model.GatewaySignalModel
+import com.jarvis.chat.feature.ai.domain.model.GatewayVerdictModel
 import com.jarvis.chat.feature.ai.domain.model.GuardTargetModel
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
@@ -314,6 +316,151 @@ class ChatViewModelTest {
 
         val assistantMessage = viewModel.uiState.value.messages.last()
         assertEquals(null, assistantMessage.modelId)
+    }
+
+    @Test
+    fun sendClicked_whenGatewaySignalIsMasked_showsBannerWithHumanReasonLabels() = runTest {
+        val signal = GatewaySignalModel(
+            verdict = GatewayVerdictModel.MASKED,
+            reasons = listOf("card", "email", "secret_in_history"),
+            maskedCount = 2,
+            tokensIn = 1375,
+            tokensOut = 462,
+            costUsd = 0.000322,
+            rateLimitLimit = null,
+            rateLimitRemaining = null,
+            requestId = "req-1",
+        )
+        val viewModel = createViewModel(aiRepository = FakeAiRepository(reply = "pong", gatewaySignal = signal))
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        val assistantMessage = viewModel.uiState.value.messages.last()
+        val bannerText = assistantMessage.gatewaySignal?.bannerText.orEmpty()
+        val shortVerdictLabel = assistantMessage.gatewaySignal?.shortVerdictLabel.orEmpty()
+        assertTrue(assistantMessage.gatewaySignal?.isBannerVisible == true, "banner should be visible for masked verdict")
+        assertTrue(bannerText.contains("номер карты"), "missing card reason label in: $bannerText")
+        assertTrue(bannerText.contains("почта"), "missing email reason label in: $bannerText")
+        assertTrue(
+            bannerText.contains("секрет найден в более раннем сообщении этого чата"),
+            "missing secret_in_history reason label in: $bannerText",
+        )
+        assertTrue(shortVerdictLabel.contains("Замаскировано"), "short label missing action in: $shortVerdictLabel")
+        assertTrue(shortVerdictLabel.contains("карта"), "short label missing card in: $shortVerdictLabel")
+        assertTrue(shortVerdictLabel.contains("из ранней переписки"), "short label missing history hint in: $shortVerdictLabel")
+        assertEquals(false, assistantMessage.gatewaySignal.isShortVerdictWarning, "masked is not an error, should be calm color")
+    }
+
+    @Test
+    fun sendClicked_whenGatewaySignalIsBlockedInput_showsBanner() = runTest {
+        val signal = GatewaySignalModel(
+            verdict = GatewayVerdictModel.BLOCKED_INPUT,
+            reasons = listOf("aws_access_key"),
+            maskedCount = 0,
+            tokensIn = 0,
+            tokensOut = 0,
+            costUsd = 0.0,
+            rateLimitLimit = null,
+            rateLimitRemaining = null,
+            requestId = "req-2",
+        )
+        val viewModel = createViewModel(aiRepository = FakeAiRepository(reply = "blocked", gatewaySignal = signal))
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        val assistantMessage = viewModel.uiState.value.messages.last()
+        val shortVerdictLabel = assistantMessage.gatewaySignal?.shortVerdictLabel.orEmpty()
+        assertTrue(
+            assistantMessage.gatewaySignal?.isBannerVisible == true,
+            "banner should be visible for blocked_input verdict",
+        )
+        assertTrue(shortVerdictLabel.contains("Заблокировано"), "short label missing action in: $shortVerdictLabel")
+        assertTrue(shortVerdictLabel.contains("вход"), "short label missing input hint in: $shortVerdictLabel")
+        assertEquals(true, assistantMessage.gatewaySignal.isShortVerdictWarning, "blocked input is an error, should warn")
+    }
+
+    @Test
+    fun sendClicked_whenGatewaySignalIsRateLimited_showsBanner() = runTest {
+        val signal = GatewaySignalModel(
+            verdict = GatewayVerdictModel.RATE_LIMITED,
+            reasons = emptyList(),
+            maskedCount = 0,
+            tokensIn = 0,
+            tokensOut = 0,
+            costUsd = 0.0,
+            rateLimitLimit = 20,
+            rateLimitRemaining = 0,
+            requestId = "req-3",
+        )
+        val viewModel = createViewModel(aiRepository = FakeAiRepository(reply = "slow down", gatewaySignal = signal))
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        val assistantMessage = viewModel.uiState.value.messages.last()
+        assertTrue(
+            assistantMessage.gatewaySignal?.isBannerVisible == true,
+            "banner should be visible for rate_limited verdict",
+        )
+        assertEquals(true, assistantMessage.gatewaySignal.isShortVerdictWarning, "rate limit is an error, should warn")
+    }
+
+    @Test
+    fun sendClicked_whenGatewaySignalIsPass_showsCostTokensLineWithoutShortVerdictLabel() = runTest {
+        val signal = GatewaySignalModel(
+            verdict = GatewayVerdictModel.PASS,
+            reasons = emptyList(),
+            maskedCount = 0,
+            tokensIn = 120,
+            tokensOut = 80,
+            costUsd = 0.00005,
+            rateLimitLimit = 20,
+            rateLimitRemaining = 19,
+            requestId = "req-5",
+        )
+        val viewModel = createViewModel(aiRepository = FakeAiRepository(reply = "pong", gatewaySignal = signal))
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        val assistantMessage = viewModel.uiState.value.messages.last()
+        assertEquals(false, assistantMessage.gatewaySignal?.isBannerVisible, "clean pass should not show top banner")
+        assertEquals(null, assistantMessage.gatewaySignal?.shortVerdictLabel, "clean pass should not show short verdict label")
+        assertTrue(
+            assistantMessage.gatewaySignal?.costTokensLabel?.isNotEmpty() == true,
+            "cost/tokens line should still be present for a gateway-routed message",
+        )
+    }
+
+    @Test
+    fun sendClicked_whenAnswerTextNamesEmergencyRoutingAndCarriesGatewaySignal_showsBothBanners() = runTest {
+        val emergencyAnswer = "Ребёнку нужна помощь прямо сейчас: вызывайте скорую, это неотложная помощь."
+        val signal = GatewaySignalModel(
+            verdict = GatewayVerdictModel.MASKED,
+            reasons = listOf("card", "email", "secret_in_history"),
+            maskedCount = 2,
+            tokensIn = 1375,
+            tokensOut = 462,
+            costUsd = 0.000322,
+            rateLimitLimit = null,
+            rateLimitRemaining = null,
+            requestId = "req-4",
+        )
+        val viewModel = createViewModel(
+            aiRepository = FakeAiRepository(reply = emergencyAnswer, gatewaySignal = signal),
+        )
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("ping"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        val assistantMessage = viewModel.uiState.value.messages.last()
+        assertEquals(TriageRouteUiModel.EMERGENCY, assistantMessage.triage?.route)
+        assertTrue(
+            assistantMessage.gatewaySignal?.isBannerVisible == true,
+            "gateway banner should still be visible after the post-stream emergency triage dispatch",
+        )
     }
 
     @Test
@@ -816,6 +963,7 @@ class ChatViewModelTest {
         private val error: Throwable? = null,
         private val chunks: List<String> = listOf(reply),
         private val modelId: String? = null,
+        private val gatewaySignal: GatewaySignalModel? = null,
     ) : AiRepository {
 
         override suspend fun sendMessage(history: List<ChatMessageModel>): ChatMessageModel {
@@ -825,7 +973,9 @@ class ChatViewModelTest {
 
         override fun sendMessageStream(history: List<ChatMessageModel>): Flow<ChatStreamChunkModel> = flow {
             error?.let { failure -> throw failure }
-            chunks.forEach { chunk -> emit(ChatStreamChunkModel(text = chunk, modelId = modelId)) }
+            chunks.forEach { chunk ->
+                emit(ChatStreamChunkModel(text = chunk, modelId = modelId, gatewaySignal = gatewaySignal))
+            }
         }
     }
 

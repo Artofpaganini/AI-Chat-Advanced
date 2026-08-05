@@ -16,4 +16,5 @@ internal data class ChatMessageUiModel(
     val inputGuardBadgeText: String?,
     val outputGuardBadgeText: String?,
     val isImportedUnverifiedAssistant: Boolean,
+    val gatewaySignal: GatewaySignalUiModel?,
 )

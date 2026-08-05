@@ -168,6 +168,40 @@ class SseChunkReaderTest {
         assertEquals(listOf("" to "deepseek-chat", "Hel" to null), chunks.map { chunk -> chunk.text to chunk.modelId })
     }
 
+    @Test
+    fun sseChunkFlow_onOutputTruncationEventBeforeDone_emitsChunkCarryingTruncation() = runTest {
+        val sse = """
+            data: {"choices":[{"delta":{"content":"Hel"}}]}
+
+            data: {"gateway_output_verdict":"blocked_output","gateway_output_reasons":["dangerous_command"],"gateway_truncated_at_chars":12}
+
+            data: [DONE]
+
+        """.trimIndent()
+
+        val chunks = sseChunkFlow(channel = ByteReadChannel(sse), json = testJson).toList()
+
+        assertEquals(listOf("Hel", ""), chunks.map { chunk -> chunk.text })
+        assertNull(chunks[0].outputTruncation)
+        assertEquals("blocked_output", chunks[1].outputTruncation?.verdict)
+        assertEquals(listOf("dangerous_command"), chunks[1].outputTruncation?.reasons)
+        assertEquals(12, chunks[1].outputTruncation?.truncatedAtChars)
+    }
+
+    @Test
+    fun sseChunkFlow_onNormalChunk_neverMistakenForOutputTruncationEvent() = runTest {
+        val sse = """
+            data: {"choices":[{"delta":{"content":"Hel"}}]}
+
+            data: [DONE]
+
+        """.trimIndent()
+
+        val chunks = sseChunkFlow(channel = ByteReadChannel(sse), json = testJson).toList()
+
+        assertEquals(listOf(null), chunks.map { chunk -> chunk.outputTruncation })
+    }
+
     private val testJson: Json = Json {
         ignoreUnknownKeys = true
         isLenient = true

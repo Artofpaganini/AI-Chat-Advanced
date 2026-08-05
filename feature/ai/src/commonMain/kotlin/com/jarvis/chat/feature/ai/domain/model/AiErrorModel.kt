@@ -12,7 +12,7 @@ sealed interface AiErrorModel {
 
     data class BadRequest(val message: String) : AiErrorModel
 
-    data object RateLimited : AiErrorModel
+    data class RateLimited(val retryAfterSeconds: Int? = null) : AiErrorModel
 
     data class ServerError(val code: Int) : AiErrorModel
 

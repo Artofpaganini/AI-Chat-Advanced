@@ -39,7 +39,7 @@ class AiErrorMapperTest {
     fun toAiErrorModel_on429ClientRequestException_mapsToRateLimited() = runTest {
         val error = clientRequestException(status = HttpStatusCode.TooManyRequests)
 
-        assertEquals(AiErrorModel.RateLimited, error.toAiErrorModel())
+        assertEquals(AiErrorModel.RateLimited(retryAfterSeconds = null), error.toAiErrorModel())
     }
 
     @Test

@@ -20,8 +20,10 @@ import com.jarvis.chat.feature.chat.domain.usecase.RenameChatSessionUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.SaveChatHistoryUseCase
 import com.jarvis.chat.feature.chat.domain.usecase.SwitchChatSessionUseCase
 import com.jarvis.chat.feature.chat.presentation.ChatViewModel
+import com.jarvis.chat.feature.chat.presentation.GatewayAuditViewModel
 import com.jarvis.chat.feature.chat.presentation.SessionsViewModel
 import com.jarvis.chat.feature.chat.presentation.mapper.ChatUiMapper
+import com.jarvis.chat.feature.chat.presentation.mapper.GatewayAuditUiMapper
 import com.jarvis.chat.feature.chat.presentation.mapper.SessionsUiMapper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +57,8 @@ fun chatModule(storageDirectoryPath: String): Module = module {
     factoryOf(::DeleteChatSessionUseCase)
     factoryOf(::ChatUiMapper)
     factoryOf(::SessionsUiMapper)
+    factoryOf(::GatewayAuditUiMapper)
     viewModelOf(::ChatViewModel)
     viewModelOf(::SessionsViewModel)
+    viewModelOf(::GatewayAuditViewModel)
 }

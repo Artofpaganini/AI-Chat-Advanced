@@ -137,6 +137,8 @@ internal class ChatViewModel(
                     triage = action.triage,
                     routeDecision = action.routeDecision,
                     multiStage = action.multiStage,
+                    gatewaySignal = action.gatewaySignal,
+                    gatewayOutputTruncation = action.gatewayOutputTruncation,
                 )
             is ChatAction.Internal.ReplyCompleted -> replyDelegate.onReplyCompleted(action.sessionId)
             is ChatAction.Internal.ReplyFailed -> replyDelegate.onReplyFailed(action.sessionId, action.messageId, action.error)
