@@ -1,0 +1,7 @@
+----- попытка 1/1 -----
+SEVERITY: HIGH
+FILE: feature/ai/src/commonMain/kotlin/com/jarvis/chat/feature/ai/di/AiModule.kt
+LINE: 106
+TITLE: Логирование полного тела запроса и ответа с данными пользователя
+FIX: Установите level = LogLevel.HEADERS или LogLevel.NONE, либо явно исключите тело запроса и ответа из лога, чтобы текст сообщений чата и другие пользовательские данные не попадали в логи.
+

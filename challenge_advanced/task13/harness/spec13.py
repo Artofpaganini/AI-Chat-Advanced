@@ -48,6 +48,31 @@ STREAM_GUARD_BUFFER = "buffer"
 STREAM_GUARD_INCREMENTAL = "incremental"
 STREAM_GUARD_MODES = (STREAM_GUARD_BUFFER, STREAM_GUARD_INCREMENTAL)
 
+# --- Источник запроса (GATEWAY_CONTRACT.md раздел 15, LOOP_CONTRACT.md раздел 9) ---
+# Заголовок ниже - не канал доверия. Он идёт только в запись журнала аудита и в сводку
+# /gateway/stats, чтобы отличить обращение из чата приложения от вызова цикла генерации
+# кода task14. Ни один гейт решение по нему не меняет: детекторы одинаковы для всех
+# источников. Значение не из белого списка или отсутствие заголовка - всегда "chat".
+
+SOURCE_HEADER = "X-Gateway-Source"
+SOURCE_CHAT = "chat"
+SOURCE_CODEGEN = "codegen"
+SOURCE_SECURITY_REVIEW = "security_review"
+SOURCE_VALUES = (SOURCE_CHAT, SOURCE_CODEGEN, SOURCE_SECURITY_REVIEW)
+DEFAULT_SOURCE = SOURCE_CHAT
+
+# --- Прогон цикла (GATEWAY_CONTRACT.md раздел 15, вторая ревизия) ------------------
+# Заголовок ниже - тоже не канал доверия, только для записи в журнал. Он позволяет
+# связать несколько вызовов шлюза (GENERATE и SECURITY) с одним прогоном цикла task14,
+# чтобы отличить их в журнале от постороннего вызова с тем же source. Значение -
+# непрозрачная строка без собственной семантики для шлюза, только формат ограничен,
+# чтобы в журнал не попало что угодно. Пустая строка (нет заголовка или не прошёл
+# формат) - норма для обычного чата, у него нет прогона.
+
+RUN_ID_HEADER = "X-Gateway-Run-Id"
+RUN_ID_MAX_CHARS = 60
+RUN_ID_ALLOWED_CHARS_DESCRIPTION = "буквы, цифры, дефис, подчёркивание"
+
 # --- Тарифы (контракт раздел 11) --------------------------------------------------
 # Дословно task7/harness/spec7.py PRICES["deepseek-v4-flash"] - модель, которую шлёт
 # CHAT_MODEL из DeepSeekDefaults.kt. Не выдумано заново.

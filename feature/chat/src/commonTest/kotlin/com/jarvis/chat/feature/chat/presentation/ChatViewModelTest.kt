@@ -7,6 +7,9 @@ import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigModel
 import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.ChatStreamChunkModel
+import com.jarvis.chat.feature.ai.domain.model.CodeLoopStageEventModel
+import com.jarvis.chat.feature.ai.domain.model.CodeLoopStageModel
+import com.jarvis.chat.feature.ai.domain.model.CodeLoopStatusModel
 import com.jarvis.chat.feature.ai.domain.model.GatewaySignalModel
 import com.jarvis.chat.feature.ai.domain.model.GatewayVerdictModel
 import com.jarvis.chat.feature.ai.domain.model.GuardTargetModel
@@ -18,11 +21,13 @@ import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
 import com.jarvis.chat.feature.ai.domain.model.OutputGuardResultModel
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
+import com.jarvis.chat.feature.ai.domain.repository.CodeLoopRepository
 import com.jarvis.chat.feature.ai.domain.repository.InputGuardRepository
 import com.jarvis.chat.feature.ai.domain.repository.MultiStageAiRepository
 import com.jarvis.chat.feature.ai.domain.repository.OutputGuardRepository
 import com.jarvis.chat.feature.ai.domain.usecase.CheckInputGuardUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.CheckOutputGuardUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.RunCodeLoopUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
 import com.jarvis.chat.feature.chat.domain.mapper.MAX_CONTEXT_MESSAGES
@@ -50,6 +55,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -897,6 +903,66 @@ class ChatViewModelTest {
         assertFalse(viewModel.uiState.value.isLoading)
     }
 
+    @Test
+    fun sendClicked_inCodeLoopMode_streamsStagesIntoUiModelAsTheyArrive() = runTest {
+        val eventChannel = Channel<CodeLoopStageEventModel>(Channel.UNLIMITED)
+        val runCodeLoopUseCase = RunCodeLoopUseCase(repository = ChannelCodeLoopRepository(eventChannel))
+        val inferenceModeProvider = InferenceModeProvider { InferenceModeModel.CODE_LOOP }
+        val viewModel = createViewModel(
+            runCodeLoopUseCase = runCodeLoopUseCase,
+            inferenceModeProvider = inferenceModeProvider,
+        )
+
+        viewModel.onAction(ChatAction.Ui.InputChanged("сохрани токен авторизации"))
+        viewModel.onAction(ChatAction.Ui.SendClicked)
+
+        viewModel.uiState.test {
+            suspend fun awaitStageCount(expected: Int): Int {
+                var count = 0
+                while (count < expected) {
+                    count = awaitItem().messages.lastOrNull()?.codeLoop?.stages?.size ?: 0
+                }
+                return count
+            }
+
+            eventChannel.send(codeLoopStageEvent(stage = CodeLoopStageModel.GENERATE, status = CodeLoopStatusModel.RUNNING, iteration = 1))
+            assertEquals(1, awaitStageCount(1))
+
+            eventChannel.send(codeLoopStageEvent(stage = CodeLoopStageModel.GENERATE, status = CodeLoopStatusModel.DONE, iteration = 1))
+            assertEquals(2, awaitStageCount(2))
+
+            eventChannel.send(codeLoopStageEvent(stage = CodeLoopStageModel.LINT, status = CodeLoopStatusModel.DONE, iteration = 1))
+            assertEquals(3, awaitStageCount(3))
+
+            eventChannel.send(codeLoopStageEvent(stage = CodeLoopStageModel.BUILD, status = CodeLoopStatusModel.FAILED, iteration = 1))
+            assertEquals(4, awaitStageCount(4))
+
+            eventChannel.send(codeLoopStageEvent(stage = CodeLoopStageModel.GENERATE, status = CodeLoopStatusModel.DONE, iteration = 2))
+            assertEquals(5, awaitStageCount(5))
+
+            eventChannel.send(codeLoopStageEvent(stage = CodeLoopStageModel.SECURITY, status = CodeLoopStatusModel.DONE, iteration = 2))
+            assertEquals(6, awaitStageCount(6))
+
+            eventChannel.send(
+                codeLoopStageEvent(
+                    stage = CodeLoopStageModel.COMMIT,
+                    status = CodeLoopStatusModel.DONE,
+                    iteration = 2,
+                    commit = "a1b2c3d",
+                ),
+            )
+            assertEquals(7, awaitStageCount(7))
+
+            eventChannel.send(codeLoopStageEvent(stage = CodeLoopStageModel.RESULT, status = CodeLoopStatusModel.DONE, iterationsUsed = 2))
+            eventChannel.close()
+            assertEquals(8, awaitStageCount(8))
+
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        assertTrue(viewModel.uiState.value.messages.last().text.contains("a1b2c3d"))
+    }
+
     private fun createViewModel(
         storedMessages: List<HistoryMessageModel> = emptyList(),
         chatRepository: FakeChatHistoryRepository = FakeChatHistoryRepository(),
@@ -911,13 +977,14 @@ class ChatViewModelTest {
             repository = FakeOutputGuardRepository(),
             injectionGuardSettingProvider = InjectionGuardSettingProvider { true },
         ),
+        runCodeLoopUseCase: RunCodeLoopUseCase = RunCodeLoopUseCase(repository = FakeCodeLoopRepository()),
+        inferenceModeProvider: InferenceModeProvider = InferenceModeProvider { InferenceModeModel.ONE_SHOT },
     ): ChatViewModel {
         chatRepository.stored = storedMessages
         val sendMessageStreamUseCase = SendMessageStreamUseCase(repository = aiRepository)
         val classifyMessageUseCase = koinApplication { modules(microModelModule) }.koin.get<ClassifyMessageUseCase>()
         val microModelGateSettingProvider = MicroModelGateSettingProvider { false }
         val sendMultiStageMessageUseCase = SendMultiStageMessageUseCase(repository = FakeMultiStageAiRepository())
-        val inferenceModeProvider = InferenceModeProvider { InferenceModeModel.ONE_SHOT }
         val aiProviderConfigProvider = AiProviderConfigProvider {
             AiProviderConfigModel(baseUrl = "", modelId = "", systemPrompt = "", isApiKeyRequired = false)
         }
@@ -926,6 +993,7 @@ class ChatViewModelTest {
             classifyMessageUseCase = classifyMessageUseCase,
             microModelGateSettingProvider = microModelGateSettingProvider,
             sendMultiStageMessageUseCase = sendMultiStageMessageUseCase,
+            runCodeLoopUseCase = runCodeLoopUseCase,
             inferenceModeProvider = inferenceModeProvider,
             aiProviderConfigProvider = aiProviderConfigProvider,
             checkInputGuardUseCase = checkInputGuardUseCase,
@@ -953,6 +1021,28 @@ class ChatViewModelTest {
             text = text,
             isFavorite = false,
             timestamp = TEST_TIMESTAMP,
+        )
+
+    private fun codeLoopStageEvent(
+        stage: CodeLoopStageModel,
+        status: CodeLoopStatusModel,
+        iteration: Int? = null,
+        commit: String? = null,
+        iterationsUsed: Int? = null,
+    ): CodeLoopStageEventModel =
+        CodeLoopStageEventModel(
+            stage = stage,
+            iteration = iteration,
+            status = status,
+            files = emptyList(),
+            gatewayVerdict = null,
+            errors = emptyList(),
+            findings = emptyList(),
+            commit = commit,
+            iterationsUsed = iterationsUsed,
+            securityFindings = null,
+            gatewayBlocks = null,
+            finalCode = emptyMap(),
         )
 
     private fun sessionModel(id: String): ChatSessionModel =
@@ -983,6 +1073,23 @@ class ChatViewModelTest {
 
         override suspend fun runMultiStage(caseText: String): MultiStageResultModel =
             error("not used in one-shot tests")
+    }
+
+    private class FakeCodeLoopRepository : CodeLoopRepository {
+
+        override fun runLoop(task: String, maxIterations: Int): Flow<CodeLoopStageEventModel> =
+            error("not used in one-shot tests")
+    }
+
+    private class ChannelCodeLoopRepository(
+        private val events: Channel<CodeLoopStageEventModel>,
+    ) : CodeLoopRepository {
+
+        override fun runLoop(task: String, maxIterations: Int): Flow<CodeLoopStageEventModel> = flow {
+            for (event in events) {
+                emit(event)
+            }
+        }
     }
 
     private class FakeInputGuardRepository : InputGuardRepository {

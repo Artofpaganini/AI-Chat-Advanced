@@ -1,0 +1,7 @@
+----- попытка 1/1 -----
+SEVERITY: LOW
+FILE: feature/loop_generated/src/androidMain/kotlin/com/jarvis/chat/feature/loopgenerated/LoopGeneratedApi.kt
+LINE: 10
+TITLE: Нет таймаута на сетевой запрос
+FIX: Установить таймаут на HTTP-запрос, например через HttpTimeout в Ktor-клиенте.
+

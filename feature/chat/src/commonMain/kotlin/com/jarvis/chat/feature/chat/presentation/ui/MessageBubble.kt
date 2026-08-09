@@ -36,6 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.font.FontWeight
 import com.jarvis.chat.feature.chat.presentation.model.ChatMessageUiModel
+import com.jarvis.chat.feature.chat.presentation.model.CodeLoopRunUiModel
+import com.jarvis.chat.feature.chat.presentation.model.CodeLoopStageEventUiModel
 import com.jarvis.chat.feature.chat.presentation.model.MultiStageStepUiModel
 import com.jarvis.chat.feature.chat.presentation.model.MultiStageUiModel
 import com.jarvis.chat.feature.chat.presentation.model.TriageRouteUiModel
@@ -59,6 +61,9 @@ private const val TRIAGE_CRISIS_WARNING = "Кризисная ситуация, 
 private const val MULTI_STAGE_EXPAND_LABEL = "Показать 3 этапа ▾"
 private const val MULTI_STAGE_COLLAPSE_LABEL = "Скрыть этапы ▴"
 private const val MULTI_STAGE_ERROR_PREFIX = "Ошибка: "
+private const val CODE_LOOP_EXPAND_PREFIX = "Показать "
+private const val CODE_LOOP_EXPAND_SUFFIX = " стадий ▾"
+private const val CODE_LOOP_COLLAPSE_LABEL = "Скрыть стадии ▴"
 private const val IMPORTED_UNVERIFIED_ASSISTANT_WARNING =
     "Это не ответ ассистента - сообщение взято из импортированного файла"
 
@@ -188,6 +193,9 @@ internal fun MessageBubble(
                 }
                 message.multiStage?.let { multiStage ->
                     MultiStageInfo(multiStage = multiStage)
+                }
+                message.codeLoop?.let { codeLoop ->
+                    CodeLoopInfo(codeLoop = codeLoop)
                 }
                 MessageActions(
                     message = message,
@@ -452,6 +460,58 @@ private fun MultiStageStepInfo(step: MultiStageStepUiModel, modifier: Modifier =
         step.violationLabels.forEach { violationLabel ->
             Text(
                 text = violationLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CodeLoopInfo(codeLoop: CodeLoopRunUiModel, modifier: Modifier = Modifier) {
+    var isExpanded by remember { mutableStateOf(true) }
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = if (isExpanded) {
+                CODE_LOOP_COLLAPSE_LABEL
+            } else {
+                "$CODE_LOOP_EXPAND_PREFIX${codeLoop.stages.size}$CODE_LOOP_EXPAND_SUFFIX"
+            },
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable { isExpanded = !isExpanded },
+        )
+        if (isExpanded) {
+            codeLoop.stages.forEach { stage -> CodeLoopStageInfo(stage = stage) }
+            Text(
+                text = codeLoop.summaryLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CodeLoopStageInfo(stage: CodeLoopStageEventUiModel, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.padding(vertical = ChatDimens.spacingXs)) {
+        Text(
+            text = "${stage.title}$TRIAGE_LABEL_SEPARATOR${stage.statusLabel}",
+            style = MaterialTheme.typography.labelMedium,
+            color = if (stage.isOk) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+            fontWeight = FontWeight.Bold,
+        )
+        stage.contentLines.forEach { line ->
+            Text(
+                text = line,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        stage.findingLabels.forEach { findingLabel ->
+            Text(
+                text = findingLabel,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.error,
             )

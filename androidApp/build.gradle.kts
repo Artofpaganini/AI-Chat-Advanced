@@ -21,6 +21,9 @@ val triageBaseUrl: String =
 val defaultGatewayBaseUrl = "http://10.0.2.2:8091/v1/"
 val gatewayBaseUrl: String =
     localProperties.getProperty("GATEWAY_BASE_URL") ?: defaultGatewayBaseUrl
+val defaultCodeLoopBaseUrl = "http://10.0.2.2:8092/"
+val codeLoopBaseUrl: String =
+    localProperties.getProperty("CODE_LOOP_BASE_URL") ?: defaultCodeLoopBaseUrl
 
 android {
     namespace = "com.jarvis.chat.android"
@@ -37,6 +40,7 @@ android {
         buildConfigField("String", "LOCAL_MODEL_BASE_URL", "\"$localModelBaseUrl\"")
         buildConfigField("String", "TRIAGE_BASE_URL", "\"$triageBaseUrl\"")
         buildConfigField("String", "GATEWAY_BASE_URL", "\"$gatewayBaseUrl\"")
+        buildConfigField("String", "CODE_LOOP_BASE_URL", "\"$codeLoopBaseUrl\"")
     }
 
     flavorDimensions += "environment"

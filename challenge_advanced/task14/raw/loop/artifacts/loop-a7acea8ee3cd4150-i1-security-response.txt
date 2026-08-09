@@ -1,0 +1,38 @@
+----- попытка 1/2 -----
+SEVERITY: CRITICAL
+FILE: feature/loop_generated/src/androidMain/kotlin/com/jarvis/chat/feature/loopgenerated/ApiClient.kt
+LINE: 17
+TITLE: Секрет в исходном коде (API-ключ в открытом виде)
+FIX: Удалить API_KEY из кода, передавать через local.properties -> BuildConfig -> DI, хранить в защищённом хранилище (EncryptedSharedPreferences/Keychain) и не коммитить.
+
+SEVERITY: MEDIUM
+FILE: feature/loop_generated/src/androidMain/kotlin/com/jarvis/chat/feature/loopgenerated/ApiClient.kt
+LINE: 50
+TITLE: Нет проверки входных данных перед сетевым запросом
+FIX: Добавить валидацию prompt (не null, не пусто, ограничить длину) перед отправкой.
+
+SEVERITY: LOW
+FILE: feature/loop_generated/src/androidMain/kotlin/com/jarvis/chat/feature/loopgenerated/ApiClient.kt
+LINE: 40
+TITLE: Нет таймаута на сетевой запрос
+FIX: Установить таймауты подключения и запроса в HttpClient через HttpTimeout.
+
+----- попытка 2/2 -----
+SEVERITY: CRITICAL
+FILE: feature/loop_generated/src/androidMain/kotlin/com/jarvis/chat/feature/loopgenerated/ApiClient.kt
+LINE: 17
+TITLE: Секрет API-ключа захардкожен в исходном коде
+FIX: Убрать константу API_KEY из кода, передавать ключ через BuildConfig из local.properties или защищённое хранилище, не включая в репозиторий
+---
+SEVERITY: MEDIUM
+FILE: feature/loop_generated/src/androidMain/kotlin/com/jarvis/chat/feature/loopgenerated/ApiClient.kt
+LINE: 50
+TITLE: Отсутствует проверка входных данных перед отправкой сетевого запроса
+FIX: Добавить валидацию prompt (непустота, ограничение длины) перед формированием запроса
+---
+SEVERITY: LOW
+FILE: feature/loop_generated/src/androidMain/kotlin/com/jarvis/chat/feature/loopgenerated/ApiClient.kt
+LINE: 40
+TITLE: Не настроены таймауты для HTTP-клиента
+FIX: Установить разумные таймауты на соединение и чтение в HttpClient
+

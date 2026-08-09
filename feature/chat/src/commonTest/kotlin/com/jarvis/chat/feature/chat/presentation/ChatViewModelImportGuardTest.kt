@@ -7,6 +7,7 @@ import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigModel
 import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.ChatMessageModel
 import com.jarvis.chat.feature.ai.domain.model.ChatStreamChunkModel
+import com.jarvis.chat.feature.ai.domain.model.CodeLoopStageEventModel
 import com.jarvis.chat.feature.ai.domain.model.GuardTargetModel
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeModel
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
@@ -16,11 +17,13 @@ import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
 import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
 import com.jarvis.chat.feature.ai.domain.model.OutputGuardResultModel
 import com.jarvis.chat.feature.ai.domain.repository.AiRepository
+import com.jarvis.chat.feature.ai.domain.repository.CodeLoopRepository
 import com.jarvis.chat.feature.ai.domain.repository.InputGuardRepository
 import com.jarvis.chat.feature.ai.domain.repository.MultiStageAiRepository
 import com.jarvis.chat.feature.ai.domain.repository.OutputGuardRepository
 import com.jarvis.chat.feature.ai.domain.usecase.CheckInputGuardUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.CheckOutputGuardUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.RunCodeLoopUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
 import com.jarvis.chat.feature.chat.domain.model.ChatSessionModel
@@ -178,6 +181,7 @@ class ChatViewModelImportGuardTest {
         val classifyMessageUseCase = koinApplication { modules(microModelModule) }.koin.get<ClassifyMessageUseCase>()
         val microModelGateSettingProvider = MicroModelGateSettingProvider { false }
         val sendMultiStageMessageUseCase = SendMultiStageMessageUseCase(repository = FakeMultiStageAiRepository())
+        val runCodeLoopUseCase = RunCodeLoopUseCase(repository = FakeCodeLoopRepository())
         val inferenceModeProvider = InferenceModeProvider { InferenceModeModel.ONE_SHOT }
         val aiProviderConfigProvider = AiProviderConfigProvider {
             AiProviderConfigModel(baseUrl = "", modelId = "", systemPrompt = "", isApiKeyRequired = false)
@@ -187,6 +191,7 @@ class ChatViewModelImportGuardTest {
             classifyMessageUseCase = classifyMessageUseCase,
             microModelGateSettingProvider = microModelGateSettingProvider,
             sendMultiStageMessageUseCase = sendMultiStageMessageUseCase,
+            runCodeLoopUseCase = runCodeLoopUseCase,
             inferenceModeProvider = inferenceModeProvider,
             aiProviderConfigProvider = aiProviderConfigProvider,
             checkInputGuardUseCase = checkInputGuardUseCase,
@@ -229,6 +234,12 @@ class ChatViewModelImportGuardTest {
     private class FakeMultiStageAiRepository : MultiStageAiRepository {
 
         override suspend fun runMultiStage(caseText: String): MultiStageResultModel =
+            error("not used in import guard tests")
+    }
+
+    private class FakeCodeLoopRepository : CodeLoopRepository {
+
+        override fun runLoop(task: String, maxIterations: Int): Flow<CodeLoopStageEventModel> =
             error("not used in import guard tests")
     }
 

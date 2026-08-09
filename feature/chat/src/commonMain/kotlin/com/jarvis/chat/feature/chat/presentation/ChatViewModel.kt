@@ -7,6 +7,7 @@ import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.InferenceModeProvider
 import com.jarvis.chat.feature.ai.domain.usecase.CheckInputGuardUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.CheckOutputGuardUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.RunCodeLoopUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
 import com.jarvis.chat.feature.chat.domain.model.MicroModelGateSettingProvider
@@ -35,6 +36,7 @@ internal class ChatViewModel(
     classifyMessageUseCase: ClassifyMessageUseCase,
     microModelGateSettingProvider: MicroModelGateSettingProvider,
     sendMultiStageMessageUseCase: SendMultiStageMessageUseCase,
+    runCodeLoopUseCase: RunCodeLoopUseCase,
     inferenceModeProvider: InferenceModeProvider,
     aiProviderConfigProvider: AiProviderConfigProvider,
     checkInputGuardUseCase: CheckInputGuardUseCase,
@@ -58,6 +60,7 @@ internal class ChatViewModel(
         classifyMessageUseCase = classifyMessageUseCase,
         microModelGateSettingProvider = microModelGateSettingProvider,
         sendMultiStageMessageUseCase = sendMultiStageMessageUseCase,
+        runCodeLoopUseCase = runCodeLoopUseCase,
         inferenceModeProvider = inferenceModeProvider,
         aiProviderConfigProvider = aiProviderConfigProvider,
         checkInputGuardUseCase = checkInputGuardUseCase,
@@ -137,6 +140,7 @@ internal class ChatViewModel(
                     triage = action.triage,
                     routeDecision = action.routeDecision,
                     multiStage = action.multiStage,
+                    codeLoop = action.codeLoop,
                     gatewaySignal = action.gatewaySignal,
                     gatewayOutputTruncation = action.gatewayOutputTruncation,
                 )

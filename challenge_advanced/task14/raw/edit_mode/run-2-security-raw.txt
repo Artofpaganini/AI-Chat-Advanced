@@ -1,0 +1,6 @@
+----- попытка 1/1 -----
+SEVERITY: HIGH
+FILE: feature/ai/src/commonMain/kotlin/com/jarvis/chat/feature/ai/di/AiModule.kt
+LINE: 106
+TITLE: Логирование полных тел HTTP-запросов и ответов с данными пользователя
+FIX: Замените LogLevel.ALL на LogLevel.HEADERS или LogLevel.NONE, либо отключите установку DebugAntilog в release; при необходимости логируйте только метаданные без тел сообщений.

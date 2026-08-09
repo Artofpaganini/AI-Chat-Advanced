@@ -1,0 +1,6 @@
+----- попытка 1/1 -----
+SEVERITY: HIGH
+FILE: feature/ai/src/commonMain/kotlin/com/jarvis/chat/feature/ai/di/AiModule.kt
+LINE: 106
+TITLE: Полное тело запроса и ответа с данными пользователя попадает в лог
+FIX: Установите LogLevel.HEADERS или логируйте BODY только в debug-сборках под проверкой BuildConfig.DEBUG, чтобы текст сообщений чата и ответы LLM не попадали в системный лог в релизе.

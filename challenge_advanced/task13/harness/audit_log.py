@@ -16,6 +16,15 @@ FILE_PREFIX = "gateway-"
 FILE_SUFFIX = ".jsonl"
 FILE_DATE_FORMAT = "%Y%m%d"
 
+# Значения verdict и source ниже - те же строковые константы, что gateway_server.py пишет
+# в запись журнала (spec13.GATEWAY_VERDICT_* и spec13.SOURCE_*). Дублируются как литералы,
+# а не импортом spec13, чтобы этот модуль остался про формат JSONL, а не про домен шлюза -
+# как и raw-tail/stats выше, которые тоже не знают семантику verdict, кроме этих двух строк.
+VERDICT_BLOCKED_INPUT = "blocked_input"
+VERDICT_BLOCKED_OUTPUT = "blocked_output"
+VERDICT_MASKED = "masked"
+DEFAULT_SOURCE = "chat"
+
 
 class AuditLog:
     def __init__(self, directory: str) -> None:
@@ -37,6 +46,7 @@ class AuditLog:
     def stats(self) -> Dict[str, Any]:
         records = self._read_all()
         by_verdict: Dict[str, int] = {}
+        by_source: Dict[str, Dict[str, int]] = {}
         masked_total = 0
         tokens_in_total = 0
         tokens_out_total = 0
@@ -50,10 +60,19 @@ class AuditLog:
             tokens_out_total += int(record.get("tokens_out") or 0)
             cost_total += float(record.get("cost_usd") or 0.0)
             latency_total += int(record.get("latency_ms") or 0)
+
+            source = record.get("source") or DEFAULT_SOURCE
+            source_bucket = by_source.setdefault(source, {"requests": 0, "blocked": 0, "masked": 0})
+            source_bucket["requests"] += 1
+            if verdict in (VERDICT_BLOCKED_INPUT, VERDICT_BLOCKED_OUTPUT):
+                source_bucket["blocked"] += 1
+            elif verdict == VERDICT_MASKED:
+                source_bucket["masked"] += 1
         count = len(records)
         return {
             "requests_total": count,
             "by_verdict": by_verdict,
+            "by_source": by_source,
             "masked_count_total": masked_total,
             "tokens_in_total": tokens_in_total,
             "tokens_out_total": tokens_out_total,

@@ -1,5 +1,6 @@
 package com.jarvis.chat.feature.chat.domain.model
 
+import com.jarvis.chat.feature.ai.domain.model.CodeLoopRunModel
 import com.jarvis.chat.feature.ai.domain.model.GatewayOutputTruncationModel
 import com.jarvis.chat.feature.ai.domain.model.GatewaySignalModel
 import com.jarvis.chat.feature.ai.domain.model.MessageAuthor
@@ -16,6 +17,7 @@ internal data class HistoryMessageModel(
     val triage: TriageModel? = null,
     val routeDecision: RouteDecisionModel? = null,
     val multiStage: MultiStageResultModel? = null,
+    val codeLoop: CodeLoopRunModel? = null,
     val inputGuardBlocked: Boolean = false,
     val outputGuardReasons: List<String> = emptyList(),
     val isImportedUnverifiedAssistant: Boolean = false,

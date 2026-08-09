@@ -1,0 +1,14 @@
+----- попытка 1/1 -----
+SEVERITY: MEDIUM
+FILE: feature/loop_generated/src/androidMain/kotlin/com/jarvis/chat/feature/loopgenerated/LoopGeneratedApi.kt
+LINE: 34
+TITLE: Отсутствует проверка входных данных перед отправкой
+FIX: Добавить валидацию prompt (не пустой, ограничить длину) перед отправкой запроса.
+
+---
+SEVERITY: LOW
+FILE: feature/loop_generated/src/androidMain/kotlin/com/jarvis/chat/feature/loopgenerated/LoopGeneratedApi.kt
+LINE: 25
+TITLE: Нет таймаута на сетевой запрос
+FIX: Настроить HttpTimeout в конфигурации HttpClient.
+

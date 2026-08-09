@@ -33,3 +33,8 @@ build/
 # harness runtime-мусор
 challenge_advanced/task4/harness/__pycache__/
 challenge_advanced/task4/harness/.build_task
+challenge_advanced/task14/harness/__pycache__/
+challenge_advanced/task14/harness/.build_task
+
+# песочница цикла (task14) - git-клон-в-клоне, коммит только внутри неё, в основной репозиторий не идёт
+challenge_advanced/task14/sandbox/

@@ -8,6 +8,7 @@ import com.jarvis.chat.feature.ai.di.DeepSeekDefaults
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
 import com.jarvis.chat.feature.ai.domain.model.AiException
 import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
+import com.jarvis.chat.feature.ai.domain.model.CodeLoopRunModel
 import com.jarvis.chat.feature.ai.domain.model.GatewayOutputTruncationModel
 import com.jarvis.chat.feature.ai.domain.model.GatewaySignalModel
 import com.jarvis.chat.feature.ai.domain.model.GuardTargetModel
@@ -20,6 +21,7 @@ import com.jarvis.chat.feature.ai.domain.model.OutputGuardResultModel
 import com.jarvis.chat.feature.ai.domain.model.TriageModel
 import com.jarvis.chat.feature.ai.domain.usecase.CheckInputGuardUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.CheckOutputGuardUseCase
+import com.jarvis.chat.feature.ai.domain.usecase.RunCodeLoopUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMessageStreamUseCase
 import com.jarvis.chat.feature.ai.domain.usecase.SendMultiStageMessageUseCase
 import com.jarvis.chat.feature.chat.domain.mapper.extractRouteFromAnswerText
@@ -53,6 +55,7 @@ internal class ChatReplyDelegate(
     private val classifyMessageUseCase: ClassifyMessageUseCase,
     private val microModelGateSettingProvider: MicroModelGateSettingProvider,
     private val sendMultiStageMessageUseCase: SendMultiStageMessageUseCase,
+    private val runCodeLoopUseCase: RunCodeLoopUseCase,
     private val inferenceModeProvider: InferenceModeProvider,
     private val aiProviderConfigProvider: AiProviderConfigProvider,
     private val checkInputGuardUseCase: CheckInputGuardUseCase,
@@ -64,6 +67,11 @@ internal class ChatReplyDelegate(
     private val postEvent: (ChatEvent) -> Unit,
     private val dispatch: (ChatAction) -> Unit,
 ) {
+
+    private val codeLoopDelegate = ChatCodeLoopDelegate(
+        runCodeLoopUseCase = runCodeLoopUseCase,
+        dispatch = dispatch,
+    )
 
     private val replyJobs = mutableMapOf<String, Job>()
     private val replyBuffers = mutableMapOf<String, List<HistoryMessageModel>>()
@@ -155,6 +163,7 @@ internal class ChatReplyDelegate(
         triage: TriageModel?,
         routeDecision: RouteDecisionModel? = null,
         multiStage: MultiStageResultModel? = null,
+        codeLoop: CodeLoopRunModel? = null,
         gatewaySignal: GatewaySignalModel? = null,
         gatewayOutputTruncation: GatewayOutputTruncationModel? = null,
     ) {
@@ -167,6 +176,7 @@ internal class ChatReplyDelegate(
                     triage = triage ?: message.triage,
                     routeDecision = routeDecision ?: message.routeDecision,
                     multiStage = multiStage ?: message.multiStage,
+                    codeLoop = codeLoop ?: message.codeLoop,
                     gatewaySignal = gatewaySignal ?: message.gatewaySignal,
                     gatewayOutputTruncation = gatewayOutputTruncation ?: message.gatewayOutputTruncation,
                 )
@@ -262,6 +272,8 @@ internal class ChatReplyDelegate(
                     when (inferenceModeProvider.currentMode()) {
                         InferenceModeModel.ONE_SHOT -> requestStreamReply(sessionId, assistantMessage.id, history, microResult)
                         InferenceModeModel.MULTI_STAGE -> requestMultiStageReply(sessionId, assistantMessage.id, history, microResult)
+                        InferenceModeModel.CODE_LOOP ->
+                            codeLoopDelegate.requestReply(sessionId, assistantMessage.id, history)
                     }
                 }
             } catch (cancellation: CancellationException) {

@@ -6,6 +6,7 @@ import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigModel
 import com.jarvis.chat.feature.ai.domain.model.AiProviderConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.AiProviderTypeModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekConfigModel
+import com.jarvis.chat.feature.ai.domain.model.CodeLoopConfigProvider
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelIdModel
 import com.jarvis.chat.feature.ai.domain.model.DeepSeekModelProvider
 import com.jarvis.chat.feature.ai.domain.model.GatewayConfigProvider
@@ -91,6 +92,9 @@ fun initKoin(appConfig: AppConfig) {
                 single<GatewayConfigProvider> {
                     GatewayConfigProvider { appConfig.gatewayBaseUrl.removeSuffix(GATEWAY_API_VERSION_PATH_SEGMENT) }
                 }
+                single<CodeLoopConfigProvider> {
+                    CodeLoopConfigProvider { appConfig.codeLoopBaseUrl }
+                }
                 single<DeepSeekModelProvider> {
                     val providerConfigProvider: AiProviderConfigProvider = get()
                     DeepSeekModelProvider { providerConfigProvider.currentConfig().modelId }
@@ -136,4 +140,5 @@ private fun InferenceModeModel.toAiInferenceModeModel(): AiInferenceModeModel =
     when (this) {
         InferenceModeModel.ONE_SHOT -> AiInferenceModeModel.ONE_SHOT
         InferenceModeModel.MULTI_STAGE -> AiInferenceModeModel.MULTI_STAGE
+        InferenceModeModel.CODE_LOOP -> AiInferenceModeModel.CODE_LOOP
     }

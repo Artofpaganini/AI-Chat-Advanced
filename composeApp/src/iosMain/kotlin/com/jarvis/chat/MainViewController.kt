@@ -18,6 +18,7 @@ fun mainViewController(): UIViewController {
             deepSeekBaseUrl = DEEPSEEK_BASE_URL,
             filesDirectoryPath = resolveDocumentsDirectoryPath(),
             gatewayBaseUrl = DeepSeekDefaults.GATEWAY_BASE_URL,
+            codeLoopBaseUrl = DeepSeekDefaults.CODE_LOOP_BASE_URL,
         ),
     )
     return ComposeUIViewController { App() }

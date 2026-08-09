@@ -148,6 +148,7 @@ internal class ChatUiMapper : UiMapper<ChatState, ChatUiModel> {
             triage = if (isFromUser) null else triage?.toTriageUiModel(),
             routeBadgeText = if (isFromUser) null else routeDecision?.toRouteBadgeText(triage?.route ?: multiStage?.route),
             multiStage = if (isFromUser) null else multiStage?.toMultiStageUiModel(),
+            codeLoop = if (isFromUser) null else codeLoop?.toCodeLoopRunUiModel(),
             inputGuardBadgeText = inputGuardBadgeTextOrNull(inputGuardBlocked),
             outputGuardBadgeText = outputGuardReasons.toOutputGuardBadgeTextOrNull(),
             isImportedUnverifiedAssistant = isImportedUnverifiedAssistant,

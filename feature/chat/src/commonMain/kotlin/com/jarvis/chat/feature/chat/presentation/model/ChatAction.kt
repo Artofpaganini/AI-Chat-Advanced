@@ -1,6 +1,7 @@
 package com.jarvis.chat.feature.chat.presentation.model
 
 import com.jarvis.chat.feature.ai.domain.model.AiErrorModel
+import com.jarvis.chat.feature.ai.domain.model.CodeLoopRunModel
 import com.jarvis.chat.feature.ai.domain.model.GatewayOutputTruncationModel
 import com.jarvis.chat.feature.ai.domain.model.GatewaySignalModel
 import com.jarvis.chat.feature.ai.domain.model.MultiStageResultModel
@@ -66,6 +67,7 @@ internal sealed interface ChatAction {
             val triage: TriageModel? = null,
             val routeDecision: RouteDecisionModel? = null,
             val multiStage: MultiStageResultModel? = null,
+            val codeLoop: CodeLoopRunModel? = null,
             val gatewaySignal: GatewaySignalModel? = null,
             val gatewayOutputTruncation: GatewayOutputTruncationModel? = null,
         ) : Internal

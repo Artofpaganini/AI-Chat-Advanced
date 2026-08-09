@@ -47,6 +47,7 @@ private const val MICRO_MODEL_FIRST_DESCRIPTION = "Classify messages on-device b
 private const val INFERENCE_MODE_TITLE = "Inference Mode"
 private const val INFERENCE_MODE_LABEL_ONE_SHOT = "Один запрос"
 private const val INFERENCE_MODE_LABEL_MULTI_STAGE = "Три этапа"
+private const val INFERENCE_MODE_LABEL_CODE_LOOP = "Цикл генерации кода"
 private const val INJECTION_GUARD_TITLE = "Защита от инъекций"
 private const val INJECTION_GUARD_DESCRIPTION =
     "Проверяет вход на закодированные команды и вычищает утечки из ответа"
@@ -294,4 +295,5 @@ private fun InferenceModeUiModel.toLabel(): String =
     when (this) {
         InferenceModeUiModel.ONE_SHOT -> INFERENCE_MODE_LABEL_ONE_SHOT
         InferenceModeUiModel.MULTI_STAGE -> INFERENCE_MODE_LABEL_MULTI_STAGE
+        InferenceModeUiModel.CODE_LOOP -> INFERENCE_MODE_LABEL_CODE_LOOP
     }

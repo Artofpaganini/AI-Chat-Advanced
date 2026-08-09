@@ -1,0 +1,7 @@
+----- попытка 1/1 -----
+SEVERITY: HIGH
+FILE: feature/ai/src/commonMain/kotlin/com/jarvis/chat/feature/ai/di/AiModule.kt
+LINE: 106
+TITLE: Полное тело запроса и ответа с данными пользователя пишется в лог
+FIX: Ограничить уровень логирования заголовками без тела или отключить Ktor Logging в release-сборке, либо санитизировать чувствительные поля в теле запроса/ответа.
+

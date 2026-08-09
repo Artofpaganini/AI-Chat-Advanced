@@ -15,6 +15,7 @@ fun main() {
             deepSeekBaseUrl = window.location.origin + "/",
             filesDirectoryPath = "",
             gatewayBaseUrl = DeepSeekDefaults.GATEWAY_BASE_URL,
+            codeLoopBaseUrl = DeepSeekDefaults.CODE_LOOP_BASE_URL,
         ),
     )
     ComposeViewport(document.body!!) {

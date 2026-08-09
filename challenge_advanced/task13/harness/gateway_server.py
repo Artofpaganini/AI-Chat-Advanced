@@ -38,6 +38,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -157,6 +158,23 @@ def messages_hash(text: str) -> str:
 
 def new_request_id() -> str:
     return "gw-" + uuid.uuid4().hex[:20]
+
+
+def request_source(headers: Any) -> str:
+    value = headers.get(spec13.SOURCE_HEADER)
+    if isinstance(value, str) and value.strip() in spec13.SOURCE_VALUES:
+        return value.strip()
+    return spec13.DEFAULT_SOURCE
+
+
+RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,%d}$" % spec13.RUN_ID_MAX_CHARS)
+
+
+def request_run_id(headers: Any) -> str:
+    value = headers.get(spec13.RUN_ID_HEADER)
+    if isinstance(value, str) and RUN_ID_PATTERN.match(value):
+        return value
+    return ""
 
 
 def stream_requested(payload: Dict[str, Any]) -> bool:
@@ -527,10 +545,15 @@ class GatewayHandler(BaseHTTPRequestHandler):
         settings = self.settings
         client_ip = self.client_address[0]
         request_id = new_request_id()
+        source = request_source(self.headers)
+        run_id = request_run_id(self.headers)
 
         allowed, remaining, retry_after = settings.rate_limiter.check(client_ip)
         if not allowed:
-            self.reply_rate_limited(request_id, client_ip, retry_after, settings.rate_limiter.limit_per_minute)
+            self.reply_rate_limited(
+                request_id, client_ip, retry_after, settings.rate_limiter.limit_per_minute,
+                source, run_id,
+            )
             return
 
         try:
@@ -557,7 +580,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
         if guard_result.verdict == GUARD_VERDICT_BLOCKED:
             self.reply_blocked_input(
                 request_id, model, guard_result, hash_value, client_ip,
-                rate_limit_value, remaining, started,
+                rate_limit_value, remaining, started, source, run_id,
             )
             return
 
@@ -578,6 +601,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
             self.reply_upstream_unreachable(
                 request_id, model, NO_UPSTREAM_KEY_TEXT, input_reasons, masked_count,
                 rate_limit_value, remaining, hash_value, outgoing_text, client_ip, started,
+                source, run_id,
             )
             return
 
@@ -585,15 +609,20 @@ class GatewayHandler(BaseHTTPRequestHandler):
             self.handle_stream(
                 request_id, model, outgoing_payload, outgoing_text, input_reasons,
                 masked_count, rate_limit_value, remaining, hash_value, client_ip, started,
+                source, run_id,
             )
             return
 
         self.handle_plain(
             request_id, model, outgoing_payload, outgoing_text, input_reasons,
             masked_count, rate_limit_value, remaining, hash_value, client_ip, started,
+            source, run_id,
         )
 
-    def reply_rate_limited(self, request_id: str, client_ip: str, retry_after: int, limit: int) -> None:
+    def reply_rate_limited(
+        self, request_id: str, client_ip: str, retry_after: int, limit: int,
+        source: str, run_id: str,
+    ) -> None:
         self.response_started = True
         body = json.dumps(
             {"error": {"message": RATE_LIMITED_TEXT % retry_after, "type": VERDICT_RATE_LIMITED}},
@@ -609,13 +638,14 @@ class GatewayHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
         self.write_audit(
-            request_id, client_ip, "", VERDICT_RATE_LIMITED, [], [], 0, "", "",
+            request_id, client_ip, source, run_id, "", VERDICT_RATE_LIMITED, [], [], 0, "", "",
             0, 0, 0.0, 0, None, False,
         )
 
     def reply_blocked_input(
         self, request_id: str, model: str, guard_result: Any, hash_value: str,
         client_ip: str, rate_limit: int, rate_remaining: int, started: float,
+        source: str, run_id: str,
     ) -> None:
         content = guard_result.warning_text
         body = completion_response(model, content)
@@ -625,14 +655,15 @@ class GatewayHandler(BaseHTTPRequestHandler):
             rate_limit, rate_remaining, request_id,
         )
         self.write_audit(
-            request_id, client_ip, model, VERDICT_BLOCKED_INPUT, guard_result.reasons, [],
-            0, hash_value, content[:PREVIEW_CHARS], 0, 0, 0.0, latency_ms, None, False,
+            request_id, client_ip, source, run_id, model, VERDICT_BLOCKED_INPUT,
+            guard_result.reasons, [], 0, hash_value, content[:PREVIEW_CHARS],
+            0, 0, 0.0, latency_ms, None, False,
         )
 
     def reply_upstream_unreachable(
         self, request_id: str, model: str, reason: str, input_reasons: List[str],
         masked_count: int, rate_limit: int, rate_remaining: int, hash_value: str,
-        outgoing_text: str, client_ip: str, started: float,
+        outgoing_text: str, client_ip: str, started: float, source: str, run_id: str,
     ) -> None:
         verdict = VERDICT_MASKED if masked_count else VERDICT_PASS
         body = {"error": {"message": UPSTREAM_UNREACHABLE_TEXT % reason}}
@@ -642,7 +673,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
             rate_limit, rate_remaining, request_id,
         )
         self.write_audit(
-            request_id, client_ip, model, verdict, input_reasons, [], masked_count,
+            request_id, client_ip, source, run_id, model, verdict, input_reasons, [], masked_count,
             hash_value, outgoing_text[:PREVIEW_CHARS], 0, 0, 0.0, latency_ms, None, False,
         )
 
@@ -668,7 +699,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
     def handle_plain(
         self, request_id: str, model: str, outgoing_payload: Dict[str, Any], outgoing_text: str,
         input_reasons: List[str], masked_count: int, rate_limit: int, rate_remaining: int,
-        hash_value: str, client_ip: str, started: float,
+        hash_value: str, client_ip: str, started: float, source: str, run_id: str,
     ) -> None:
         status, response, error_body = self.open_upstream(outgoing_payload)
         base_verdict = VERDICT_MASKED if masked_count else VERDICT_PASS
@@ -677,6 +708,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
             self.reply_upstream_unreachable(
                 request_id, model, "сетевая ошибка или таймаут", input_reasons, masked_count,
                 rate_limit, rate_remaining, hash_value, outgoing_text, client_ip, started,
+                source, run_id,
             )
             return
 
@@ -688,8 +720,9 @@ class GatewayHandler(BaseHTTPRequestHandler):
                 rate_limit, rate_remaining, request_id,
             )
             self.write_audit(
-                request_id, client_ip, model, base_verdict, input_reasons, [], masked_count,
-                hash_value, outgoing_text[:PREVIEW_CHARS], 0, 0, 0.0, latency_ms, status, False,
+                request_id, client_ip, source, run_id, model, base_verdict, input_reasons, [],
+                masked_count, hash_value, outgoing_text[:PREVIEW_CHARS], 0, 0, 0.0, latency_ms,
+                status, False,
             )
             return
 
@@ -726,15 +759,15 @@ class GatewayHandler(BaseHTTPRequestHandler):
             masked_count, tokens_in, tokens_out, cost_usd, rate_limit, rate_remaining, request_id,
         )
         self.write_audit(
-            request_id, client_ip, model, final_verdict, input_reasons, output_reasons,
-            masked_count, hash_value, outgoing_text[:PREVIEW_CHARS], tokens_in, tokens_out,
-            cost_usd, latency_ms, status, estimated,
+            request_id, client_ip, source, run_id, model, final_verdict, input_reasons,
+            output_reasons, masked_count, hash_value, outgoing_text[:PREVIEW_CHARS],
+            tokens_in, tokens_out, cost_usd, latency_ms, status, estimated,
         )
 
     def handle_stream(
         self, request_id: str, model: str, outgoing_payload: Dict[str, Any], outgoing_text: str,
         input_reasons: List[str], masked_count: int, rate_limit: int, rate_remaining: int,
-        hash_value: str, client_ip: str, started: float,
+        hash_value: str, client_ip: str, started: float, source: str, run_id: str,
     ) -> None:
         status, response, error_body = self.open_upstream(outgoing_payload)
         base_verdict = VERDICT_MASKED if masked_count else VERDICT_PASS
@@ -743,6 +776,7 @@ class GatewayHandler(BaseHTTPRequestHandler):
             self.reply_upstream_unreachable(
                 request_id, model, "сетевая ошибка или таймаут", input_reasons, masked_count,
                 rate_limit, rate_remaining, hash_value, outgoing_text, client_ip, started,
+                source, run_id,
             )
             return
         if status < 200 or status >= 300:
@@ -753,8 +787,9 @@ class GatewayHandler(BaseHTTPRequestHandler):
                 rate_limit, rate_remaining, request_id,
             )
             self.write_audit(
-                request_id, client_ip, model, base_verdict, input_reasons, [], masked_count,
-                hash_value, outgoing_text[:PREVIEW_CHARS], 0, 0, 0.0, latency_ms, status, False,
+                request_id, client_ip, source, run_id, model, base_verdict, input_reasons, [],
+                masked_count, hash_value, outgoing_text[:PREVIEW_CHARS], 0, 0, 0.0, latency_ms,
+                status, False,
             )
             return
 
@@ -762,17 +797,20 @@ class GatewayHandler(BaseHTTPRequestHandler):
             self.stream_incremental(
                 request_id, model, response, outgoing_text, input_reasons, masked_count,
                 base_verdict, rate_limit, rate_remaining, hash_value, client_ip, started,
+                source, run_id,
             )
         else:
             self.stream_buffer(
                 request_id, model, response, outgoing_text, input_reasons, masked_count,
                 base_verdict, rate_limit, rate_remaining, hash_value, client_ip, started,
+                source, run_id,
             )
 
     def stream_buffer(
         self, request_id: str, model: str, response: Any, outgoing_text: str,
         input_reasons: List[str], masked_count: int, base_verdict: str, rate_limit: int,
         rate_remaining: int, hash_value: str, client_ip: str, started: float,
+        source: str, run_id: str,
     ) -> None:
         pieces: List[str] = []
         for delta_text, _finish_reason, _usage in iter_upstream_deltas(response):
@@ -813,15 +851,16 @@ class GatewayHandler(BaseHTTPRequestHandler):
 
         latency_ms = int((time.time() - started) * 1000)
         self.write_audit(
-            request_id, client_ip, model, final_verdict, input_reasons, output_reasons,
-            masked_count, hash_value, outgoing_text[:PREVIEW_CHARS], tokens_in, tokens_out,
-            cost_usd, latency_ms, 200, True,
+            request_id, client_ip, source, run_id, model, final_verdict, input_reasons,
+            output_reasons, masked_count, hash_value, outgoing_text[:PREVIEW_CHARS],
+            tokens_in, tokens_out, cost_usd, latency_ms, 200, True,
         )
 
     def stream_incremental(
         self, request_id: str, model: str, response: Any, outgoing_text: str,
         input_reasons: List[str], masked_count: int, base_verdict: str, rate_limit: int,
         rate_remaining: int, hash_value: str, client_ip: str, started: float,
+        source: str, run_id: str,
     ) -> None:
         tokens_in_guess = estimate_tokens(outgoing_text)
         pieces: List[str] = []
@@ -872,13 +911,13 @@ class GatewayHandler(BaseHTTPRequestHandler):
         cost_usd = compute_cost(tokens_in, tokens_out)
         latency_ms = int((time.time() - started) * 1000)
         self.write_audit(
-            request_id, client_ip, model, final_verdict, input_reasons, output_reasons,
-            masked_count, hash_value, outgoing_text[:PREVIEW_CHARS], tokens_in, tokens_out,
-            cost_usd, latency_ms, 200, True, truncated_at_chars,
+            request_id, client_ip, source, run_id, model, final_verdict, input_reasons,
+            output_reasons, masked_count, hash_value, outgoing_text[:PREVIEW_CHARS],
+            tokens_in, tokens_out, cost_usd, latency_ms, 200, True, truncated_at_chars,
         )
 
     def write_audit(
-        self, request_id: str, client_ip: str, model: str, verdict: str,
+        self, request_id: str, client_ip: str, source: str, run_id: str, model: str, verdict: str,
         input_reasons: List[str], output_reasons: List[str], masked_count: int,
         messages_hash_value: str, prompt_preview: str, tokens_in: int, tokens_out: int,
         cost_usd: float, latency_ms: int, upstream_status: Optional[int], tokens_estimated: bool,
@@ -888,6 +927,8 @@ class GatewayHandler(BaseHTTPRequestHandler):
             "ts": time.strftime("%Y-%m-%dT%H:%M:%S"),
             "request_id": request_id,
             "client_ip": client_ip,
+            "source": source,
+            "run_id": run_id,
             "model": model,
             "verdict": verdict,
             "input_reasons": input_reasons,

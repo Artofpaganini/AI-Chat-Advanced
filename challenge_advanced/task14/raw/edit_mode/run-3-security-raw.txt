@@ -1,0 +1,6 @@
+----- попытка 1/1 -----
+SEVERITY: HIGH
+FILE: feature/ai/src/commonMain/kotlin/com/jarvis/chat/feature/ai/di/AiModule.kt
+LINE: 106
+TITLE: Логирование полного тела запросов и ответов с данными пользователя
+FIX: Установите level = LogLevel.HEADERS (без тела) или LogLevel.NONE, а DebugAntilog включайте только в debug-сборке

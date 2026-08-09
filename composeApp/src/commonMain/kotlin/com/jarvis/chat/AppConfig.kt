@@ -10,4 +10,5 @@ data class AppConfig(
     val localModelAdapterPath: String = DeepSeekDefaults.LOCAL_MODEL_ADAPTER_PATH,
     val triageBaseUrl: String = DeepSeekDefaults.TRIAGE_BASE_URL,
     val gatewayBaseUrl: String = DeepSeekDefaults.GATEWAY_BASE_URL,
+    val codeLoopBaseUrl: String = DeepSeekDefaults.CODE_LOOP_BASE_URL,
 )

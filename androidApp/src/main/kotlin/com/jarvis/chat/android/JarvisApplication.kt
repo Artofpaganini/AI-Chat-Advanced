@@ -15,6 +15,7 @@ class JarvisApplication : Application() {
             localModelBaseUrl = BuildConfig.LOCAL_MODEL_BASE_URL,
             triageBaseUrl = BuildConfig.TRIAGE_BASE_URL,
             gatewayBaseUrl = BuildConfig.GATEWAY_BASE_URL,
+            codeLoopBaseUrl = BuildConfig.CODE_LOOP_BASE_URL,
         )
         initKoin(appConfig)
     }
