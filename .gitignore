@@ -38,3 +38,4 @@ challenge_advanced/task14/harness/.build_task
 
 # песочница цикла (task14) - git-клон-в-клоне, коммит только внутри неё, в основной репозиторий не идёт
 challenge_advanced/task14/sandbox/
+challenge_advanced/task15/run/
