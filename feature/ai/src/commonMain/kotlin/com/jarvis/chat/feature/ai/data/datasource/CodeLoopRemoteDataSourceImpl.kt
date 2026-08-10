@@ -17,6 +17,7 @@ import kotlinx.serialization.json.Json
 
 private const val RUN_PATH = "loop/run"
 private const val STREAM_SOCKET_TIMEOUT_INFINITE_MILLIS = Long.MAX_VALUE
+private const val STREAM_REQUEST_TIMEOUT_INFINITE_MILLIS = Long.MAX_VALUE
 
 internal class CodeLoopRemoteDataSourceImpl(
     private val httpClient: HttpClient,
@@ -29,7 +30,10 @@ internal class CodeLoopRemoteDataSourceImpl(
         httpClient.preparePost(codeLoopConfigProvider.currentRootUrl() + RUN_PATH) {
             contentType(ContentType.Application.Json)
             setBody(requestBody)
-            timeout { socketTimeoutMillis = STREAM_SOCKET_TIMEOUT_INFINITE_MILLIS }
+            timeout {
+                socketTimeoutMillis = STREAM_SOCKET_TIMEOUT_INFINITE_MILLIS
+                requestTimeoutMillis = STREAM_REQUEST_TIMEOUT_INFINITE_MILLIS
+            }
         }.execute { response ->
             emitAll(codeLoopStageEventFlow(channel = response.bodyAsChannel(), json = json))
         }
