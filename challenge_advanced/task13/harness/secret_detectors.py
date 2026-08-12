@@ -32,8 +32,12 @@ JWT_TOKEN_PATTERN (три части через точку, точка не вх
 
 import base64
 import binascii
+import codecs
+import gzip
+import html
 import re
 import urllib.parse
+import zlib
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
@@ -439,6 +443,105 @@ def _scan_email_phone(text: str, findings: List[Finding], claimed: List[Tuple[in
             _add(findings, claimed, spec13.DETECTOR_PHONE, match.start(), match.end())
 
 
+BASE32_CANDIDATE_PATTERN = re.compile(r"(?<![A-Za-z2-7])[A-Za-z2-7]{24,}={0,6}(?![A-Za-z2-7])")
+CHR_SEQUENCE_PATTERN = re.compile(r"(?:chr\(\s*\d{1,3}\s*\)\s*(?:\+|,)?\s*){6,}")
+SEP_HEX_PATTERN = re.compile(r"(?<![0-9A-Fa-f])(?:[0-9A-Fa-f]{2}[\s:\-]){11,}[0-9A-Fa-f]{2}(?![0-9A-Fa-f])")
+
+
+def _gunzip_or_inflate(raw: bytes) -> Optional[str]:
+    for opener in (
+        lambda b: gzip.decompress(b),
+        lambda b: zlib.decompress(b),
+        lambda b: zlib.decompress(b, -zlib.MAX_WBITS),
+    ):
+        try:
+            return opener(raw).decode("utf-8")
+        except Exception:
+            continue
+    return None
+
+
+def _encoded_views(text: str) -> List[str]:
+    """Дополнительные представления текста: если внутри спрятан секрет, декод его вскроет.
+    Находка ставится только когда декодированное содержит реальный секрет - ложные почти исключены."""
+    views: List[str] = []
+
+    # base64/hex с пробелами и разделителями внутри: снимаем разрядку и пересканируем декод
+    stripped = re.sub(r"\s+", "", text)
+    if stripped and stripped != text:
+        views.append(stripped)
+
+    # ROT13
+    try:
+        views.append(codecs.decode(text, "rot_13"))
+    except Exception:
+        pass
+
+    # \uXXXX / \xXX escape-последовательности как литеральный текст
+    if "\\u" in text or "\\x" in text:
+        try:
+            views.append(text.encode("utf-8", "ignore").decode("unicode_escape"))
+        except Exception:
+            pass
+
+    # HTML-сущности &#NN; и именованные
+    if "&#" in text or "&" in text:
+        try:
+            unescaped = html.unescape(text)
+            if unescaped != text:
+                views.append(unescaped)
+        except Exception:
+            pass
+
+    # склейка chr(115)+chr(107)+...
+    for match in CHR_SEQUENCE_PATTERN.finditer(text):
+        codes = re.findall(r"chr\(\s*(\d{1,3})\s*\)", match.group())
+        try:
+            views.append("".join(chr(int(code)) for code in codes))
+        except (ValueError, OverflowError):
+            continue
+
+    # base32
+    for match in BASE32_CANDIDATE_PATTERN.finditer(text):
+        blob = match.group().upper()
+        pad = "=" * (-len(blob) % 8)
+        try:
+            decoded = base64.b32decode(blob + pad, casefold=True).decode("utf-8")
+            views.append(decoded)
+        except Exception:
+            continue
+
+    # hex с разделителями (73:6b:... или 73 6b ...)
+    for match in SEP_HEX_PATTERN.finditer(text):
+        hexed = re.sub(r"[^0-9A-Fa-f]", "", match.group())
+        decoded = _try_hex_decode(hexed)
+        if decoded is not None:
+            views.append(decoded)
+
+    # base64 -> gzip/zlib байты внутри
+    for match in BASE64_CANDIDATE_PATTERN.finditer(stripped or text):
+        blob = match.group()
+        padded = blob + "=" * (-len(blob) % 4)
+        try:
+            raw = base64.b64decode(padded, validate=True)
+        except (binascii.Error, ValueError):
+            continue
+        inflated = _gunzip_or_inflate(raw)
+        if inflated is not None:
+            views.append(inflated)
+
+    return views
+
+
+def _scan_encoded_views(text: str, findings: List[Finding], claimed: List[Tuple[int, int]]) -> None:
+    if _overlaps(0, len(text), claimed):
+        return
+    for view in _encoded_views(text):
+        if _decoded_text_has_secret(view, 1):
+            _add(findings, claimed, spec13.DETECTOR_BASE64_SECRET, 0, len(text))
+            return
+
+
 def scan_secrets(text: str) -> List[Finding]:
     if not text:
         return []
@@ -452,6 +555,7 @@ def scan_secrets(text: str) -> List[Finding]:
     _scan_url_encoded(text, findings, claimed)
     _scan_card(text, findings, claimed)
     _scan_email_phone(text, findings, claimed)
+    _scan_encoded_views(text, findings, claimed)
     findings.sort(key=lambda finding: finding.start)
     return findings
 
