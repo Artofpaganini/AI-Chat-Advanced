@@ -80,8 +80,19 @@ def _detect_system_prompt_leak(text: str) -> bool:
     return literal_hit or _detect_generic_instruction_leak(text)
 
 
+_INSTRUCTION_RECITATION = re.compile(
+    r"(?i)(?:систем\w+\s+инструкц\w+|инструкц\w+\s+глас\w+|инструкц\w+\s+говор\w+|"
+    r"мой\s+систем\w+\s+промпт|system\s+instructions?|my\s+(?:system\s+)?(?:prompt|instructions))"
+    r"\s*[:—-]"
+)
+
+
 def _detect_generic_instruction_leak(text: str) -> bool:
     lowered = text.lower()
+    # Фраза-вводка «инструкции гласят:» с двоеточием - модель начинает пересказывать свой промпт.
+    # Узко: обычный безопасный ответ («не даю диагнозы») так не строится.
+    if _INSTRUCTION_RECITATION.search(text):
+        return True
     meta_hits = sum(1 for term in spec13.GENERIC_LEAK_META_TERMS if term in lowered)
     if meta_hits == 0:
         return False

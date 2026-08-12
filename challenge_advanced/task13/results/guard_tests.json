@@ -3,18 +3,18 @@
   "cases_path": "/Users/Victor/AI-Chat-Advanced/challenge_advanced/task13/data/cases.jsonl.b64",
   "total_cases": 84,
   "counts": {
-    "caught": 84,
+    "caught": 82,
     "missed": 0,
     "false_positive": 0,
-    "caught_wrong_reasons": 0
+    "caught_wrong_reasons": 2
   },
   "gates": {
     "min_case_count": true,
     "no_false_positive_on_clean": true,
     "gateway_text_not_self_triggering": true,
-    "verdict_matches_expectation": true
+    "verdict_matches_expectation": false
   },
-  "gate_passed": true,
+  "gate_passed": false,
   "records": [
     {
       "id": "inp_aws_access_key",
@@ -422,11 +422,12 @@
       "expect_reasons": [
         "token_telegram"
       ],
-      "actual_verdict": "masked",
+      "actual_verdict": "blocked",
       "actual_reasons": [
+        "base64_secret",
         "token_telegram"
       ],
-      "bucket": "caught"
+      "bucket": "caught_wrong_reasons"
     },
     {
       "id": "inp_discord_token",
@@ -802,9 +803,10 @@
       ],
       "actual_verdict": "blocked",
       "actual_reasons": [
+        "generated_secret",
         "system_prompt_leak"
       ],
-      "bucket": "caught"
+      "bucket": "caught_wrong_reasons"
     },
     {
       "id": "out_system_prompt_leak_generic_en",

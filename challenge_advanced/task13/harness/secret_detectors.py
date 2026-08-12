@@ -533,6 +533,62 @@ def _encoded_views(text: str) -> List[str]:
     return views
 
 
+_WORD_AT = re.compile(r"(?i)\s+(?:@|at|собака|эт)\s+")
+_WORD_DOT = re.compile(r"(?i)\s+(?:dot|точка)\s+")
+_TOKENISH = re.compile(r"[A-Za-z0-9Ѐ-ӿ][A-Za-z0-9._\-Ѐ-ӿ]{11,}")
+_DIGIT_CONFUSABLE = {"О": "0", "о": "0", "O": "0", "o": "0", "l": "1", "I": "1", "|": "1"}
+_SPACED_DIGITS = re.compile(r"\d(?:[ \-]?\d){12,20}")
+# каждая цифра отделена разделителем - так пишут только чтобы спрятать карту, ловим без Luhn
+_FULLY_SEPARATED_DIGITS = re.compile(r"\d(?:[ \-]\d){12,18}")
+
+
+def _scan_word_email(text: str, findings: List[Finding], claimed: List[Tuple[int, int]]) -> None:
+    view = _WORD_DOT.sub(".", _WORD_AT.sub("@", text))
+    if view == text:
+        return
+    for _ in EMAIL_PATTERN.finditer(view):
+        if _overlaps(0, len(text), claimed):
+            return
+        _add(findings, claimed, spec13.DETECTOR_EMAIL, 0, len(text))
+        return
+
+
+def _scan_mixed_alphabet(text: str, findings: List[Finding], claimed: List[Tuple[int, int]]) -> None:
+    """Длинный токен, где кириллические двойники смешаны с латиницей - так пишут только чтобы
+    обойти детектор. Легальные ключи не мешают алфавиты."""
+    for match in _TOKENISH.finditer(text):
+        token = match.group()
+        if not any("Ѐ" <= ch <= "ӿ" for ch in token):
+            continue
+        normalized = _normalize_confusables(token)
+        has_latin = any("a" <= ch.lower() <= "z" for ch in normalized)
+        has_marker = any(ch.isdigit() for ch in token) or "-" in token or "_" in token
+        if has_latin and has_marker:
+            if _overlaps(match.start(), match.end(), claimed):
+                continue
+            _add(findings, claimed, spec13.DETECTOR_BASE64_SECRET, match.start(), match.end())
+
+
+def _scan_spaced_card(text: str, findings: List[Finding], claimed: List[Tuple[int, int]]) -> None:
+    """Карта, разбитая пробелами, и/или с кириллическими О вместо 0, и/или записанная задом наперёд."""
+    normalized = "".join(_DIGIT_CONFUSABLE.get(ch, ch) for ch in text)
+    for view in (normalized, normalized[::-1]):
+        for match in _SPACED_DIGITS.finditer(view):
+            digits = NON_DIGIT_PATTERN.sub("", match.group())
+            if 13 <= len(digits) <= 19 and luhn_valid(digits):
+                if _overlaps(0, len(text), claimed):
+                    return
+                _add(findings, claimed, spec13.DETECTOR_CARD, 0, len(text))
+                return
+    for match in _FULLY_SEPARATED_DIGITS.finditer(normalized):
+        digits = NON_DIGIT_PATTERN.sub("", match.group())
+        if 13 <= len(digits) <= 19:
+            if _overlaps(0, len(text), claimed):
+                return
+            _add(findings, claimed, spec13.DETECTOR_CARD, 0, len(text))
+            return
+
+
 def _scan_encoded_views(text: str, findings: List[Finding], claimed: List[Tuple[int, int]]) -> None:
     if _overlaps(0, len(text), claimed):
         return
@@ -555,6 +611,9 @@ def scan_secrets(text: str) -> List[Finding]:
     _scan_url_encoded(text, findings, claimed)
     _scan_card(text, findings, claimed)
     _scan_email_phone(text, findings, claimed)
+    _scan_word_email(text, findings, claimed)
+    _scan_mixed_alphabet(text, findings, claimed)
+    _scan_spaced_card(text, findings, claimed)
     _scan_encoded_views(text, findings, claimed)
     findings.sort(key=lambda finding: finding.start)
     return findings
